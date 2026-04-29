@@ -172,7 +172,7 @@ If you publish your adaptation, please attribute back to this repo!
 
 ## Acknowledgements
 
-Many thanks to the following people for sharing materials: Sam Asher, Scott Cunningham, Alex Hoagland, Nick Huntington-Klein, Laura Lufray, Fintan Nagle, Simon Quinn, Nicola Rennie, and Shuang Zhang.
+Many thanks to the following people for sharing materials: Sam Asher, Scott Cunningham, Alex Hoagland, Nick Huntington-Klein, Laura Lufray, Fintan Nagle, Simon Quinn, Nicola Rennie, and Shuang Zhang. This course draws especially heavily on Nick Huntington-Klein's existing courses.
 
 ## License
 
