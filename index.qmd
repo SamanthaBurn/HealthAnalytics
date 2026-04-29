@@ -68,7 +68,6 @@ To work with the course materials:
 
 1. Install R from [https://www.r-project.org/](https://www.r-project.org/)
 2. Install RStudio from [https://posit.co/download/rstudio-desktop/](https://posit.co/download/rstudio-desktop/)
-3. Clone the course repository or download the course files
-4. Open the `.Rproj` file in RStudio to get started
+3. Clone the whole course repository or download the course files individually
 
 Each exercise and tutorial is a self-contained R Markdown file that you can open and run directly in RStudio.
