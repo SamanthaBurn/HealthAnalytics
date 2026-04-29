@@ -83,10 +83,11 @@ The course is built with [Quarto](https://quarto.org/), an open-source publishin
 | Tool | Why |
 |---|---|
 | **R** (≥ 4.0) | To run the code chunks |
-| **RStudio** | Best editor for both `.qmd` (lectures) and `.Rmd` (exercises) |
-| **Quarto** (≥ 1.4) | To render lectures from `.qmd` source. [Download here](https://quarto.org/docs/get-started/) |
+| **RStudio** (2022.07 or newer) | Best editor for both `.qmd` (lectures) and `.Rmd` (exercises). Recent versions of RStudio ship with Quarto bundled, so a separate Quarto install is usually unnecessary. |
 | **TinyTeX** (optional) | If you want to render exercises to PDF. Install once with `quarto install tinytex` |
 | **Git** | To clone, commit, and push changes |
+
+If you'd prefer not to use RStudio, **VS Code** with the [Quarto extension](https://marketplace.visualstudio.com/items?itemName=quarto.quarto) also works well. You can also install Quarto standalone from [quarto.org](https://quarto.org/docs/get-started/) if you want the latest version separate from whatever ships with RStudio.
 
 A short Quarto orientation if you're new to it: [quarto.org/docs/get-started/hello/rstudio.html](https://quarto.org/docs/get-started/hello/rstudio.html). 
 
