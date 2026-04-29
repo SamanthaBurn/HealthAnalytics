@@ -76,7 +76,7 @@ install.packages(c(
 
 ## For instructors
 
-These materials are CC-licensed and free to adapt. The whole course is built with [Quarto](https://quarto.org/), an open-source publishing system that mixes prose, code, and rendered output.
+The course is built with [Quarto](https://quarto.org/), an open-source publishing system that mixes text, code, and output.
 
 ### Software you'll need
 
@@ -88,7 +88,7 @@ These materials are CC-licensed and free to adapt. The whole course is built wit
 | **TinyTeX** (optional) | If you want to render exercises to PDF. Install once with `quarto install tinytex` |
 | **Git** | To clone, commit, and push changes |
 
-A short Quarto orientation if you're new to it: [quarto.org/docs/get-started/hello/rstudio.html](https://quarto.org/docs/get-started/hello/rstudio.html). The 15-minute "Tour" page on that site is genuinely enough to get going.
+A short Quarto orientation if you're new to it: [quarto.org/docs/get-started/hello/rstudio.html](https://quarto.org/docs/get-started/hello/rstudio.html). 
 
 ### How everything is organised
 
@@ -174,7 +174,7 @@ Common starting points:
 - Drop or add lectures by editing `lectures/`, the navbar in `_quarto.yml`, and the table in `index.qmd`.
 - Swap data sources in the exercises — most use NHANES (via the `NHANES` R package) or IPUMS NHIS extracts. The IPUMS workflow is documented in `tutorials/02_eda_ipums/ipums_howto.pdf`.
 
-If you publish your adaptation, an attribution back to this repo is appreciated but not required.
+If you publish your adaptation, please attribute back to this repo!
 
 ---
 
