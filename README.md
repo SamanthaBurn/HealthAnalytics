@@ -87,7 +87,7 @@ The course is built with [Quarto](https://quarto.org/), an open-source publishin
 | **TinyTeX** (optional) | If you want to render exercises to PDF. Install once with `quarto install tinytex` |
 | **Git** | To clone, commit, and push changes |
 
-If you'd prefer not to use RStudio, **VS Code** with the [Quarto extension](https://marketplace.visualstudio.com/items?itemName=quarto.quarto) also works well. You can also install Quarto standalone from [quarto.org](https://quarto.org/docs/get-started/) if you want the latest version separate from whatever ships with RStudio.
+If you'd prefer not to use RStudio, **VS Code** with the [Quarto extension](https://marketplace.visualstudio.com/items?itemName=quarto.quarto) also works well. 
 
 A short Quarto orientation if you're new to it: [quarto.org/docs/get-started/hello/rstudio.html](https://quarto.org/docs/get-started/hello/rstudio.html). 
 
@@ -103,18 +103,12 @@ A short Quarto orientation if you're new to it: [quarto.org/docs/get-started/hel
 
 ### How to edit and re-render
 
-**Editing slides (lectures):**
+**Editing lectures:**
 
 1. Open `lectures/health_analytics_NN_topic.qmd` in RStudio.
-2. Edit. Slides are separated by `## Slide title`. Bullets reveal incrementally; code chunks should be wrapped in `::: {.fragment}` so they appear after the bullets.
+2. Edit. 
 3. Render with the RStudio "Render" button, or in terminal: `quarto render lectures/health_analytics_NN_topic.qmd`.
 4. Output goes into `docs/lectures/`.
-
-**Editing exercises:**
-
-1. Open `exercises/health_analytics_NN_topic.Rmd`.
-2. Edit. If you change the question structure, mirror the change in the `_solutions.Rmd` file too.
-3. To preview: click *Knit* in RStudio (defaults to HTML).
 
 **Rebuilding the whole site:**
 
@@ -168,12 +162,9 @@ Then **Knit** offers both options.
 
 ### Adapting for your own course
 
-Common starting points:
-
 - Change `_quarto.yml` `website.title` and the navbar entries.
 - Replace `lectures/burn_slides.css` (or theme via `theme:` in each lecture's YAML) for different visual styling.
 - Drop or add lectures by editing `lectures/`, the navbar in `_quarto.yml`, and the table in `index.qmd`.
-- Swap data sources in the exercises — most use NHANES (via the `NHANES` R package) or IPUMS NHIS extracts. The IPUMS workflow is documented in `tutorials/02_eda_ipums/ipums_howto.pdf`.
 
 If you publish your adaptation, please attribute back to this repo!
 
@@ -181,7 +172,7 @@ If you publish your adaptation, please attribute back to this repo!
 
 ## Acknowledgements
 
-Many thanks to the following people for sharing materials: Sam Asher, Scott Cunningham, Alex Hoagland, Nick Huntington-Klein, Laura Lufray, Fintan Nagle, Simon Quinn, Nicola Rennie, and Shuang Zhang.
+Many thanks to the following people for sharing materials: Sam Asher, Scott Cunningham, Alex Hoagland, Nick Huntington-Klein, Laura Lufray, Fintan Nagle, Simon Quinn, Nicola Rennie, and Shuang Zhang. This course draws especially heavily on Nick Huntington-Klein's existing courses.
 
 ## License
 
