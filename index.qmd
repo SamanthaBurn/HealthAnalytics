@@ -5,8 +5,6 @@ format:
     toc: true
 ---
 
-[{{< bi github >}} View source on GitHub](https://github.com/SamanthaBurn/HealthAnalytics){.btn .btn-outline-dark .btn-sm}
-
 ## Course Overview
 
 This course provides an introduction to health analytics using R. Health analytics combines statistical methods and computational tools to analyze health data and answer critical questions about population health, treatment effectiveness, and health disparities.
@@ -19,11 +17,6 @@ By the end of this course, you will be equipped to conduct your own health analy
 
 ### Lectures
 
-<<<<<<< HEAD
-The course consists of nine core lectures that build progressively from foundational concepts to advanced methods:
-
-=======
->>>>>>> 05452452e9b9ed13904cc48cb802480c2a31b23d
 | # | Topic | Slides | Exercise | Solutions |
 |---|-------|--------|----------|-----------|
 | 1 | Introduction to Health Data & R | [Slides](lectures/health_analytics_01_intro.qmd) | [Rmd](exercises/health_analytics_01_intro.Rmd) | [Rmd](exercises/health_analytics_01_intro_solutions.Rmd) |
@@ -35,10 +28,7 @@ The course consists of nine core lectures that build progressively from foundati
 | 7 | Fixed Effects & Difference-in-Differences | [Slides](lectures/health_analytics_07_fe_dd.qmd) | [Rmd](exercises/health_analytics_07_fe_dd.Rmd) | [Rmd](exercises/health_analytics_07_fe_dd_solutions.Rmd) |
 | 8 | Limited Dependent Variables | [Slides](lectures/health_analytics_08_ldvs.qmd) | [Rmd](exercises/health_analytics_08_limited_depvars.Rmd) | [Rmd](exercises/health_analytics_08_limited_depvars_solutions.Rmd) |
 | 9 | Machine Learning | [Slides](lectures/health_analytics_09_ml.qmd) | [Rmd](exercises/health_analytics_09_ml.Rmd) | [Rmd](exercises/health_analytics_09_ml_solutions.Rmd) |
-<<<<<<< HEAD
-=======
 | 10 | Course Review | - | — | — |
->>>>>>> 05452452e9b9ed13904cc48cb802480c2a31b23d
 
 Slide links open in your browser; `Rmd` links download the source — open in RStudio to work through.
 
