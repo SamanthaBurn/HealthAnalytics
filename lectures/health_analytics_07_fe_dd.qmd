@@ -1,0 +1,973 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Panel data: Difference-in-Differences and Fixed Effects"
+author: "Dr. Sam Burn"
+format:
+  revealjs:
+    theme: simple
+    html-math-method: katex
+    css: burn_slides.css
+    slide-number: true
+    incremental: true
+    transition: fade
+    width: 1600
+    height: 900
+    toc: false
+    toc-depth: 1
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(gganimate)
+library(estimatr)
+library(magick)
+library(dagitty)
+library(ggthemes)
+library(directlabels)
+library(ggdag)
+library(ggpubr)
+library(fixest)
+library(modelsummary)
+library(jtools)
+library(scales)
+library(cowplot)
+library(gapminder)
+theme_metro <- function(x) {
+  theme_classic() + 
+  theme(panel.background = element_rect(color = '#FAFAFA',fill='#FAFAFA'),
+        plot.background = element_rect(color = '#FAFAFA',fill='#FAFAFA'),
+        text = element_text(size = 16),
+        axis.title.x = element_text(hjust = 1),
+        axis.title.y = element_text(hjust = 1, angle = 0))
+}
+theme_void_metro <- function(x) {
+  theme_void() + 
+  theme(panel.background = element_rect(color = '#FAFAFA',fill='#FAFAFA'),
+        plot.background = element_rect(color = '#FAFAFA',fill='#FAFAFA'),
+        text = element_text(size = 16))
+}
+theme_metro_regtitle <- function(x) {
+  theme_classic() + 
+  theme(panel.background = element_rect(color = '#FAFAFA',fill='#FAFAFA'),
+        plot.background = element_rect(color = '#FAFAFA',fill='#FAFAFA'),
+        text = element_text(size = 16))
+}
+```
+
+## Course road map
+
+| Lecture | Topic |
+| --- | --- |
+| 1 | Introduction to health data & R |
+| 2 | Data visualization |
+| 3 | Data wrangling & exploratory data analysis |
+| 4 | Causal inference |
+| 5 | Linear regression |
+| 6 | Linear regression: uncertainty & hypothesis testing |
+| [**7**]{style="color: #C8102E"} | [**Panel data: difference-in-differences & fixed effects**]{style="color: #C8102E"} |
+| 8 | Limited dependent variables: LPM, logit, probit |
+| 9 | Introduction to machine learning for health analytics |
+| 10 | Course review |
+
+## The health analytics pipeline
+
+::: {.centered-fig .nonincremental}
+![](images/lec01_slide11_a.png){width="80%"}
+:::
+
+## Today
+
+-   Why unobserved heterogeneity is a problem
+-   Fixed effects
+-   Difference-in-differences (DiD)
+-   Assumptions, diagnostics, and pitfalls
+-   Implementation in R
+
+## Motivation: the core problem
+
+-   In health analytics, we often compare:
+    -   People
+    -   Hospitals
+    -   Regions
+    -   Countries
+-   These units differ in ways we cannot fully observe:
+    -   Patients differ in baseline health and preferences
+    -   Hospitals differ in quality and organisation
+    -   Regions / countries differ in institutions, resources, culture,
+        history
+-   These differences are often:
+    -   Persistent
+    -   Hard or impossible to measure
+-   If we can't observe or measure these differences, how can we control
+    for them?
+
+## Working example: GDP per capita and life expectancy
+
+-   Suppose we observe outcomes for countries $i$ over time $t$.
+-   We are interested in the effect of some variable $X_{it}$ (e.g. GDP
+    per capita) on an outcome $Y_{it}$ (e.g. life expectancy).
+-   Suppose the true data-generating process is: $$
+    Y_{it} = \alpha + \beta X_{it} + U_i + \varepsilon_{it}
+    $$
+-   where:
+    -   $X_{it}$ is GDP per capita
+    -   $U_i$ is an unobserved, time-invariant country characteristic\
+        (institutions, geography, culture)
+    -   $\varepsilon_{it}$ is a transitory shock
+-   We care about the causal effect $\beta$.
+
+## Why pooled OLS is biased
+
+-   If we ignore $U_i$ and estimate: $$
+    Y_{it} = \widetilde{\alpha} + \widetilde{\beta}X_{it} + e_{it}
+    $$
+-   where the composite error term is: $$
+    e_{it} = U_i + \varepsilon_{it}
+    $$
+-   Then: $$
+    \mathbb{E}[\widetilde\beta]
+    = \beta + \frac{\text{Cov}(X_{it}, U_i)}{\text{Var}(X_{it})}
+    $$
+
+## A strategy: compare countries to themselves
+
+-   One way to address this problem:
+    -   Compare outcomes **within countries**
+    -   Rather than across countries
+-   Key idea: If we can difference out what makes countries persistently
+    different, we reduce bias
+-   This is the logic behind **fixed effects**.
+-   Fixed effects control for:
+    -   All unobserved characteristics
+    -   That are constant **within a country**
+-   Examples:
+    -   Geography
+    -   Long-run institutional quality
+    -   Deep cultural factors
+
+# Fixed effects estimation
+
+## Fixed effects estimation
+
+-   With repeated observations for each country, estimate: $$
+    Y_{it} = \alpha_i + \beta X_{it} + \varepsilon_{it}
+    $$
+-   where $\alpha_i$ is a **country fixed effect**
+-   In practice, this means:
+    -   A separate intercept for each country
+    -   Equivalently, a set of country dummy variables
+-   $\alpha_i$ absorbs all unobserved, time-invariant country
+    characteristics $U_i$
+-   Equivalent to regressing "demeaned" $Y$ on "demeaned" $X$
+    $$Y_{it} - \overline{Y}_i= \beta(X_{it} - \overline{X}_i)+\varepsilon_{it}-\overline{\varepsilon}_{i}$$
+-   Regression uses only **within-country changes over time**
+
+## Graphical illustration: pooled OLS
+
+::: {.fragment}
+```{r}
+#| echo: false
+data(gapminder)
+
+gapminder_sub <- gapminder %>%
+  dplyr::filter(country %in% c("India", "Brazil"),
+                year > 1940)
+
+# Pooled OLS
+m_pool <- lm(lifeExp ~ log(gdpPercap), data = gapminder_sub)
+b_pool <- coef(m_pool)
+
+# Label locations with vertical nudges
+country_labels <- gapminder_sub %>%
+  dplyr::group_by(country) %>%
+  dplyr::summarise(
+    gdpPercap = median(gdpPercap),
+    lifeExp   = median(lifeExp),
+    .groups   = "drop"
+  ) %>%
+  dplyr::mutate(
+    lifeExp = dplyr::case_when(
+      country == "India"  ~ lifeExp + 4,   # nudge up
+      country == "Brazil" ~ lifeExp - 4,   # nudge down
+      TRUE ~ lifeExp
+    )
+  )
+
+ggplot(gapminder_sub,
+       aes(x = gdpPercap, y = lifeExp, color = country, label = year)) +
+  geom_text() +
+  scale_x_log10() +
+  scale_y_continuous(limits = c(20, 90)) +
+  labs(
+    x = "GDP per capita (log scale)",
+    y = "Life expectancy"
+  ) +
+  guides(color = "none") +
+  geom_text(
+    data = country_labels,
+    aes(label = country),
+    fontface = "bold",
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(x) b_pool[1] + b_pool[2] * log(x),
+    color = "black",
+    linetype = "dashed"
+  )
+```
+:::
+
+## Graphical illustration: country fixed effects
+
+::: {.fragment}
+```{r}
+#| echo: false
+gapminder_sub <- gapminder %>%
+  dplyr::filter(country %in% c("India", "Brazil"),
+                year > 1940)
+
+# FE model: different intercepts by country, common slope
+m_fe <- lm(lifeExp ~ factor(country) + log(gdpPercap), data = gapminder_sub)
+b <- coef(m_fe)
+
+# Compute country-specific intercepts implied by factor coding
+# Baseline country is the first level of factor(country)
+base_cty <- levels(factor(gapminder_sub$country))[1]
+int_base <- b["(Intercept)"]
+int_india <- if ("factor(country)India" %in% names(b)) int_base + b["factor(country)India"] else int_base
+int_brazil <- if ("factor(country)Brazil" %in% names(b)) int_base + b["factor(country)Brazil"] else int_base
+slope <- b["log(gdpPercap)"]
+
+# Label locations (median points), so no manual colours needed
+country_labels <- gapminder_sub %>%
+  dplyr::group_by(country) %>%
+  dplyr::summarise(
+    gdpPercap = median(gdpPercap),
+    lifeExp   = median(lifeExp),
+    .groups   = "drop"
+  ) %>%
+  dplyr::mutate(
+    lifeExp = dplyr::case_when(
+      country == "India"  ~ lifeExp + 8,   # nudge up
+      country == "Brazil" ~ lifeExp - 8,   # nudge down
+      TRUE ~ lifeExp
+    )
+  )
+p <- ggplot(gapminder_sub,
+            aes(x = gdpPercap, y = lifeExp, color = country, label = year)) +
+  geom_text() +
+  scale_x_log10() +
+  scale_y_continuous(limits = c(20, 90)) +
+  labs(x = "GDP per capita (log scale)",
+       y = "Life expectancy") +
+  guides(color = "none") +
+  geom_text(data = country_labels,
+            aes(label = country),
+            fontface = "bold",
+            show.legend = FALSE)
+
+# Add FE lines using stat_function (two intercepts, same slope)
+# We map the line colours by taking the default palette from the plot build
+gb <- ggplot_build(p)
+pal <- gb$plot$scales$get_scales("colour")$palette(2)
+names(pal) <- sort(unique(gapminder_sub$country))
+
+p +
+  stat_function(fun = function(x) int_india  + slope * log(x),
+                color = pal["India"]) +
+  stat_function(fun = function(x) int_brazil + slope * log(x),
+                color = pal["Brazil"])
+
+```
+:::
+
+## Implementing fixed effects in R: pooled regression
+
+-   **Pooled regression:** $\text{lifeExp}_{it}=\alpha + \beta \log (\text{gdpPercap}_{it}) + \varepsilon_{it}$
+
+::: {.fragment}
+```{r}
+m_pooled <- feols(lifeExp ~ log(gdpPercap), data = gapminder, vcov = ~country)
+etable(m_pooled)
+```
+:::
+
+-   10% increase in GDP per capita associated with $\approx$ 0.84
+    additional years of life expectancy
+
+## Implementing fixed effects in R: with country FE
+
+-   **Regression with country FE:** $\text{lifeExp}_{it}=\alpha_i + \beta \log (\text{gdpPercap}_{it}) + \varepsilon_{it}$
+
+::: {.fragment}
+```{r}
+m_countryfe <- feols(lifeExp ~ log(gdpPercap) | country, data = gapminder, vcov = ~country)
+etable(m_countryfe)
+```
+:::
+
+-   Within country, a 10% increase in GDP per capita is associated with
+    $\approx$ 0.98 additional years of life expectancy
+
+## When is the fixed effects estimator unbiased?
+
+-   The FE estimator satisfies: $$
+    E[\widehat{\beta}_{\text{FE}} \mid X_{it}]
+    = \beta
+    $$
+-   provided: $$
+    E[\varepsilon_{it} \mid X_{it}, U_i] = 0
+    $$
+-   Fixed effects eliminate bias from:
+    -   Time-invariant unobserved country characteristics
+-   They do **not** eliminate bias from:
+    -   Time-varying omitted variables (e.g. war)
+    -   Reverse causality
+
+## Clustering with fixed effects: a rule of thumb
+
+-   Including fixed effects does not determine how standard errors are
+    computed.
+-   Fixed effects:
+    -   Control for unobserved, time-invariant differences
+    -   Affect identification
+-   Standard errors:
+    -   Reflect correlation in the error term
+    -   Affect statistical inference
+-   If errors may be correlated **within units over time**, generally
+    cluster at the **unit level**
+
+## Fixed effects with panel (longitudinal) data
+
+-   Groups: units (e.g. countries)
+-   We need:
+    1.  **Repeated observations of the same unit over time**\
+        → to compare a unit to itself
+    2.  **Multiple units**\
+        → to estimate a common effect $\beta$
+    3.  **Within-unit variation in** $X_{it}$ over time\
+        → otherwise $\beta$ is not identified
+
+## Fixed effects without a time dimension
+
+-   So far, we have estimated unit fixed effects for units observed over
+    time
+-   But fixed effects can be used whenever units are nested within
+    groups
+-   Examples:
+    -   Students within a classroom
+    -   Patients within a clinic
+    -   Children within a family
+    -   Workers within a firm
+-   **Example:** Groups: clinics (no time dimension)
+-   We need:
+    1.  **Multiple observations per group** (patients within clinics)\
+        → to compare units within a group
+    2.  **Multiple groups** (many clinics)\
+        → to estimate a common effect $\beta$
+    3.  **Within-group variation in treatment**\
+        → otherwise $\beta$ is not identified
+
+## Multiple fixed effects
+
+-   So far, we have used **one set of fixed effects**
+-   Fixed effects control for *categorical variables* by comparing units
+    **within groups**:
+    -   Country fixed effects → compare countries to themselves over
+        time
+    -   School fixed effects → compare students within the same school
+    -   Year fixed effects → compare observations within the same year
+-   Each fixed effect:
+    -   Differences out all unobserved characteristics
+    -   That are constant within that group
+
+## Why include more than one fixed effect?
+
+-   In the GDP–life expectancy example, we observe:
+    -   Countries $i$
+    -   Over years $t$
+-   We may worry about:
+    -   **Permanent country differences** (institutions, geography)
+    -   **Global time shocks** affecting all countries\
+        (medical technology, pandemics, global growth)
+-   So we may want to control for **both**.
+
+## Two-way fixed effects
+
+-   A model with country and year fixed effects: $$
+    Y_{it} = \alpha_i + \lambda_t + \beta X_{it} + \varepsilon_{it}
+    $$
+    -   $\alpha_i$: country fixed effects\
+    -   $\lambda_t$: year fixed effects\
+-   This is called **two-way fixed effects**.
+-   $\beta$ is identified from **within-country changes over time**
+    after removing each country's average level and each year's common
+    shock
+-   "How does life expectancy change when a country becomes richer,
+    relative to its own baseline and relative to the global trend?"
+-   More fixed effects:
+    -   Control for more confounding
+    -   But leave less variation to identify $\beta$
+
+## Implementing multiple fixed effects in R
+
+-   **Regression with country and year FEs:** $\text{lifeExp}_{it}=\alpha_i + \lambda_t + \beta \log (\text{gdpPercap}_{it}) + \varepsilon_{it}$
+
+::: {.fragment}
+```{r}
+m_twfe <- feols(lifeExp ~ log(gdpPercap) | country + year, data = gapminder, vcov = ~country)
+etable(m_twfe)
+```
+:::
+
+-   Within country, and holding year-specific shocks fixed, a 10%
+    increase in GDP per capita is associated with $\approx$ 0.145
+    additional years of life expectancy
+-   Much smaller effect than pooled OLS or country FE only
+
+  +  Life expectancy and GDP per capita are both rising strongly over time everywhere
+  +  Year FE absorb global trends (medical technology, global growth)
+  +  What remains is short-run, country-specific deviations from global trends
+
+## Fixed effects takeaways
+
+-   Unit fixed effects control for **unobserved, time-invariant differences**
+    by comparing observations **within units**.
+-   Time fixed effects control for shocks common to all units
+-   Fixed effects do **not** control for unobserved factors that change over time within a unit
+
+## Why this matters for policy evaluation
+
+-   Many policies:
+    -   Affect some units but not others
+    -   Turn on at a specific point in time
+-   We want to:
+    -   Use before–after comparisons
+    -   While controlling for unit differences and common time shocks
+-   This is exactly the motivation for **difference-in-differences**.
+
+# Difference-in-differences
+
+## Difference-in-differences: big picture
+
+-   Difference-in-differences compares:
+    -   Changes over time in treated units
+    -   To changes over time in untreated units
+-   By comparing **changes**, DiD removes:
+    -   Fixed differences across units
+    -   Common time shocks
+-   This is a **design**, not just a regression!
+
+## What is the problem?
+
+-   Question: "What was the effect of the policy on the people who were
+    treated?"
+-   We have some data on the people who were affected both before the
+    policy went into effect and after
+-   However, we can't just compare before and after, because we have a
+    confounder - time!
+
+::: {.fragment}
+```{r}
+#| echo: false
+dag <- dagify(Treatment ~ Time,
+              Outcome ~ Treatment + Time,
+              coords=list(
+                x=c(Treatment = 1, Time = 2, Outcome = 3),
+                y=c(Treatment = 1, Time = 2, Outcome = 1)
+              )) %>% tidy_dagitty()
+ggdag_classic(dag,node_size=10) + 
+  theme_void_metro() + 
+  expand_limits(x=c(.5,3.5))
+```
+:::
+
+## Difference-in-Differences
+
+-   Why not just control for time?
+-   With just the treated people we can't do that since it would wash
+    out all the variation! (You're either "Before and Untreated" or
+    "After and Treated")
+-   The solution is to bring in a *control group* who is Untreated in
+    both Before and After periods
+
+::: {.fragment}
+```{r}
+#| echo: false
+dag <- dagify(
+  Treatment ~ Time + Group,
+  Outcome   ~ Treatment + Time + Group,
+  coords = list(
+    x = c(
+      Treatment = 1,
+      Outcome   = 3,
+      Time      = 2,
+      Group     = 2
+    ),
+    y = c(
+      Treatment = 1,  # main line
+      Outcome   = 1,  # main line
+      Time      = 2,  # above
+      Group     = 0   # below
+    )
+  )
+) %>%
+  tidy_dagitty()
+
+ggdag_classic(dag, node_size = 10) +
+  theme_void_metro() +
+  expand_limits(x = c(.5, 3.5), y = c(-.5, 2.5))
+```
+:::
+
+
+
+## Simple 2x2 example
+
+:::: {.columns}
+::: {.column width="50%"}
+```{r}
+#| echo: false
+df <- data.frame(
+  Person = c("Ada","Ada","Banu","Banu"),
+  Time   = factor(c("Before","After","Before","After"), levels = c("Before","After")),
+  Height = c(120, 140, 115, 125)
+)
+
+ggplot(df, aes(x = Time, y = Height, group = Person, label = Person)) +
+  geom_line(color = "black", linewidth = 1) +
+  geom_point(color = "red", size = 3) +
+  geom_dl(method = "last.points", position = position_nudge(x = 0.05)) +
+  theme_metro() +
+  annotate(geom = "text", label = "Before Difference", x = 0.7, y = 117.5, color = "red") +
+  annotate(geom = "text", label = "After Difference",  x = 2.3, y = 132.5, color = "blue") +
+   annotate(geom = 'text', label = 'Before Difference', x = 1.65, y = 127.5, color = 'red') +
+  annotate(geom = 'text', label = 'Difference-in-Difference', x = 1.6, y = 135, color = 'purple') +
+  geom_segment(aes(x = 1, y = 115, xend = 1, yend = 120), color = "red", linewidth = 1.5) +
+  geom_segment(aes(x = 2, y = 125, xend = 2, yend = 140), color = "blue", linewidth = 1.5) +
+  geom_segment(aes(x = 1.9, y = 125, xend = 1.9, yend = 130), color = 'red', size = 1.5) +
+  geom_segment(aes(x = 1.9, y = 130, xend = 1.9, yend = 140), color = 'purple', size = 1.5)
+```
+:::
+
+::: {.column .fragment width="50%"}
+
+-   Let's say we have a drug that's supposed to make people taller
+-   Give it to Ada who is 120cm tall
+-   Next year Ada is 140cm tall - a 20cm increase! But she probably
+    would have grown a bit anyway without the pill
+-   We compare her to her twin Banu, who started at 115cm but doesn't
+    get the drug
+-   Next year Banu is 125cm tall - a 10cm increase.
+-   The pill boosted Ada's height by $(140 - 120) - (125 - 115) = 10$
+-   That's DID!
+
+:::
+::::
+
+## Difference-in-differences example: organ donation in California (Kessler and Roth, 2020)
+
+-   **Policy change (treatment)**: The California Department of Motor
+    Vehicles changed how the organ donation question was asked on
+    driver’s license forms.
+    -   **Before July 1, 2011 (opt-in):**
+        -   Individuals could register as organ donors by checking a box
+        -   Leaving the question blank meant not registering
+    -   **After July 1, 2011 (active choice):**
+        -   Individuals were required to explicitly choose **“Yes” or
+            “No”**
+        -   Leaving the question blank meant not registering
+
+## California Organ Donation Question
+
+::: center
+![](cal_donorq.png){width="70%"}
+:::
+
+## Framing as Difference-in-Differences
+
+-   **Question:** what is the effect of moving from "opt-in" to "active
+    choice" on organ donation?
+-   **Outcome:** whether an individual registers as an organ donor
+-   **Treatment:** exposure to the active choice regime
+-   **Timing:** sharp policy change on July 1, 2011
+-   Difference-in-differences compares:
+    -   Registration rates **before vs after** the policy change
+    -   Relative to suitable control groups
+-   Control groups: states with "opt-in" regimes before and after the
+    change
+
+## Raw donation rates
+
+::: {.fragment}
+```{r}
+#| echo: false
+d <- read_tsv('kessler_roth.tsv') %>%
+  pivot_longer(cols = 2:7,
+               names_to = 'quarter',
+               values_to = 'rate') %>%
+  mutate(qtr = case_when(
+    quarter == 'Q42010' ~ ymd('2010-10-01'),
+    quarter == 'Q12011' ~ ymd('2011-01-15'),
+    quarter == 'Q22011' ~ ymd('2011-05-01'),
+    quarter == 'Q32011' ~ ymd('2011-08-01'),
+    quarter == 'Q42011' ~ ymd('2011-10-01'),
+    quarter == 'Q12012' ~ ymd('2012-01-15')
+  ),
+  st = State == 'California') 
+
+# raw data
+p <- ggplot(d, aes(x = qtr, y = rate/100, color = st, shape = st, size = st)) + 
+  geom_point(position = position_jitter(seed = 1000)) +
+  geom_vline(aes(xintercept = ymd('2011-07-01')), linetype = 'dashed', size = .5)  +
+  scale_y_continuous(labels = function(x) scales::percent(x, accuracy = 1))+
+  scale_x_date(labels = function(x) {
+    mo <- month(x)
+    paste(month.abb[mo], year(x))
+  }) +
+  scale_color_manual(values = c('gray','black')) + 
+  scale_shape_manual(values = c(1, 19)) +
+  scale_size_manual(values = c(2, 5)) +
+  theme_pubr() +
+  labs(x = "Quarter",
+       y = "Organ Donation Rate")+
+  guides(color = FALSE, shape = FALSE, size = FALSE) +
+  theme(text         = element_text(size = 13),
+        axis.title.x = element_text(size = 13),
+        axis.title.y = element_text(size = 13))
+p + 
+  labs(caption = 'Jitter has been added to the x-axis to make points easier to see, since data is quarterly.')+
+  annotate(geom = 'text', label = 'California', size =  14/.pt,
+           x = ymd('2012-01-15'), y = .21, hjust = .5)
+```
+:::
+
+## Difference-in-differences mechanics
+
+::: {.fragment}
+```{r}
+#| echo: false
+did <- d %>%
+  group_by(st, qtr > ymd('2011-07-01')) %>%
+  summarize(m = mean(rate)/100)
+
+p1a <- p +
+  geom_segment(aes(x = min(qtr), xend = ymd('2011-07-01'), y = did$m[1], yend = did$m[1]),
+               size = 1.5, color = 'darkgray', linetype = 'dashed') + 
+  geom_segment(aes(x = ymd('2011-07-01'), xend = max(qtr), y = did$m[2], yend = did$m[2]),
+               size = 1.5, color = 'darkgray', linetype = 'dashed') +
+  geom_segment(aes(x = min(qtr), xend = ymd('2011-07-01'), y = did$m[3], yend = did$m[3]),
+               size = 1.5, color = 'black') + 
+  geom_segment(aes(x = ymd('2011-07-01'), xend = max(qtr), y = did$m[4], yend = did$m[4]),
+               size = 1.5, color = 'black') 
+p1 <- p1a + 
+  labs(title = '(a) Before/After, Treated/Untreated Averages') +
+    theme(text = element_text(size = 10),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        plot.title = element_text(size = 11))
+p2 <- p1a + 
+  geom_segment(aes(x = ymd('2011-07-01'), xend = ymd('2011-07-01'),
+               y = did$m[1], yend = did$m[2]), size = 1.5, color = 'black') +
+  geom_segment(aes(x = ymd('2011-06-01'), xend = ymd('2011-06-28'), 
+                   y = .55, yend = mean(did$m[1:2])),
+               arrow = arrow(length = unit(0.03, "npc")), size = 1, color = 'black') +
+  annotate(geom = 'text', x =  ymd('2011-06-01'), y = .58, size = 11/.pt,
+           label = 'Untreated Before/After Difference') + 
+  labs(title = '(b) Calculate Before/After Untreated Diff') +
+    theme(text = element_text(size = 10),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        plot.title = element_text(size = 11))
+
+p3a <- ggplot(d, aes(x = qtr, y = rate/100 - (did$m[2] - did$m[1]), color = st, shape = st, size = st)) + 
+  geom_point(position = position_jitter(seed = 1000)) +
+  geom_vline(aes(xintercept = ymd('2011-07-01')), linetype = 'dashed', size = .5) +
+  scale_y_continuous(labels = function(x) scales::percent(x, accuracy = 1))+
+  scale_x_date(labels = function(x) {
+    mo <- month(x)
+    paste(month.abb[mo], year(x))
+  }) +
+  scale_color_manual(values = c('gray','black')) + 
+  scale_shape_manual(values = c(1, 19)) +
+  scale_size_manual(values = c(2, 5)) +
+  theme_pubr() +
+  labs(x = "Quarter",
+       y = "Organ Donation Rate")+
+  guides(color = FALSE, shape = FALSE, size = FALSE) +
+  theme(text         = element_text(size = 10),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10)) +
+  geom_segment(aes(x = min(qtr), xend = ymd('2011-07-01'), y = did$m[1], yend = did$m[1]),
+               size = 1.5, color = 'darkgray', linetype = 'dashed') + 
+  geom_segment(aes(x = ymd('2011-07-01'), xend = max(qtr), y = did$m[1], yend = did$m[1]),
+               size = 1.5, color = 'darkgray', linetype = 'dashed') +
+  geom_segment(aes(x = min(qtr), xend = ymd('2011-07-01'), y = did$m[3], yend = did$m[3]),
+               size = 1.5, color = 'black') + 
+  geom_segment(aes(x = ymd('2011-07-01'), xend = max(qtr), y = did$m[4]- (did$m[2] - did$m[1]), yend = did$m[4]- (did$m[2] - did$m[1])),
+               size = 1.5, color = 'black')
+p3 <- p3a +
+  geom_segment(aes(x = ymd('2011-09-01'), xend = ymd('2011-09-01'), y = did$m[2] + .04, yend = did$m[1]),
+               arrow = arrow(length = unit(0.03, "npc")), size = 1, color = 'black') +
+  geom_segment(aes(x = ymd('2011-09-01'), xend = ymd('2011-09-01'), y = did$m[4]- (did$m[2] - did$m[1]) + .05, yend = did$m[4]- (did$m[2] - did$m[1])),
+               arrow = arrow(length = unit(0.03, "npc")), size = 1, color = 'black') +
+  labs(title = '(c) Remove Before/After Untreated Diff') +
+  theme(
+    plot.title = element_text(size = 11)
+  )
+  
+p4 <- p3a + 
+  geom_segment(aes(x = ymd('2011-07-01'), xend = ymd('2011-07-01'),
+                   y = did$m[3], yend = did$m[4]- (did$m[2] - did$m[1])), size = 1.5, color = 'black') +
+  geom_segment(aes(x = ymd('2011-06-01'), xend = ymd('2011-06-28'), 
+                   y = .18, yend = mean(c(did$m[3],did$m[4]- (did$m[2] - did$m[1])))),
+               arrow = arrow(length = unit(0.03, "npc")), size = 1, color = 'black') +
+  annotate(geom = 'text', x =  ymd('2011-06-01'), y = .16, size = 11/.pt,
+           label = 'Remaining Treated Before/After Difference') +
+  labs(title = '(d) Remaining Before/After Treated Diff') +
+  theme(
+    plot.title = element_text(size = 11)
+  )
+
+plot_grid(p1,p2,p3,p4, ncol = 2)
+```
+:::
+
+## Difference-in-differences mechanics
+
+|         | Before   | After    |
+|---------|----------|----------|
+| Treated | $Y_{T0}$ | $Y_{T1}$ |
+| Control | $Y_{C0}$ | $Y_{C1}$ |
+
+DiD estimand: $$(Y_{T1} - Y_{T0}) - (Y_{C1} - Y_{C0})$$
+
+## Difference-in-differences regression
+
+$$Y_{it} = \alpha_i + \lambda_t + \beta Treated_{it} + \varepsilon_{it}$$
+
+-   $Treated_{it}$: treatment indicator equal to 1 if an observation is
+    treated (i.e. in the treatment group after the treatment has taken
+    place)
+-   $\alpha_i$: unit fixed effects
+-   $\lambda_t$: time fixed effects
+-   $\beta$: DiD estimate
+
+## Difference-in-differences regression (2x2)
+
+$$Y_{it} = \beta_0 + \beta_1 TreatedGroup_i + \beta_2 Post_t + \beta_3 TreatedGroup_i \times Post_t  + \varepsilon_{it}$$
+
+-   $TreatedGroup_i$: indicator for whether $i$ is in the treated group
+    (whether it's before or after treatment)
+-   $Post_t$: indicator for whether you're in the "post-treatment"
+    period (whether or not you've actually been treated)
+-   $\beta_3$: DiD estimate
+
+## Standard errors and clustering
+
+-   Fixed effects affect **what variation identifies the coefficient**.\
+-   Clustering affects **how uncertainty is measured**.
+-   In difference-in-differences:
+    -   Treatment varies at the **group level** (e.g. state)
+    -   Outcomes are correlated **within groups over time**
+-   Therefore: Standard errors should generally be **clustered at the
+    treatment level**
+
+## Implementation in R
+
+::: {.fragment}
+```{r}
+od <- causaldata::organ_donations
+# Treatment variable
+od <- od %>%
+     mutate(Treated = State == 'California' & 
+            Quarter %in% c('Q32011','Q42011','Q12012'))
+# feols including state and quarter FEs, cluster at the state level
+clfe <- feols(Rate ~ Treated | State + Quarter,
+           data = od, vcov = ~State)
+etable(clfe)
+```
+:::
+
+## Key identifying assumption: Parallel trends
+
+-   In the absence of treatment:
+    -   Treated and control units would have evolved similarly
+-   This is *not* testable directly
+-   But we can:
+    -   Inspect pre-trends
+    -   Use event studies
+    -   Use institutional knowledge
+
+## Key identifying assumption: Parallel trends
+
+::: {.fragment}
+```{r}
+#| echo: false
+set.seed(1000)
+tb <- tibble(Time = rep(1:10 ,2),
+             Group = c(rep('Treatment',10),
+                       rep('Control',10))) %>%
+  mutate(After = Time >= 7) %>%
+  mutate(YCons = .4*Time + 2*After*(Group == 'Treatment') + (Group == 'Treatment')+ rnorm(20, 0, .5),
+         YDiv = (.3+.5*(Group == 'Control'))*Time + 2*After*(Group == 'Treatment') + 3*(Group == 'Treatment')+ rnorm(20, 0, .5))
+
+p1 <- ggplot(tb, aes(x = Time, y = YCons, color = Group)) + 
+  geom_point() + 
+  geom_line() + 
+  geom_vline(aes(xintercept = 7), linetype = 'dashed') + 
+  geom_text(data = tb %>% filter(Time == 10),
+            aes(x = Time + .1, label = Group, color = Group),
+            size = 13/.pt, hjust = 0) +
+  annotate(geom = 'label', x = 7, y = 1, label = 'Treatment\nPeriod',
+           size = 13/.pt) +
+  scale_color_manual(values = c('#676767','black')) + 
+  expand_limits(x = 12) +
+  labs(y = 'Outcome', 
+       title = '(a) Parallel Prior Trends') +
+  theme_pubr() +
+  guides(color = FALSE) +
+  theme(text         = element_text(size = 10),
+        axis.title.x = element_text(size = 13),
+        axis.title.y = element_text(size = 13),
+        axis.ticks = element_blank(),
+        axis.text = element_blank())
+
+p2 <- ggplot(tb, aes(x = Time, y = YDiv, color = Group)) + 
+  geom_point() + 
+  geom_line() + 
+  geom_vline(aes(xintercept = 7), linetype = 'dashed') + 
+  geom_text(data = tb %>% filter(Time == 10),
+            aes(x = Time + .1, label = Group, color = Group),
+           size = 13/.pt, hjust = 0) +
+  annotate(geom = 'label', x = 7, y = 2.5, label = 'Treatment\nPeriod',
+           size = 13/.pt) +
+  scale_color_manual(values = c('#676767','black')) +
+  expand_limits(x = 12) +
+  labs(y = 'Outcome', 
+       title = '(b) Converging Prior Trends') +
+  theme_pubr() +
+  guides(color = FALSE) +
+  theme(text         = element_text(size = 10),
+        axis.title.x = element_text(size = 13),
+        axis.title.y = element_text(size = 13),
+        axis.ticks = element_blank(),
+        axis.text = element_blank())
+
+plot_grid(p1,p2)
+```
+:::
+
+# Event studies
+
+## Event studies
+
+-   Instead of one treatment indicator:
+    -   Use leads and lags of treatment
+-   Allows us to:
+    -   Check pre-trends
+    -   See dynamic effects
+-   Regression specification $$
+    Y_{it} = \alpha_i + \delta_t + \sum_{k \neq -1} \beta_k 1[t - T_i = k] + \varepsilon_{it}
+    $$
+    -   $k = -1$ is the omitted baseline
+    -   $\beta_k$ trace effects over time
+-   Pre-treatment coefficients should be close to zero
+-   Post-treatment coefficients show timing and persistence
+-   Flat pre-trends increase credibility
+
+## Event study: Organ donation example
+
+::: {.fragment}
+```{r}
+#| echo: false
+od <- od %>%
+  mutate(Treated = State == 'California' & 
+           Quarter %in% c('Q32011','Q42011','Q12012')) %>%
+  # Create an ordered version of Quarter so we can graph it
+  # and make sure we drop the last pre-treatment interaction
+  mutate(Quarter = relevel(factor(Quarter), ref = 'Q22011'))
+
+# Interact quarter with being in the treated group
+clfe <- feols(Rate ~ I(State == 'California')*Quarter | State,
+              data = od, vcov = ~State)
+
+# Use broom::tidy to get the coefficients and SEs
+res <- tidy(clfe) %>%
+  # Keep only the interactions
+  filter(str_detect(term, ':')) %>%
+  # Pull the quarter out of the term
+  mutate(Quarter = str_sub(term, -6)) %>%
+  # Add in the term we dropped as 0
+  add_row(estimate = 0, std.error = 0, Quarter = 'Q22011') %>%
+  # and add 95% confidence intervals
+  mutate(ci_bottom = estimate - 1.96*std.error,
+         ci_top = estimate + 1.96*std.error) %>%
+  # And put the quarters in order
+  mutate(Quarter = factor(Quarter,
+                          levels = c('Q42010','Q12011','Q22011',
+                                     'Q32011','Q42011','Q12012')))
+
+
+# And graph
+# "group = 1" is necessary to get ggplot to add the line graph
+# when the x-axis is a factor
+ggplot(res, aes(x = Quarter, y = estimate, group = 1)) + 
+  # Add points for each estimate and connect them
+  geom_point() + 
+  geom_line() +
+  # Add confidence intervals
+  geom_linerange(aes(ymin = ci_bottom, ymax = ci_top)) +
+  # Add a line so we know where 0 is
+  geom_hline(aes(yintercept = 0), linetype = 'dashed') + 
+  # Always label!
+  labs(caption = '95% Confidence Intervals Shown',
+       y = 'Difference-in-Difference Estimate') + 
+  ggpubr::theme_pubr() +
+  theme(text         = element_text(size = 13),
+        axis.title.x = element_text(size = 13),
+        axis.title.y = element_text(size = 13))
+```
+:::
+
+## Common pitfalls
+
+-   **Violated parallel trends**
+    -   Treated and control groups were already on different
+        trajectories
+    -   DiD then attributes pre-existing divergence to the policy
+-   **Policy anticipation**
+    -   Individuals or providers change behaviour *before* formal
+        implementation
+    -   This contaminates the “pre” period and biases estimates
+-   **Staggered adoption with heterogeneous effects**
+    -   Treatment effects differ across units or over time
+    -   Standard two-way FE DiD can produce misleading averages
+    -   This is a very active research area! Talk to me if interested!
+-   **Over-interpreting long-run coefficients**
+    -   Later post-treatment estimates may reflect:
+        -   Additional policies
+        -   Adaptation or general equilibrium effects
+
+## Takeaways
+
+-   **Panel data** lets us observe the same units repeatedly over
+    time and compare them to themselves, not just to each other
+-   Unit **fixed effects** absorb all unobserved, time-invariant differences
+    between units (or groups, or time periods), so $\beta$ is identified
+    from **within-unit variation**
+    -   Two-way FE additionally absorb shocks common to all units
+        in a given period
+    -   But FE do **not** address time-varying confounders 
+-   **Difference-in-differences** compares **changes over time** in
+    treated units vs. untreated units to recover a causal effect
+    -   Identification relies on **parallel trends**
+    -   **Event studies** help diagnose pre-trends and reveal dynamics
+-   FE and DiD are core tools in modern health analytics

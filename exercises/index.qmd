@@ -1,0 +1,59 @@
+---
+title: "Exercises"
+format:
+  html:
+    toc: true
+---
+
+## Exercise Sets
+
+Each exercise set corresponds to a lecture and provides hands-on practice with the concepts covered. Both problem sets and solutions are provided.
+
+### Exercise 1: Introduction to Health Data & R
+- [Problem Set](health_analytics_01_intro.Rmd)
+- [Solutions](health_analytics_01_intro_solutions.Rmd)
+
+### Exercise 2: Data Visualization
+- [Problem Set](health_analytics_02_dataviz.Rmd)
+- [Solutions](health_analytics_02_dataviz_solutions.Rmd)
+
+### Exercise 3: Data Wrangling
+- [Problem Set](health_analytics_03_wrangling.Rmd)
+- [Solutions](health_analytics_03_wrangling_solutions.Rmd)
+
+### Exercise 5: Linear Regression
+- [Problem Set](health_analytics_05_linear_reg.Rmd)
+- [Solutions](health_analytics_05_linear_reg_solutions.Rmd)
+
+### Exercise 6: Hypothesis Testing
+- [Problem Set](health_analytics_06_hypothesis_testing.Rmd)
+- [Solutions](health_analytics_06_hypothesis_testing_solutions.Rmd)
+
+### Exercise 7: Fixed Effects & Difference-in-Differences
+- [Problem Set](health_analytics_07_fe_dd.Rmd)
+- [Solutions](health_analytics_07_fe_dd_solutions.Rmd)
+
+### Exercise 8: Limited Dependent Variables
+- [Problem Set](health_analytics_08_limited_depvars.Rmd)
+- [Solutions](health_analytics_08_limited_depvars_solutions.Rmd)
+
+### Exercise 9: Machine Learning
+- [Problem Set](health_analytics_09_ml.Rmd)
+- [Solutions](health_analytics_09_ml_solutions.Rmd)
+
+## How to Use These Exercises
+
+1. Open the R Markdown file (`.Rmd`) in RStudio
+2. Follow the instructions and work through each problem
+3. Use the solutions to check your work or if you get stuck
+4. Modify the code and experiment—this is how you learn!
+
+## Datasets
+
+Several CSV files are provided in the exercises directory for use in the exercises:
+- `organ_donation.csv`
+- `toothdecay_by_education.csv`
+- `life-expectancy-vs-gdp-per-capita.csv`
+- `bdiag.csv`
+
+See individual exercises for information about which datasets are used.

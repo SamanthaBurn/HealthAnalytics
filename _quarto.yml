@@ -1,0 +1,63 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - "index.qmd"
+    - "lectures/*.qmd"
+    - "exercises/index.qmd"
+    - "tutorials/index.qmd"
+  resources:
+    - "exercises/*.Rmd"
+    - "exercises/*.csv"
+    - "exercises/*.tsv"
+    - "exercises/*.txt"
+    - "exercises/*.jpg"
+    - "exercises/*.png"
+    - "exercises/data/**"
+    - "tutorials/**/*.Rmd"
+    - "tutorials/**/*.dat"
+    - "tutorials/**/*.dat.gz"
+    - "tutorials/**/*.xml"
+    - "tutorials/**/*.pdf"
+    - "tutorials/**/*.pptx"
+    - "practice_exam/**"
+    - "data/**"
+
+website:
+  title: "Introduction to Health Analytics"
+  navbar:
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Lectures"
+        menu:
+          - text: "1. Introduction to Health Data & R"
+            href: lectures/health_analytics_01_intro.qmd
+          - text: "2. Data Visualization"
+            href: lectures/health_analytics_02_dataviz.qmd
+          - text: "3. Data Wrangling"
+            href: lectures/health_analytics_03_wrangling.qmd
+          - text: "4. Causal Inference"
+            href: lectures/health_analytics_04_causal_inference.qmd
+          - text: "5. Linear Regression"
+            href: lectures/health_analytics_05_linear_reg.qmd
+          - text: "6. Hypothesis Testing"
+            href: lectures/health_analytics_06_hypothesis_testing.qmd
+          - text: "7. Fixed Effects & Difference-in-Differences"
+            href: lectures/health_analytics_07_fe_dd.qmd
+          - text: "8. Limited Dependent Variables"
+            href: lectures/health_analytics_08_ldvs.qmd
+          - text: "9. Machine Learning"
+            href: lectures/health_analytics_09_ml.qmd
+          - text: "10. Course Review"
+            href: lectures/health_analytics_10_review.qmd
+      - text: "Exercises"
+        href: exercises/index.qmd
+      - text: "Tutorials"
+        href: tutorials/index.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: lectures/slides.css
+    toc: true

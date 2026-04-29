@@ -1,0 +1,207 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Linear regression 1"
+author: ""
+date: "Spring 1 2026"
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+---
+
+# Introduction
+
+This exercise will guide you through running linear regression in R and interpreting the results. We will use the `NHANES` dataset available from the `R` package `NHANES`. We will study the relationship between **education** and **mental health**.
+
+-   $y$ is `DaysMentalHlthBad` is the number of days in the past 30 days when respondent $i$ reported their mental health was “not good”. (In NHANES this is often coded as a 0–30 count with many zeros.)
+-   $x$ is is `Education`, coded as categories.
+-   You will be using gender and age as covariates
+
+As always start by loading the necessary packages. We're going to use `tidyverse` for data manipulation and visualization, `NHANES` to load the NHANES data, and `kableExtra` and `knitr` to produce nice looking tables.
+
+```{r, include=FALSE}
+packages <- c("tidyverse", "broom", "tidyr","srvyr", "NHANES", "modelsummary", "knitr", "kableExtra")
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+Load the NHANES data into an R dataframe called `nhanes_data`.
+
+```{r}
+# View structure of the dataset
+nhanes_data <- NHANES
+```
+
+# Data cleaning and summary statistics
+
+1.  Filter the data to exclude people who have `NA` recorded for any of the following variables: `Education`, `DaysMentHlthBad`, `Gender` or `Age`.
+2.  Create two new binary variables:
+
+-   `CollegeGrad` equal to 1 if `Education` is "College Grad" and zero otherwise.
+-   `Male` equal to 1 if `Gender` is "male" and zero otherwise.
+
+3.  For the filtered observations calculate:
+
+<!-- -->
+
+a)  What percent of people have `DaysMentHlthBad` equal to zero?
+b)  What is the mean and standard deviation of `DaysMentHlthBad` across all observations?\
+c)  What is the mean and standard deviation of `DaysMentHlthBad` for people with `CollegeGrad` equal to 1 and for people with `CollegeGrad` equal to 0?
+
+**Answer:**
+
+```{r wrangle}
+nhanes_clean <- nhanes_data %>%
+  filter(Education!="NA") %>% filter (Age!="NA") %>%
+  filter(DaysMentHlthBad!="NA") %>% filter (Gender!="NA") %>%
+  mutate(
+  CollegeGrad = ifelse(Education== "College Grad", 1, 0)
+  ) %>%
+  mutate(
+  Male = ifelse(Gender== "male", 1, 0)
+  )
+```
+
+```{r descriptives}
+# Calculate percent of people who have zero days of bad mental health
+nhanes_clean %>%
+  mutate(zero_DaysMentHlthBad = ifelse(DaysMentHlthBad == 0, 1, 0)) %>%
+  summarise(percent_zero_DaysMentHlthBad = mean(zero_DaysMentHlthBad) * 100)
+  
+# Calculate mean and standard deviation of DaysMentHlthBad
+nhanes_clean %>%
+  summarise(
+    mean_days_bad = mean(DaysMentHlthBad, na.rm = TRUE),
+    sd_days_bad = sd(DaysMentHlthBad, na.rm = TRUE)
+  )
+# 57.4% of people in the sample have zero bad days of mental health.**
+# Mean number of days of bad mental health is 4.2 and 
+# standard deviation is 8.0
+```
+
+```{r descriptivesgroup}
+# Calculate mean and standard deviation of `DaysMentHlthBad` for people with `CollegeGrad` equal to 1 and for people with `CollegeGrad` equal to 0?
+nhanes_clean %>%
+  group_by(CollegeGrad) %>%
+  summarise(
+    mean_days_bad = mean(DaysMentHlthBad, na.rm = TRUE),
+    sd_days_bad = sd(DaysMentHlthBad, na.rm = TRUE)
+  )
+# College graduates have a mean of 3.1 days of bad mental health 
+# with a standard deviation of 6.5 
+# Non college graduates have a mean of 4.7 days of bad mental health 
+# with a standard deviation of 8.6.
+```
+
+# Data visualization
+
+Using the filtered data from question 1, generate a bar chart showing the average number of days of bad mental health (`DaysMentHlthBad`) by the new `CollegeGrad' variable. Plot density bars side by side for college graduates and non-college graduates. Would a log transformation of $Y$ make sense here? Why or why not?
+
+```{r barplot}
+# Generate a histogram of `DaysMentHlthBad` split by whether someone is a college graduate
+ggplot(nhanes_clean, aes(x = DaysMentHlthBad, fill = as.factor(CollegeGrad))) +
+  geom_histogram(aes(y = after_stat(density)),
+                 position = "dodge",
+                 binwidth = 1) +
+  labs(x = "Days of Bad Mental Health",
+       y = "Density",
+       fill = "College Graduate")
+```
+
+**Answer: There are a lot of observations at zero days of bad mental health. A log transformation would not make sense here because log(0) is undefined. Additionally, a log transformation would not really improve interpretability since the outcome variable is already in a meaningful scale (number of days). However, a Poisson regression might be appropriate given the "count" nature of the outcome variable. We will cover this later in the course. A linear regression is still a reasonable starting point.**
+
+# Univariate regression
+
+1.  Estimate a linear regression where `DaysMentHlthBad` is the dependent variable and the explanatory variable is the `CollegeGrad` dummy variable. Use `summary()` to show the coefficients and from your estimated model.
+
+2.  How do you interpret the coefficient on CollegeGrad? In your answer, comment on the direction of the relationship and the magnitude of the effect? Ignore statistical uncertainty for now.
+
+3.  Explain why the coefficient on `CollegeGrad` in the model might not be a causal estimate of the effect of a college education on mental health.
+
+```{r linear}
+# Estimate a linear model with one variable
+lm1 <- lm(DaysMentHlthBad ~ CollegeGrad, data = nhanes_clean)
+summary(lm1)
+```
+**Answer: The coefficient of on CollegeGrad is -1.55. On average, college graduates report 1.55 fewer bad mental health days in the past month compared to non-college graduates.
+The coefficient on `CollegeGrad` in the model might not be a causal estimate of the effect of a college education on mental health because people who graduate from college may differ systematically from those who do not in ways that also affect mental health. For example, factors like socioeconomic status of an individual's parents, cognitive ability, or pre-existing mental health status could influence both the likelihood of completing college and mental health outcomes. If these confounders are not controlled for in the model, the estimated coefficient on CollegeGrad captures both the effect of college education and the effects of these omitted variables, leading to omitted variable bias.**
+
+
+# Multivariate regression
+
+1.  Estimate a linear regression where `DaysMentHlthBad` is the dependent variable, and the explanatory variables are `CollegeGrad`, `Age`, and `Male`.
+
+2.  How do you interpret the coefficients on `CollegeGrad`, `Age` and `Male`? Ignore statistical uncertainty for now.
+
+3.  Predict the number of days of bad mental health for (i) a 35-year old female with a college degree and (ii) a 35-year old male with a college degree.
+
+```{r linearmv}
+# Estimate a linear model with college grad, age and male
+lm2 <- lm(DaysMentHlthBad ~ CollegeGrad + Age + Male, data = nhanes_clean)
+summary(lm2)
+
+# Predict the number of days of bad mental health for (i) a 35-year old female 
+# with a college degree and (ii) a 35-year old male with a college degree.
+pred_data <- data.frame(Male = c(0,1), CollegeGrad = c(1,1), Age = c(35,35))  
+
+# Use the predict function to estimate days bad mental health
+pred_mh <- predict(lm2, newdata = pred_data)
+
+pred_mh
+# Average days of bad mental health for a 35-year old female with a college degree is 4.3
+# Average days of bad mental health for a 35-year old male with a college degree is 2.8
+```
+**Answer: The coefficient of on CollegeGrad is -1.61. Adjusting for age and gender, college graduates report on average 1.61 fewer bad mental health days in the past month compared to non-college graduates.
+The coefficient on age is -0.033. Adjusting for college and gender, being one year older is associated with 0.033 fewer bad mental health days in the past month.
+The coefficient on Male is -1.49. Adjusting for college and age, being male is associated with 1.49 fewer bad mental health days in the past month.**
+
+
+# Interactions
+
+1.  Estimate a linear regression where `DaysMentHlthBad` is the dependent variable, and the explanatory variables are `CollegeGrad`, `Age`, `Male`. and an interaction between `CollegeGrad` and `Male`.How do you interpret the coefficients on `CollegeGrad`, `Age` and `Male`?
+
+2.  How do you interpret the coefficients on `CollegeGrad`, `Male` and `CollegeGrad`$\times$`Male`? Ignore statistical uncertainty for now.
+
+3.  Predict the number of days of bad mental health for (i) a 35-year old female with a college degree and (ii) a 35-year old male with a college degree.
+
+```{r linearmvint}
+# Estimate a linear model with college grad, age and male plus 
+# interaction between male and college grad
+lm3 <- lm(DaysMentHlthBad ~ CollegeGrad + Age + Male + Male*CollegeGrad, data = nhanes_clean)
+summary(lm3)
+
+# Predict the number of days of bad mental health for (i) a 35-year old female 
+# with a college degree and (ii) a 35-year old male with a college degree.
+pred_data <- data.frame(Male = c(0,1), CollegeGrad = c(1,1), Age = c(35,35))  
+
+# Use the predict function to estimate days bad mental health
+pred_mh_int <- predict(lm3, newdata = pred_data)
+
+pred_mh_int
+# Average days of bad mental health for a 35-year old female with a college degree is 4.2
+# Average days of bad mental health for a 35-year old male with a college degree is 2.9
+```
+**Answer: The coefficient on CollegeGrad means that (adjusting for age) among females being a college graduate is associated with on average 1.76 fewer bad mental health days in the last month. 
+The coefficient on Male tells us that (adjusting for age) among non college graduates being male is associated with on average 1.58 fewer bad mental health days. 
+The coefficient on the interaction between CollegeGrad and Male is 0.316. This captures how the association between being a college grad and mental health differs by gender. According to the point estimate, the association between being a college grad and days of bad mental health is 0.316 days less negative for men than for women, holding age fixed. For men, being a college grad is associated with -1.764+0.316=-1.45 fewer bad mental health days. The interaction between CollegeGrad and Male is not statistically significant (p = 0.468), meaning we cannot conclude that the effect of college education on mental health differs between men and women. This is what we will cover next.**
+
+# Regression tables
+
+1.  You can put the results from all three regressions side-by-side in a regression table as follows. NOTE: you can get this to run by deleting `eval=FALSE` once you have estimated your models. You may need to change the list of models to match your model object names.
+
+```{r table}
+modelsummary(
+  list("Model 1" = lm1, "Model 2" = lm2, "Model 3" = lm3),
+  output = "kableExtra",
+  statistic = "({std.error})",   # show SEs in parentheses
+  stars = TRUE
+)
+```

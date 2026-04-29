@@ -1,0 +1,274 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Tutorial 3: Linear Regression with IPUMS NHIS Data"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+In this tutorial you will be running and interpreting regressions with the IPUMS NHIS dataset. You will be investigating how BMI varies with education and gender.
+
+## Learning Goals
+
+1.  Fit and interpret univariate and multivariate regression models in R
+2.  Fit regression models using survey weights in R
+3.  Carry out t-tests and joint significance tests.
+4.  Produce clean regression summary tables
+
+## Load Packages
+
+This code checks if packages are installed. It installs any missing packages, and then loads all needed packages. Include this at the beginning of any R code you write -- you just need to edit the list of packages at the top!
+
+Note that \`c("x","y")' is just creating a vector with the elements x and y!
+
+```{r, include=FALSE, results='hide'}
+packages <- c("dplyr", "ggplot2", "broom", "tidyr","srvyr", "survey", "ipumsr",  "here", "car", "kableExtra", "modelsummary", "car")
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+# Download data from IPUMS
+
+Go to <https://nhis.ipums.org/nhis/> and click on Log in. Once you are logged in, return to the homepage and click on Browse and Select Data. Click the Select Samples button, and check the box for 2018. Click the submit sample selections button. 
+
+Using the drop down menu or search feature, select the following variables and add them to your data cart using the plus symbol to the left of the variables:
+
+-   AGE: Age
+-   SEX: Sex
+-   EDUCREC2: Education level
+-   HEALTH: Health status
+-   BMI: BMI
+-   ALCSTAT1: Alcohol drinking status
+-   SMOKESTATUS2: Cigarette smoking
+-   MOD10FWK: Frequency of moderate physical activity lasting 10+ minutes per week
+-   VIG10FWK: Frequency of moderate physical activity lasting 10+ minutes per week
+
+Click the green VIEW CART button under your data cart. Review variable selection. Click the green Create Data Extract button. Review the 'Extract Request Summary' screen, describe your extract, and click Submit Extract.
+
+You will receive an email when the data is available to download. To access the page to download the data, follow the link in the email, or click on the Download or Revise Extracts link on the homepage. You will need to download both the data file and the DDI codebook. Put them in the same directory as this Markdown file.
+
+# Load Data
+
+If needed, set your working directory. You should be working in your R project file for the class, but if not this will set your working directory equal to the location of this R Markdown file!
+
+```{r, include=FALSE}
+# Set working directory
+setwd(here())
+```
+
+Load the data into R. Edit the code to use the right pathname for the data you just downloaded!
+
+```{r, include=TRUE}
+# Load data
+ddi <- read_ipums_ddi("nhis_00007.xml")
+data <- read_ipums_micro(ddi)
+
+# View the structure of the dataset
+summary(data)
+```
+
+# Clean data and generate variables for analysis.
+
+We are going to recode the education variable into a binary variable `COLLEGEGRAD` equal to 1 if the individual has completed 4 or more years of college, and 0 otherwise. This will make interpretation of the regression results easier later on when the model gets more complicated!
+
+We are going to filter out any observations with missing or unknown values for AGE, SEX, EDUCREC2 or BMI. The code below does some basic cleaning for you so we can focus on running and interpreting regressions for this tutorial!
+
+
+```{r, include=TRUE}
+# Filter Unknown records and NIU records
+filtered_data <- data %>%
+  filter(YEAR == 2018, AGE <= 85, SEX <= 2, 
+         (EDUCREC2 != 00 & EDUCREC2 <=60), 
+         (BMI != 0000 & BMI <= 1000)) %>%
+  mutate(COLLEGEGRAD = ifelse(EDUCREC2 >= 54, 1, 0)) %>%
+  # Convert sex to factor for analysis
+  mutate(SEX = as_factor(SEX))
+```
+
+# Describe and visualize the Data
+
+This code plots a histogram of BMI, and a boxplot of BMI for college graduates vs non-college graduates. It also calculates summary statistics for BMI by education group.
+
+1.  Comment on the distribution of BMI.
+2.  Comment on the relationship between education and BMI.
+
+```{r, include=TRUE}
+# Histogram of BMI
+ggplot(filtered_data, aes(BMI)) +
+  geom_histogram(fill="lightblue", binwidth = 1) + 
+  labs(title = "Histogram of BMI", x = "BMI", y = "Count")+
+  theme_minimal()
+
+# Boxplot of BMI vs. education group
+ggplot(filtered_data, aes(x = as.factor(COLLEGEGRAD), y = BMI)) +
+  geom_boxplot(fill="lightblue") +
+  labs(title = "Boxplot of BMI by Education Group", x = "Education Group", y = "BMI") +
+  theme_minimal()
+
+# Summary statistics of BMI by education group
+filtered_data %>%
+  group_by(COLLEGEGRAD) %>%
+  summarise(
+    count = n(),
+    mean_BMI = mean(BMI, na.rm = TRUE),
+    sd_BMI = sd(BMI, na.rm = TRUE))
+```
+
+**Answers:** 
+1. The distribution of BMI is somewhat right-skewed, with a peak around 20-30 and a long right tail. 
+2. There appears to be a slightly negative relationship between education level and BMI, with people with a college degree having lower BMI values. BMI varies substantially for both college grads and non-college grads, indicating that education alone is likely to explain little of the variation in BMI.
+
+# Regression of BMI on Education group
+
+We will analyze the relationship between being a college grad and `BMI`.
+
+## Exercise: Model without Survey Weights
+
+1.  Estimate a linear regression with `BMI` as the outcome variable and `COLLEGEGRAD` as the explanatory variables. Use `summary()` to show the coefficients and standard errors from your estimated model.
+
+2.  How do you interpret the coefficient on `COLLEGEGRAD`? In your answer, comment on the direction of the relationship, the magnitude of the effects and statistical significance.
+
+3.  Use the `linearHypothesis()` function from the `car` package to test whether the coefficient on `COLLEGEGRAD` is significantly different from zero. The F-statistic from this test should be the same as the F-statistic from the model summary and the square of the t-statistic from the model summary!
+
+
+```{r}
+# Fit a simple linear regression model
+model1 <- lm(BMI ~ COLLEGEGRAD, data = filtered_data)
+summary(model1)
+```
+
+```{r}
+#  Use the `linearHypothesis()` function from the `car` package to test the significance of the dummy for 4+ years of college. Compare this to the relevant t-statistic!
+linearHypothesis(model1, "COLLEGEGRAD=0")
+```
+
+**Answers:** 
+2.  The coefficient on `COLLEGEGRAD` indicates that people with a college degree have, on average, a BMI that is approximately 1.87 units lower than those without a degree. This coefficient is statistically significant at the 0.001 level (p \< 0.001), indicating strong evidence against the null hypothesis of no effect.
+
+3.  Because this model only contains `COLLEGEGRAD`, the F-statistic reported in the model summary corresponds to testing the null hypothesis that the coefficient on `COLLEGEGRAD` is equal to zero. We can reject this null at the 0.001 significance level.
+
+## Exercise: Model with Survey Weights
+
+1.  Now use svyglm to fit a linear regression where `BMI` is the dependent variable and the levels of `EDUGROUP` as the explanatory variables.. You will have to first create a survey design object using the `svydesign()` function, specifying the data and the weight variable (`PERWEIGHT`). Use `summary()` to show the coefficients and standard errors from your estimated model.
+
+2.  How do the results differ (if at all!) from the unweighted results above?
+
+```{r}
+# Fit a simple linear regression model with survey weights
+survey_design <- as_survey(filtered_data, weights=PERWEIGHT)
+model1_wt <- svyglm(BMI  ~ COLLEGEGRAD, design = survey_design)
+
+summary(model1_wt)
+```
+
+**Answers:** 
+2.  The coefficient point estimates and standard errors are fairly similar in the weighted and unweighted versions of this regression. The coefficient on having a college goes from -1.87 in the unweighted version to -1.96 in the weighted version. This implies that non-college grads with high BMI (and/or college grads with low BMI) are slightly under-represented in the sample relative to the population and the weights correct for this. The standard errors are also slightly larger in the weighted version, which is common when using survey weights.
+
+# Regression including additional covariates
+
+We now extend the model to include age and sex as covariates. We will continue to use the survey-weighted regression.
+
+## Exercise: Model including education group, age and sex
+
+1.  Fit a multivariate regression with `BMI` as the outcome variable and `COLLEGEGRAD`, `AGE`, and `SEX` as explanatory variables. Use `summary.lm()` to show the coefficients and standard errors from your estimated model.
+2.  How do you interpret the coefficients on the explanatory variables? In your answer, comment on the direction of the relationship, the magnitude of the effects and statistical significance.
+
+```{r}
+# Fit a multivariate regression model
+model2_wt <- svyglm(BMI ~ COLLEGEGRAD + AGE + SEX, design = survey_design)
+summary(model2_wt)
+```
+
+# Regression model including interactions
+
+## Exercise: Model including interaction between education and sex
+
+1.  Fit a multivariate regression with `BMI` as the outcome variable and `COLLEGEGRAD`, `AGE`, `SEX` and an interaction between `COLLEGEGRAD` and `SEX` as explanatory variables. Use `summary()` to show the coefficients and standard errors from your estimated model.
+2.  How do you interpret the coefficients on the explanatory variables? In your answer, comment on the direction of the relationship, the magnitude of the effects and statistical significance.
+
+```{r}
+# Fit a multivariate regression model
+model3_wt <- svyglm(BMI ~ SEX*COLLEGEGRAD + AGE, design = survey_design)
+summary(model3_wt)
+```
+# Hypothesis testing
+Answer the following questions using hypothesis tests based on the model you estimated in the previous section that includes `COLLEGEGRAD`, `AGE`, `SEX` and an interaction between `COLLEGEGRAD` and `SEX` . You can use `linearHypothesis()` to do hypothesis tests. 
+
+1. Holding age constant, what is the difference in mean BMI between females and males among individuals without a college degree? Can we reject the null hypothesis that there is no difference?
+
+```{r}
+summary(model3_wt)$coefficients["SEXFemale",]
+# BMI is 2.3 units higher for females than males without a degree
+# Difference is significant at the 0.001 level
+```
+
+2. Holding age constant, what is the difference in mean BMI between male college graduates and male non-graduates? Can we reject the null hypothesis that there is no difference?
+
+```{r}
+summary(model3_wt)$coefficients["COLLEGEGRAD",]
+# BMI is 0.99 units lower for males with a college degree than males without a degree
+# Difference is significant at the 0.001 level
+```
+
+3. Holding age constant, what is the difference in mean BMI between female college graduates and female non-graduates? Can we reject the null hypothesis that there is no difference?
+
+```{r}
+coef(model3_wt)["COLLEGEGRAD"] + coef(model3_wt)["SEXFemale:COLLEGEGRAD"]
+linearHypothesis(model3_wt, "COLLEGEGRAD + SEXFemale:COLLEGEGRAD = 0")
+# BMI is 2.74 units lower for females with a college degree than males without a degree
+# Difference is significant at the 0.001 level
+```
+
+4. Holding age constant, what is the difference in mean BMI between female and male college graduates? Can we reject the null hypothesis that there is no difference?
+
+```{r}
+coef(model3_wt)["SEXFemale"] + coef(model3_wt)["SEXFemale:COLLEGEGRAD"]
+linearHypothesis(model3_wt, "SEXFemale + SEXFemale:COLLEGEGRAD = 0")
+# BMI is 0.59 units higher for females with a college degree than males with a degree
+# Difference is marginally significant (p=0.04).
+```
+
+# Producing Regression Tables
+
+Using the `broom` package, we can create a clean regression table that can be exported to Word or LaTeX. The table will be saved in the same directory as you saved this Markdown file
+
+```{r}
+### Outputting multiple models ###
+models <- list(
+  "Univariate" = model1_wt,
+  "Age and Sex controls" = model2_wt,
+  "Interactions" = model3_wt
+)
+
+modelsummary(
+  models,
+  statistic = "({std.error})",
+  stars = TRUE,
+  coef_map = c(
+    "COLLEGEGRAD" = "College graduate",
+    "SEXFemale:COLLEGEGRAD" = "Female × college",
+    "SEXFemale" = "Female",
+    "AGE" = "Age"
+  ),
+  gof_omit = "IC|Log|Adj|RMSE"
+)
+
+```

@@ -1,0 +1,190 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Tutorial 3: Linear Regression with IPUMS NHIS Data"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+In this tutorial you will be running and interpreting regressions with the IPUMS NHIS dataset. You will be investigating how BMI varies with education and gender.
+
+## Learning Goals
+
+1.  Fit and interpret univariate and multivariate regression models in R
+2.  Fit regression models using survey weights in R
+3.  Carry out t-tests and joint significance tests.
+4.  Produce clean regression summary tables
+
+## Load Packages
+
+This code checks if packages are installed. It installs any missing packages, and then loads all needed packages. Include this at the beginning of any R code you write -- you just need to edit the list of packages at the top!
+
+Note that \`c("x","y")' is just creating a vector with the elements x and y!
+
+```{r, include=FALSE, results='hide'}
+packages <- c("dplyr", "ggplot2", "broom", "tidyr","srvyr", "survey", "ipumsr",  "here", "car", "kableExtra", "modelsummary", "car")
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+# Download data from IPUMS
+
+Go to <https://nhis.ipums.org/nhis/> and click on Log in. Once you are logged in, return to the homepage and click on Browse and Select Data. Click the Select Samples button, and check the box for 2018. Click the submit sample selections button. 
+
+Using the drop down menu or search feature, select the following variables and add them to your data cart using the plus symbol to the left of the variables:
+
+-   AGE: Age
+-   SEX: Sex
+-   EDUCREC2: Education level
+-   HEALTH: Health status
+-   BMI: BMI
+-   ALCSTAT1: Alcohol drinking status
+-   SMOKESTATUS2: Cigarette smoking
+-   MOD10FWK: Frequency of moderate physical activity lasting 10+ minutes per week
+-   VIG10FWK: Frequency of moderate physical activity lasting 10+ minutes per week
+
+Click the green VIEW CART button under your data cart. Review variable selection. Click the green Create Data Extract button. Review the 'Extract Request Summary' screen, describe your extract, and click Submit Extract.
+
+You will receive an email when the data is available to download. To access the page to download the data, follow the link in the email, or click on the Download or Revise Extracts link on the homepage. You will need to download both the data file and the DDI codebook. Put them in the same directory as this Markdown file.
+
+# Load Data
+
+If needed, set your working directory. You should be working in your R project file for the class, but if not this will set your working directory equal to the location of this R Markdown file!
+
+```{r, include=FALSE}
+# Set working directory
+setwd(here())
+```
+
+Load the data into R. Edit the code to use the right pathname for the data you just downloaded!
+
+```{r, include=TRUE}
+
+```
+
+# Clean data and generate variables for analysis.
+
+We are going to recode the education variable into a binary variable `COLLEGEGRAD` equal to 1 if the individual has completed 4 or more years of college, and 0 otherwise. This will make interpretation of the regression results easier later on when the model gets more complicated!
+
+We are going to filter out any observations with missing or unknown values for AGE, SEX, EDUCREC2 or BMI. The code below does some basic cleaning for you so we can focus on running and interpreting regressions for this tutorial!
+
+```{r, include=TRUE}
+
+```
+
+# Describe and visualize the Data
+
+This code plots a histogram of BMI, and a boxplot of BMI for college graduates vs non-college graduates. It also calculates summary statistics for BMI by education group.
+
+1.  Comment on the distribution of BMI.
+2.  Comment on the relationship between education and BMI.
+
+```{r, include=TRUE}
+
+```
+
+# Regression of BMI on Education group
+
+We will analyze the relationship between being a college grad and `BMI`.
+
+## Exercise: Model without Survey Weights
+
+1.  Estimate a linear regression with `BMI` as the outcome variable and `COLLEGEGRAD` as the explanatory variables. Use `summary()` to show the coefficients and standard errors from your estimated model.
+
+2.  How do you interpret the coefficient on `COLLEGEGRAD`? In your answer, comment on the direction of the relationship, the magnitude of the effects and statistical significance.
+
+3.  Use the `linearHypothesis()` function from the `car` package to test whether the coefficient on `COLLEGEGRAD` is significantly different from zero. The F-statistic from this test should be the same as the F-statistic from the model summary and the square of the t-statistic from the model summary!
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+## Exercise: Model with Survey Weights
+
+1.  Now use svyglm to fit a linear regression where `BMI` is the dependent variable and the levels of `EDUGROUP` as the explanatory variables.. You will have to first create a survey design object using the `svydesign()` function, specifying the data and the weight variable (`PERWEIGHT`). Use `summary()` to show the coefficients and standard errors from your estimated model.
+
+2.  How do the results differ (if at all!) from the unweighted results above?
+
+```{r}
+
+```
+
+# Regression including additional covariates
+
+We now extend the model to include age and sex as covariates. We will continue to use the survey-weighted regression.
+
+## Exercise: Model including education group, age and sex
+
+1.  Fit a multivariate regression with `BMI` as the outcome variable and `COLLEGEGRAD`, `AGE`, and `SEX` as explanatory variables. Use `summary.lm()` to show the coefficients and standard errors from your estimated model.
+2.  How do you interpret the coefficients on the explanatory variables? In your answer, comment on the direction of the relationship, the magnitude of the effects and statistical significance.
+
+```{r}
+
+```
+
+# Regression model including interactions
+
+## Exercise: Model including interaction between education and sex
+
+1.  Fit a multivariate regression with `BMI` as the outcome variable and `COLLEGEGRAD`, `AGE`, `SEX` and an interaction between `COLLEGEGRAD` and `SEX` as explanatory variables. Use `summary()` to show the coefficients and standard errors from your estimated model.
+2.  How do you interpret the coefficients on the explanatory variables? In your answer, comment on the direction of the relationship, the magnitude of the effects and statistical significance.
+
+```{r}
+
+```
+# Hypothesis testing
+Answer the following questions using hypothesis tests based on the model you estimated in the previous section that includes `COLLEGEGRAD`, `AGE`, `SEX` and an interaction between `COLLEGEGRAD` and `SEX` . You can use `linearHypothesis()` to do hypothesis tests. 
+
+1. Holding age constant, what is the difference in mean BMI between females and males among individuals without a college degree? Can we reject the null hypothesis that there is no difference?
+
+```{r}
+
+```
+
+2. Holding age constant, what is the difference in mean BMI between male college graduates and male non-graduates? Can we reject the null hypothesis that there is no difference?
+
+```{r}
+
+```
+
+3. Holding age constant, what is the difference in mean BMI between female college graduates and female non-graduates? Can we reject the null hypothesis that there is no difference?
+
+```{r}
+
+```
+
+4. Holding age constant, what is the difference in mean BMI between female and male college graduates? Can we reject the null hypothesis that there is no difference?
+
+```{r}
+
+```
+
+# Producing Regression Tables
+
+Using the `broom` package, we can create a clean regression table that can be exported to Word or LaTeX. The table will be saved in the same directory as you saved this Markdown file
+
+```{r}
+
+```

@@ -1,0 +1,204 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Tutorial 4: Limited Dependent Variables with IPUMS NHIS Data"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+In this exercise, we will implement and interpret Linear Probability Models (LPM) and Logit and Probit models in R. We will use an extract of the National Health and Nutrition Examination Survey (NHANES) data from the R package `nhanes`. For the analysis in this exam you do **not** need to use survey weights.
+
+By the end of this exercise, you should be able to:
+
+1.  Estimate and interpret Linear Probability Models (LPM) and understand their pros and cons
+2.  Estimate and interpret Logit and Probit models and understand their pros and cons
+3.  Compute and interpret individual marginal effects and average marginal effects for logit and probit models.
+
+Load packages you will need and load the NHANES data into the R dataset `nhanes_data` using the below code.
+
+```{r loaddata, echo=T, results='hide', warning=FALSE, message=FALSE}
+packages <- c("NHANES", "dplyr", "ggplot2", "broom", 
+              "tidyr","srvyr", "modelsummary", "margins", "fixest", "marginaleffects")
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+nhanes_data <- NHANES::NHANES
+```
+
+# Data cleaning and summary statistics
+
+1.  Filter the data to exclude people who have `NA` recorded for any of the following variables: `Age`, `Diabetes` or `BMI` variables.
+
+2.  Convert `Diabetes` to a numeric variable equal to 1 if a person has diabetes and zero otherwise
+
+3.  For the remaining observations calculate:
+
+<!-- -->
+
+a)  What percent of people have diabetes?
+b)  What is the mean and standard deviation of BMI?
+
+**Answer:**
+
+```{r summstats}
+nhanes_data_filtered <- nhanes_data %>%
+  filter (Gender!="NA") %>% filter (Age!="NA") %>% 
+  filter (BMI!="NA") %>% filter (Diabetes!="NA") %>% 
+  mutate(Diabetes = ifelse(Diabetes == "Yes", 1, 0))
+
+nhanes_data_filtered %>%
+  summarize(Diabetes_Percent = mean(Diabetes)*100,
+    BMI_Mean = mean(BMI), BMI_SD = sd(BMI)) %>%
+  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Value")
+
+```
+
+**7.8% of respondents have diabetes. Mean of BMI is 26.7 with a standard deviation of 7.4.**
+
+# Data visualization
+
+Using the filtered data from question 1, generate a bar chart showing the fraction of people diagnosed with diabetes in the following categories: Underweight (BMI \< 18.5), Normal (18.5 \<= BMI \< 25), Overweight (25 \<= BMI \< 30), Obesity (BMI \>= 30). Use the existing `BMI_WHO` variable for the categories and exclude observations with missing `BMI_WHO` values.
+
+**Answer:**
+
+```{r barchart}
+# Compute percent of people with Diabetes for each BMI category
+diabetes_summary <- nhanes_data_filtered %>%
+  group_by(BMI_WHO) %>%  filter(BMI_WHO!="NA") %>%
+  summarize(
+    Diabetes_Percent = mean(Diabetes) * 100,
+    BMI_Mean = mean(BMI),
+    Count = n(), 
+    Age_Mean = mean(Age)
+  ) %>%
+  ungroup()
+
+# Plot the percentage of people with Diabetes by BMI category
+ggplot(diabetes_summary, aes(x = BMI_WHO, y = Diabetes_Percent)) +
+  geom_bar(stat = "identity", fill = "steelblue") +  # Set a single color for all bars
+  labs(
+    title = "Percentage of People with Diabetes by BMI Category",
+    x = "BMI Category",
+    y = "Percentage with Diabetes (%)"
+  ) +
+  theme_minimal()
+```
+
+# LPM, logit and probit
+
+1.  Estimate a linear probability model where `Diabetes` is the dependent variable and `BMI` and `Age` are explanatory variables. Show the coefficients and standard errors from your estimated model.
+2.  Estimate a logistic regression model where `Diabetes` is the dependent variable and `BMI` and `Age` are explanatory variables. Show the coefficients and standard errors from your estimated model.
+3.  Estimate a probit regression model where `Diabetes` is the dependent variable and `BMI` and `Age` are explanatory variables. Show the coefficients and standard errors from your estimated model.
+
+**Answer:**
+
+```{r lpm}
+# Estimate a linear probability model
+lpm <- feols(Diabetes ~ BMI + Age, data = nhanes_data_filtered, vcov='hetero')
+etable(lpm)
+```
+
+```{r logit}
+# Estimate a logistic regression
+logit <- feglm(Diabetes ~ BMI + Age, family = binomial(link = 'logit'), data =nhanes_data_filtered)
+etable(logit)
+```
+
+```{r probit}
+# Estimate a probit regression
+probit <- feglm(Diabetes ~ BMI + Age, family = binomial(link = 'probit'), data =nhanes_data_filtered)
+etable(logit)
+```
+
+```{r raw-comparison}
+# Estimate a probit regression
+etable(lpm, logit, probit, headers = c("LPM", "Logit", "Probit"))
+```
+
+4.  Calculate average marginal effects for all three of the models you have estimated using `avg_slopes()` from the `marginaleffects` package. Show the average marginal effects and standard errors for the `BMI` and `age` variables from all three models in a single table.
+
+```{r avg-marginal-effects}
+ame_lpm <- avg_slopes(lpm) # Same as the regression coefficient
+ame_logit <- avg_slopes(logit)
+ame_probit <- avg_slopes(probit)
+modelsummary(
+  list(
+    "LPM"    = ame_lpm,
+    "Logit"  = ame_logit,
+    "Probit" = ame_probit
+  ),
+  estimate  = "{estimate}",
+  gof_omit = ".*",
+  stars     = FALSE
+)
+```
+
+5.  Predicted probabilities and changes in predicted probabilities
+
+<!-- -->
+
+a)  For the linear probability model, what is the effect of going from a `BMI` of 25 to 30 on the model's predicted probability of having diabetes for a person aged 70?\
+b)  For the logistic model, what is the effect of going from a `BMI` of 25 to 30 on the model's predicted probability of having diabetes for a person aged 70?
+c)  Suppose instead we are interested in the effect of going from a `BMI` of 20 to 25 on the predicted probability of having diabetes for a person aged 70. How does this change your answers to (a) and (b)? Explain the difference
+d)  Suppose instead we are interested in the effect of going from a `BMI` of 20 to 25 on the predicted probability of having diabetes for a person aged 60. How does this change your answers to (a) and (b)? Explain the difference
+
+**Answer:**
+
+```{r interp}
+# Predicted probabilities for a 70-year-old
+lpm_bmi_20 <- predict(lpm, newdata = data.frame(BMI = 20, Age = 70))
+lpm_bmi_25 <- predict(lpm, newdata = data.frame(BMI = 25, Age = 70))
+lpm_bmi_30 <- predict(lpm, newdata = data.frame(BMI = 30, Age = 70))
+logit_bmi_20 <- predict(logit, newdata = data.frame(BMI = 20, Age = 70), type = "response")
+logit_bmi_25 <- predict(logit, newdata = data.frame(BMI = 25, Age = 70), type = "response")
+logit_bmi_30 <- predict(logit, newdata = data.frame(BMI = 30, Age = 70), type = "response")
+
+# Compute changes in probability
+lpm_25_to_30 <- lpm_bmi_30 - lpm_bmi_25 
+logit_25_to_30 <- logit_bmi_30 - logit_bmi_25 
+logit_20_to_25 <- logit_bmi_25 - logit_bmi_20 
+
+# Print results
+cat("LPM: Effect of increasing BMI from 25 to 30:", lpm_25_to_30, "\n")
+cat("LPM: Effect of increasing BMI from 25 to 30:", lpm_25_to_30, "\n")
+cat("Logit: Effect of increasing BMI from 25 to 30:", logit_25_to_30, "\n")
+cat("Logit: Effect of increasing BMI from 20 to 25:", logit_20_to_25, "\n")
+```
+
+**The change in predicted probability of diabetes depends on BMI for the logistic model but not for the linear probability model. In an LPM, the predicted probability of having diabetes is a linear function of BMI and age so the change in BMI from 25 to 30 versus 20 to 25 has the same effect on predicted probability because the relationship is linear. In a logistic regression, the probability of having diabetes follows a nonlinear S-shaped relationship and depends on the starting BMI value. The predicted probability changes less at very low or very high BMI values because of the logistic curve’s shape. When BMI is relatively low (e.g., 20 to 25), a 5-unit increase in BMI has a smaller effect on probability because the probability is still in the lower, flatter part of the curve.**
+
+```{r interp}
+# Predicted probabilities for a 60-year-old
+lpm_bmi_25_60 <- predict(lpm, newdata = data.frame(BMI = 25, Age = 60))
+lpm_bmi_30_60 <- predict(lpm, newdata = data.frame(BMI = 30, Age = 60))
+logit_bmi_20_60 <- predict(logit, newdata = data.frame(BMI = 20, Age = 60), type = "response")
+logit_bmi_25_60 <- predict(logit, newdata = data.frame(BMI = 25, Age = 60), type = "response")
+logit_bmi_30_60 <- predict(logit, newdata = data.frame(BMI = 30, Age = 60), type = "response")
+
+# Compute changes in probability
+lpm_25_to_30_60 <- lpm_bmi_30_60 - lpm_bmi_25_60 
+logit_25_to_30_60 <- logit_bmi_30_60 - logit_bmi_25_60 
+logit_20_to_25_60 <- logit_bmi_25_60 - logit_bmi_20_60 
+
+# Print results
+cat("LPM: Effect of increasing BMI from 25 to 30 for a 60 year old:", lpm_25_to_30_60, "\n")
+cat("Logit: Effect of increasing BMI from 25 to 30 for a 60 year old:", logit_25_to_30_60, "\n")
+cat("Logit: Effect of increasing BMI from 20 to 25for a 60 year old:", logit_20_to_25_60, "\n")
+```

@@ -1,0 +1,167 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Tutorial 1: Wrangling and visualizing health survey data"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: false
+---
+
+# Introduction
+
+This tutorial requires you to use the skills you learned in the first two lectures to manipulate data and plot graphs. We will use data from the **National Health and Nutrition Examination Survey (NHANES)**. This is a large, ongoing survey run by the U.S. Centers for Disease Control and Prevention (CDC). In this tutorial, we will use a simplified version of NHANES data that is bundled in R.
+
+In this session you will practise:
+
+- selecting and filtering variables
+- creating new variables 
+- making histograms, bar charts, and scatterplots
+
+We introduce a few new functions:
+
+- generating variable labels using conditional logic with `if_else()`
+- generating binary variables from continuous numeric variables
+- comparing groups using `facet_wrap()`
+- adding trend lines using `geom_smooth()`
+
+Load the necessary packages.
+```{r, include=FALSE}
+packages = (c("tidyverse", "NHANES"))
+
+## Now load or install&load all
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE, repos = "https://cloud.r-project.org")
+      library(x, character.only = TRUE)
+    }
+  }
+)
+
+```
+
+Start by loading the NHANES data into a new object called `df`.
+```{r}
+df <- NHANES
+head(df)
+```
+
+We will work with the following variables:
+
+- **Age**: age in years.
+- **Gender**: `"male"` or `"female"`.
+- **BPSysAve**: *average systolic blood pressure* (mm Hg) and  **BPDiaAve**: *average diastolic blood pressure* (mm Hg).  Blood pressure is usually written as two numbers, like **120/80**.  The **systolic** pressure (first number) measures pressure in the arteries when the heart **contracts** and the **diastolic** pressure (second number) measures pressure when it relaxes. High blood pressure is a major risk factor for heart disease and stroke.
+- **BMI** (*Body Mass Index*):  BMI is calculated as  $\text{BMI} = \frac{\text{weight (kg)}}{\text{height (m)}^2}$ It is commonly used as a (very) rough indicator of healthy weight in population health studies.
+- **BMI_WHO**: BMI grouped into categories based on World Health Organization cut-offs  
+  (e.g. underweight, normal weight, overweight, obese).
+- **Diabetes**: indicator of whether a participant has diabetes.
+
+
+# Question 1: Create a clean analysis dataset
+1. Before plotting, we will keep only the variables we care about and remove observations with missing values. Create a dataset called `df_small` that:
+
+- Keeps only  
+   `ID, Age, Gender, BPSysAve, BMI, BMI_WHO, Diabetes`
+- Removes rows where BMI, systolic blood pressure, or gender are missing.
+
+2. How many observations were filtered out due to missing data?
+
+```{r}
+
+```
+
+# Question 2: Creating binary variables
+Blood pressure is a continuous variable, but people are often categorized as having or not having **hypertension** (high blood pressure) based on a cut-off value. In this question we will create a **binary variable** indicating hypertension. For this exercise we define hypertension as systolic blood pressure greater than or equal to 130 mm Hg.
+
+We can use`if_else()` to create a new variable based on a condition. The general structure is:
+
+```
+if_else(condition, value_if_true, value_if_false)
+```
+
+1. Create a binary variable `Hypertension`. This should be equal to 1 if `BPSysAve` is greater than or equal to 130, and 0 otherwise. 
+2. What percentage of people in the sample have hypertension?
+
+```{r}
+
+```
+
+# Question 3: Histograms
+Hisograms are useful for visualizing the distribution of a continuous variable.
+
+1. Plot a histogram of systolic blood pressure. Show males and females in **separate panels**. HINT: use `facet_wrap()` to splits one plot into multiple panels based on a grouping variable. 
+2. CHALLENGE: Add a line to show the cutoff threshold for hypertension
+
+```{r}
+
+```
+
+# Question 4: Bar charts 
+
+Bar charts are useful for counts and group comparisons.
+
+1. Make a bar chart showing number of people in each of the `BMI_WHO` categories. Exclude the people who have missing BMI category.
+2. Make a stacked bar chart showing number of people with and without hypertension in each BMI category. HINT: use the `fill` aesthetic of geom_bar to fill bars based on hypertension status. You can only fill by categorical variables, so you will need to covert `Hypertension` to a factor variable i.e. `fill=factor(Hypertension)`.
+3. CHALLENGE: Make a bar chart showing percent of people in each BMI category with and without hypertension. Note that you should be able to do this by setting `position="fill"` in the code for the stacked bar chart you just made.
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+  
+# Question 5: Scatterplots by sub-group
+
+A scatterplot helps us see whether two continuous variables are related.
+
+1. Make a scatterplot showing the relationship between BMI (x-axis) and systolic blood pressure (y-axis). Show all points in the same panel, but plot males and females with different colors.
+2. Make plots showing the relationship between BMI (x-axis) and systolic blood pressure (y-axis) for males and females separately using `facet_wrap()`.
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+# Question 6: Adding trend lines 
+In this question we will explore using `geom_smooth()` to add a fitted line to a plot to show the average relationship between two variables, using either a default smoother or a model you specify (e.g. a linear regression).
+
+1. Add a linear fit to the scatterplot of BMI vs systolic blood pressure for all participants by adding a layer `geom_smooth(method = "lm")` to the scatter plot you made in question 5.1 above. You will see this fits separate lines for males and females.
+2. Instead of fitting separate lines for males and females, set the same line for everyone. HINT: specify the mapping of Gender to color **inside** the `geom_point()` function, not in the main `ggplot()` function.
+2. What happens if you don't specify `method = "lm"`? Try it out by adding a default smoother to the same scatterplot.
+
+```{r}
+
+```
+
+```{r}
+
+```
+```{r}
+
+```
+
+
+# Question 7: Do some exploratory plotting!
+
+Create **one clear and informative figure** that shows something interesting about:
+
+- diabetes and BMI
+- diabetes and blood pressure
+- or how diabetes, BMI, and gender interact
+ 
+ 
+

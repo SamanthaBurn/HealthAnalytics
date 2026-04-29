@@ -1,0 +1,445 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Practice Exam (including solutions)"
+author: ""
+output: pdf_document
+header-includes:
+  - \usepackage{tikz}
+  - \usetikzlibrary{arrows.meta,positioning}
+---
+
+```{r, include=FALSE, results='hide'}
+library(tidyverse)
+library(AER)
+library(fixest)
+data("Fatalities", package = "AER")
+```
+
+This is a 2-hour closed book exam. Students may use a standard, non-programmable hand-held calculator. Students may use paper for working.
+
+The exam consists of three sections (total 120 points):
+
+1. **Section A: Multiple-Choice Questions** (36 points)
+2. **Section B: Coding and Data Analysis** (52 points)
+3. **Section C: Interpreting a Published Paper** (32 points)
+
+Marks for each question in section A are as follows:
+
+  + 3 marks awarded for a correct answer
+  + 1 mark subtracted for an incorrect answer
+  + 0 marks for 'E. I do not want to answer this question'
+
+\newpage
+# Section A: Multiple Choice Questions
+
+### Question 1
+You have a dataset of hospital admissions with one row per admission. The variables `hospital` and `year` identify the hospital and year of each admission. What does the following code produce?
+
+```{r, eval=FALSE}
+df %>%
+  group_by(hospital, year) %>%
+  summarise(total_admissions = n())
+```
+
+A) One row per hospital, showing the total number of admissions across all years
+B) One row per hospital–year combination, showing the number of admissions in that hospital in that year
+C) One row per admission, with two new columns added showing the hospital total admissions and year total admissions
+D) The hospital with the highest number of admissions in each year
+E) I do not want to answer this question
+
+### Question 2
+You have a dataset of patient records with one row per patient. The variable `age` records each patient's age in years. What does the following code produce?
+
+```{r, eval=FALSE}
+df %>%
+  mutate(age_group = case_when(
+    age < 18              ~ "child",
+    age >= 18 & age < 65  ~ "working age",
+    TRUE                  ~ "elderly"
+  ))
+```
+
+A) A dataset with the same number of rows as `df`, with a new column `age_group` added: patients aged under 18 are labelled `"child"`, those aged 18 to 64 are labelled `"working age"`, and those aged 65 or over are labelled `"elderly"`
+B) A dataset filtered to patients aged under 65, because `TRUE ~ "elderly"` only applies if the value of `age` is equal to `TRUE`
+C) A dataset with three rows corresponding to `"child"`, `"working age"` and `"elderly"`, showing how many patients fall into each category
+D) A dataset where the `age` column is replaced by the labels `"child"`, `"working age"`, or `"elderly"`
+E) I do not want to answer this question
+
+### Question 3
+A researcher estimates a logistic regression of diabetes diagnosis (1 = yes, 0 = no) on `Age` (years) and `BMI`:
+$$\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right) = -6.0 + 0.05\,Age_i + 0.10\,BMI_i$$
+where $\hat{p}$ is the predicted probability of diabetes. What is the predicted log-odds of diabetes for a patient aged 50 with BMI = 25?
+
+A) $-6.5$
+B) $-1.0$
+C) $0.27$
+D) $5.0$
+E) I do not want to answer this question
+
+### Question 4
+Consider the same regression model as in Question 3. Four patients have the following predicted probabilities of diabetes from this model:
+
+| Patient | $\hat{p}$ |
+|---------|-----------|
+| A       | 0.05      |
+| B       | 0.25      |
+| C       | 0.50      |
+| D       | 0.90      |
+
+For which patient is the marginal effect of a one-unit increase in BMI on the predicted probability of diabetes largest?
+
+A) Patient A
+B) Patient B
+C) Patient C
+D) Patient D
+E) I do not want to answer this question
+
+### Question 5
+A researcher is interested in estimating the causal effect of variable X on variable Y. She believes the relationships shown in the Directed Acyclic Graph (DAG) below accurately describe the data-generating process. Which of the following is a confounder of the relationship between X and Y?
+
+\begin{center}
+\begin{tikzpicture}[
+  >=Stealth,
+  every node/.style={font=\small},
+  node distance=1.6cm and 1.8cm
+]
+
+% Nodes
+\node (Z) at (0,2) {Z};
+\node (A) at (2.5,2) {A};
+\node (X) at (0,0) {X};
+\node (M) at (2.5,0) {M};
+\node (Y) at (5,0) {Y};
+\node (B) at (5,2) {B};
+
+% Arrows
+\draw[->] (Z) -- (X);
+\draw[->] (Z) -- (Y);
+\draw[->] (A) -- (X);
+\draw[->] (A) -- (Y);
+\draw[->] (X) -- (M);
+\draw[->] (M) -- (Y);
+\draw[->] (B) -- (Y);
+
+\end{tikzpicture}
+\end{center}
+\
+
+A) Z only
+B) A only
+C) M only
+D) Z and A
+E) I do not want to answer this question
+
+### Question 6
+Using the same DAG as in Question 5, a researcher wants to estimate the **total causal effect** of X on Y. What is the most likely consequence of including M as a covariate in the regression?
+
+A) It removes confounding bias, providing a more accurate estimate of the total effect of X on Y
+B) It blocks part of the causal pathway from X to Y, so the coefficient on X captures only the direct effect, not the total effect
+C) It increases the precision of the estimate of the total effect without changing the point estimate
+D) It has no effect on the coefficient of X because M is measured after X
+E) I do not want to answer this question
+
+### Question 7
+A researcher estimates the following model for systolic blood pressure (mmHg) in a large population health survey:
+\[
+SBP_i = 100 + 6\,Male_i + 0.5\,Age_i - 0.1\,(Male_i \times Age_i) + \varepsilon_i
+\]
+where $Male_i = 1$ if the individual is male and 0 otherwise, and $Age_i$ is the individual's age in years. What does the coefficient $-0.1$ on the interaction term $Male_i \times Age_i$ represent?
+
+A) The difference in mean systolic blood pressure between men and women
+B) The total effect of age on systolic blood pressure
+C) The difference in the age gradient of systolic blood pressure between men and women
+D) The predicted systolic blood pressure for a male at age zero
+E) I do not want to answer this question
+
+### Question 8
+Using the same regression model as in Question 7, what is the predicted difference in systolic blood pressure between a 40-year-old man and a 40-year-old woman?
+
+A) 2 mmHg
+B) 6 mmHg
+C) -4 mmHg
+D) 10 mmHg
+E) I do not want to answer this question
+
+### Question 9
+A study estimates the effect of a dietary intervention on systolic blood pressure and reports a 95% confidence interval of (-8.2, -1.4) mmHg. A second study uses identical methods but recruits four times as many patients. Which of the following best describes what you would expect for the width of the confidence interval in the second study?
+
+A) The interval would be approximately the same width, since the true effect size has not changed
+B) The interval would be approximately twice as wide
+C) The interval would be approximately half as wide
+D) The interval would be approximately quarter as wide
+E) I do not want to answer this question
+
+### Question 10
+A health authority introduces a smoking cessation programme in County A starting in 2022. County B does not receive the programme. The percentage of adults who smoke is shown below:
+
+| County | 2021 | 2023 |
+|--------|------|------|
+County A | 28% | 20%
+County B | 25% | 22%
+
+Using a difference-in-differences approach, what is the estimated effect of the programme on smoking prevalence?
+
+A) $-8$ percentage points
+B) $-5$ percentage points
+C) $-3$ percentage points
+D) $+2$ percentage points
+E) I do not want to answer this question
+
+### Question 11
+Which of the following assumptions is required for the difference-in-differences estimate in Question 10 to have a causal interpretation?
+
+A) Smoking prevalence must be equal in County A and County B in 2021
+B) The programme must reach all adults in County A
+C) The two counties must have the same population size
+D) In the absence of the programme, the change in smoking prevalence over time would have been the same in both counties
+E) I do not want to answer this question
+
+### Question 12
+A randomised controlled trial evaluates a new cardiovascular drug. Researchers use a Cox proportional hazards model to estimate the effect of the drug on all-cause mortality, and report a hazard ratio of 0.72 (95% CI: 0.58–0.89) compared to placebo. Which of the following is the most appropriate interpretation?
+
+A) Patients receiving the drug have a 72% lower hazard of dying than patients on placebo; the result is statistically significant at the 5% level
+B) Patients receiving the drug have a 28% lower hazard of dying than patients on placebo; the result is statistically significant at the 5% level
+C) The result is not statistically significant at the 5% level
+D) Patients receiving the drug have a 28% higher hazard of dying than patients on placebo; the result is statistically significant at the 5% level
+E) I do not want to answer this question
+
+\newpage
+# Section B: Coding and Data Analysis
+
+A researcher has a dataset called `Fatalities`, which contains annual data from 48 US states between 1982 and 1988. She is investigating whether alcohol taxes affect motor vehicle fatalities.
+
+Key variables include:
+
+- `fatal`: number of motor vehicle fatalities
+- `beertax`: tax on a case of beer (in real 1988 US dollars)
+- `pop`: number of people living in the state
+- `state`: factor indicating US state
+- `year`: factor indicating year
+- `drinkage`: minimum legal drinking age
+- `income`: per capita personal income (in 1987 US dollars)
+
+### Question 1: Data manipulation and summary statistics
+
+The code below performs some data wrangling and produces summary statistics for the `Fatalities` dataset.
+
+a. Describe what `mutate(mrall = fatal / pop * 100000)` does. Explain why the researcher might want to use `mrall` rather than `fatal` as the outcome variable for her study. **[4 marks]**
+
+b. Describe what `mutate(log_income = log(income))` does. Explain two reasons why a researcher might prefer to include `log(income)` rather than `income` in levels. **[4 marks]**
+
+c. The `mrall_fig` plot is  be generated by the code below. Describe what is on each axis, and explain what is shown by the `geom_point` and `geom_smooth` layers. **[6 marks]**
+
+d. Describe what `mean_mrall` and `mean_beertax` represent in `mrall_descriptives`. What pattern do you observe between the two income groups? **[6 marks]**
+
+```{r, message=FALSE, warning=FALSE}
+Fatalities <- Fatalities %>%
+  mutate(mrall = fatal / pop * 100000) %>%
+  mutate(log_income = log(income))
+
+mrall_fig <- Fatalities %>%
+  ggplot(aes(x = beertax, y = mrall)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE)
+
+mrall_descriptives <- Fatalities %>%
+  mutate(income_group = if_else(income > median(income),
+                                "High income", "Low income")) %>%
+  group_by(income_group) %>%
+  summarise(
+    mean_mrall   = mean(mrall,    na.rm = TRUE),
+    mean_beertax = mean(beertax,  na.rm = TRUE)
+  )
+mrall_descriptives
+```
+
+### Question 2: Regression
+
+The code below estimates two regression models using the `Fatalities` dataset.
+
+a. Interpret the coefficient on `beertax` in `model_a`. What assumptions are necessary for this to be interpreted as the causal effect of beer tax on vehicle fatalities? **[6 marks]**
+
+b. The coefficient on `beertax` changes when `log_income` is added in `model_b`. What does this suggest about the relationship between income, beer taxes, and vehicle fatality rates? In your answer, explain the direction of the bias in `model_a` and why it arises. **[8 marks]**
+
+c. Suggest one further variable that `model_b` does not control for that could bias the coefficient on `beertax`. Explain the direction of the bias it would introduce and why. **[6 marks]**
+
+d. Write the code to add state and year fixed effects to model_b using feols. **[4 marks]**
+
+e. Explain why a researcher would want to include state and year fixed effects, giving a concrete example of the type of confounding each one addresses. **[8 marks]**
+
+```{r, message=FALSE, warning=FALSE}
+model_a <- feols(mrall ~ beertax, data = Fatalities)
+model_a
+```
+
+```{r, message=FALSE, warning=FALSE}
+model_b <- feols(mrall ~ beertax + log_income, data = Fatalities)
+model_b
+```
+
+\newpage
+# Section C: Interpreting a Published Paper
+
+In this part of the exam, you will interpret results from a study investigating the effect of a cash benefit on use of health care. During the COVID-19 pandemic, the City of Chelsea, Massachusetts, invited low-income households to apply for a lottery for cash benefits. Eligible households were randomized either to a treatment group or control group. The treatment group received \$400 per month per household in unconditional cash benefits for 10 months and the control group received no cash benefit. The authors evaluate the program's impact on health care utilization using administrative health records from two major hospital systems. The two figures below are taken from the paper.
+
+The study estimates the following regression model:
+\begin{equation}
+    Y_{i} = \beta_0 + \beta_1 CASH_{i} + \beta_2 X_{i} + \varepsilon_{i},
+\end{equation}
+where \( Y_{i} \) is the utilization outcome of individual \( i \), \( CASH_{i} \) is a dummy variable equal to 1 if an individual won the lottery and was thus randomized into the treatment group, and \( X_{i} \) is a vector of controls for age group, sex, and baseline health care utilization.
+
+1. The authors include controls for age group, sex, and baseline health care utilization in their regression.
+
+    a) Is including control variables necessary to obtain an unbiased estimate of the treatment effect in this randomised controlled trial? Why or why not? **[4 marks]**
+
+    b) What is the main benefit of controlling for age group, sex and baseline health care utilization in this regression? **[4 marks]**
+
+2. Look at the two figures below. What is the effect of being randomized to the cash transfer on number of emergency department visits and number of outpatient visits per 1,000 people? Comment on the sign, magnitude and statistical significance of the effects. **[8 marks]**
+
+3. Propose two mechanisms that could explain the pattern of results you described in Question 2. **[8 marks]**
+
+4. This study was conducted in a single city in the US during the COVID-19 pandemic.
+
+    a) Identify two reasons why the results of this study might not generalise to other settings or populations. **[4 marks]**
+
+    b) If you wanted to assess whether the findings are externally valid, what kind of additional evidence or analysis would be helpful? **[4 marks]**
+
+![](images/chelseaeats.png){width=100%}
+
+![](images/chelseaeats1.png){width=100%}
+
+\newpage
+\center
+END OF EXAM
+
+\newpage
+\raggedright
+# Solutions
+
+## Section A
+
+| Question | Answer |
+|----------|--------|
+| 1        | B      |
+| 2        | A      |
+| 3        | B      |
+| 4        | C      |
+| 5        | D      |
+| 6        | B      |
+| 7        | C      |
+| 8        | A      |
+| 9        | C      |
+| 10       | B      |
+| 11       | D      |
+| 12       | B      |
+
+**Q1 — B**: `group_by(hospital, year)` creates one group for each unique combination of hospital and year. `summarise(total_admissions = n())` then collapses each group to a single row, counting the admissions in it. The result therefore has one row per hospital–year pair. 
+
+**Q2 — A**: `mutate(age_group = case_when(...))` adds a new column `age_group` to the dataset while keeping every existing row and column intact. The first two conditions explicitly cover patients aged under 18 and those aged 18–64; the final `TRUE` is a logical constant that always evaluates to `TRUE`, acting as a catchall for every row not already matched, in this case, patients aged 65 or over. 
+
+**Q3 — B**: Substituting $Age = 50$ and $BMI = 25$ into the model:
+$$\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right) = -6.0 + 0.05(50) + 0.10(25) = -6.0 + 2.5 + 2.5 = -1.0$$
+The predicted log-odds is $-1.0$. 
+
+**Q4 — C**: In a logistic regression, the marginal effect of a covariate on the predicted probability is highest when the probability is close to 0.5 (i.e. in the middle of the S curve we plotted in class), so Patient C ($\hat{p} = 0.50$) has the largest marginal effect. 
+
+**Q5 — D**: A confounder must have a path into X *and* a path into Y. Examining the DAG:
+
+- **Z** has arrows into both X and Y ($Z \to X$ and $Z \to Y$) — **Z is a confounder** 
+- **A** has arrows into both X and Y ($A \to X$ and $A \to Y$) — **A is a confounder** 
+- **M** is caused by X and causes Y — it is a **mediator**, not a confounder.
+
+Both Z and A are confounders, so the correct answer is D.
+
+**Q6 — B**: M is a mediator on the path $X \to M \to Y$ . Including M as a control "blocks" this pathway, so the coefficient on X measures only the direct effect of X on Y (not through M), rather than the total effect. If the researcher wants the total effect, they should not include M.
+
+**Q7 — C**: The interaction term $Male_i \times Age_i$ captures how the relationship between age and systolic blood pressure differs between men and women. For women ($Male = 0$), each additional year of age raises SBP by $+0.5$ mmHg. For men ($Male = 1$), the age gradient is $0.5 + (-0.1) = +0.4$ mmHg per year. The coefficient $-0.1$ is the *difference* in these gradients — men's blood pressure rises with age slightly more slowly than women's. 
+
+**Q8 — A**: The predicted values are:
+$$SBP_{\text{man, 40}} = 100 + 6(1) + 0.5(40) - 0.1(1 \times 40) = 100 + 6 + 20 - 4 = 122 \text{ mmHg}$$
+$$SBP_{\text{woman, 40}} = 100 + 6(0) + 0.5(40) - 0.1(0 \times 40) = 100 + 0 + 20 - 0 = 120 \text{ mmHg}$$
+$$\text{Difference} = 122 - 120 = 2 \text{ mmHg}$$
+Option B (6 mmHg) is the most common error — it reads off the $Male$ coefficient alone and ignores that the interaction term reduces the male–female gap by $0.1 \times 40 = 4$ mmHg at this age. Option C ($-4$ mmHg) uses only the interaction term and forgets the $Male$ coefficient entirely. 
+
+**Q9 — C**: The width of a confidence interval is proportional to the standard error, which is proportional to $1/\sqrt{n}$. Quadrupling the sample size therefore reduces the standard error by a factor of $1/\sqrt{4} = 1/2$, so the CI becomes approximately half as wide. 
+
+**Q10 — B**: The DiD estimate is:
+$$(Y_{A,\text{after}} - Y_{A,\text{before}}) - (Y_{B,\text{after}} - Y_{B,\text{before}})$$
+$$= (20 - 28) - (22 - 25) = -8 - (-3) = -5 \text{ percentage points}$$
+
+**Q11 — D**: The parallel trends assumption: in the absence of the programme, the change in smoking prevalence over time would have been the same in both counties. This is the key identifying assumption for DiD. The two counties do not need to have equal pre-treatment levels (A), universal coverage (B), or equal population size (C).
+
+**Q12 — B**: A hazard ratio of 0.72 means the treated group has a hazard of dying that is $1 - 0.72 = 0.28$, i.e., 28% lower than the placebo group. The 95% CI (0.58–0.89) lies entirely below 1, which means we can reject the null hypothesis of no effect at the 5% significance level. 
+
+\newpage
+## Section B: Solutions
+
+### Question 1
+
+**a. [4 marks]** `mutate(mrall = fatal / pop * 100000)` creates a new column `mrall` equal to the number of fatalities divided by the state population, scaled to a rate per 100,000 people. A researcher would prefer `mrall` over `fatal` because larger states will mechanically have more fatalities even if their roads are no more dangerous — using a rate controls for population size and makes states comparable. **[2 marks for what the code does; 2 marks for the rationale]**
+
+**b. [4 marks]** `mutate(log_income = log(income))` adds a new column equal to the natural logarithm of `income`. Some reasons a researcher might prefer this:
+
+  + A log specification gives a proportional interpretation: the coefficient on `log_income` captures the change in `mrall` associated with a 1% increase in income, which is often more plausible than a linear level relationship.
+  + A log specification reduces influence of extreme values of income on coefficient of interest
+  + The relationship between income and the outcome variable may be more linear on the log scale than in levels, improving the overall fit of the model.
+
+**c. [6 marks]** `mrall_fig` produces a scatter plot with `beertax` on the x-axis (the real tax on a case of beer, in dollars) and `mrall` on the y-axis (vehicle fatality rate per 100,000 population). Each point from `geom_point()` represents one state-year observation. `geom_smooth(method = "lm", se = TRUE)` overlays a fitted OLS regression line with a shaded 95% confidence band, summarising the overall linear trend and uncertainty around the estimate of the slope. **[2 marks for describing axes; 2 marks for describing points; 2 marks for describing the regression line and confidence band]**
+
+**d. [6 marks]** `mean_mrall` is the average vehicle fatality rate per 100,000 population across all state-year observations in each income group; `mean_beertax` is the average real beer tax across all state-year observations in each income group. The output shows that high-income states have both **lower** fatality rates and **lower** beer taxes than low-income states. There is no need to talk about confounding in your answer here, but this descriptive table should flag to you that income is a potential confounder: richer states tend to impose lower beer taxes and simultaneously have lower fatality rates for reasons that might be completely unrelated to the tax (better roads, safer cars, higher-quality healthcare, lower rural driving exposure). A simple regression of `mrall` on `beertax` is therefore likely to be biased since it would attribute to the beer tax some of the reduction in fatalities that is actually driven by income. **[3 marks for describing the two variables; 3 marks for describing the pattern]**
+
+### Question 2
+
+**a. [6 marks]** The coefficient on `beertax` in `model_a` is approximately 3.6. This means that, in the raw data, states with a \$1 higher beer tax have on average 3.6 more fatalities per 100,000 population. For this to be interpreted as causal, we would need **conditional mean independence** i.e. `beertax` needs to be uncorrelated with all other determinants of `mrall` (no omitted variable bias, no reverse causality, no measurement error). This is unlikely: states with higher beer taxes may differ systematically in unobserved ways — for example, we know from question 1d above that high income states have lower motor vehicle fatalities and lower beer taxes. **[3 marks for interpretation of coefficient including units; 3 marks for causal assumptions and why they are unlikely to hold]**
+
+**b. [8 marks]** When `log_income` is added in `model_b`, the coefficient on `beertax` falls substantially from approximately 3.6 to approximately 1.4. This suggests that income is a confounder: richer states tend to have lower beer taxes (negative correlation between income and beertax) and lower fatality rates (negative correlation between income and mrall). In `model_a`, the beertax coefficient is upward biased — some of the variation in fatality rates that is actually driven by income differences across states is incorrectly attributed to beer taxes. Controlling for `log_income` removes this spurious component, and the estimated effect of beertax falls as a result. **[4 marks for explaining the direction of bias and why; 4 marks for connecting the income–beertax and income–mrall relationships]**
+
+**c. [6 marks]** One example of another omitted variable is **urbanisation** (share of population living in cities). More urbanised states may have both lower beer taxes (e.g. because urban voters and legislators may be less supportive of such taxes) and lower fatality rates (e.g. because urban driving is slower and involves shorter distances than rural driving). Omitting urbanisation would therefore bias the `beertax` coefficient upward (i.e. make it more positive). There are many other valid examples: e.g. road quality, law enforcement intensity, speed limit stringency, minimum legal drinking age. **[2 marks for naming and explaining the variable; 4 marks for direction of bias and explanation of why]**
+
+**d. [4 marks]** To add state and year fixed effects:
+
+```{r, eval=FALSE}
+model_c <- feols(mrall ~ beertax + log_income | state + year,
+                 data = Fatalities)
+```
+
+**e. [8 marks]** **State fixed effects** control for all time-invariant characteristics of each state — geography, culture, historical road infrastructure, and so on. For example, rural states with long driving distances will have persistently higher fatality rates and may also have persistently lower beer taxes; state fixed effects absorb this stable difference and prevent it from confounding the estimate. 
+
+**Year fixed effects** control for common shocks affecting all states in a given year — for example, the gradual national rollout of mandatory seatbelt laws, improvements in vehicle safety technology, or national economic downturns that reduce driving. Without year fixed effects, a common downward trend in fatality rates could be spuriously attributed to any variable that also trends nationally over the period. Together, the two sets of fixed effects mean the coefficient on `beertax` is identified from within-state changes in beer taxes over time, net of common year-to-year trends. **[4 marks for state FEs with concrete example; 4 marks for year FEs with concrete example]**
+
+\newpage
+## Section C: Solutions
+
+### Question 1 
+
+**a. [4 marks]** No, control variables are not strictly necessary for the estimate of the treatment effect to be unbiased. Because households were *randomly* assigned to the treatment and control groups, the two groups should be balanced on average across all characteristics — both observed and unobserved. Randomisation ensures $CASH_i$ is independent of $\varepsilon_i$, so the coefficient $\beta_1$ is unbiased without any controls. **2 marks for the correct answer (not necessary); 2 marks for explaining why randomisation achieves this.**
+
+**b. [4 marks]** The main benefit is **increased precision** (reduced standard errors). Even though controls are not needed for the estimate to be unbiased, age group, sex, and baseline health care utilization are likely strong predictors of the outcome. Including them absorbs residual variance, reducing the standard error of $\hat{\beta}_1$ and making it easier to detect a statistically significant treatment effect. *(Also acceptable: guards against chance imbalance in small samples)*  **2 marks for identifying precision/reduced variance; 2 marks for explanation.**
+
+### Question 2 
+
+**[8 marks]** Students should read the figures carefully and report specific estimates with confidence intervals. Key points:
+
+  + The cash transfer caused a decrease in emergency department visits. In the adjusted analysis, households in the treatment group had 87 fewer ED visits per 1,000 people per month, or approximately 27% fewer visits. This effect is statistically significant at the 5% level.
+  + The cash transfer did not have a statistically significant effect on overall number of outpatient visits, although the point estimate was positive. The treatment group had sgnificantly more urgent care visits and more visits to "other subspecialties" (i.e. physicians in specialties other than primary care or behavioural health).
+
+### Question 3
+
+**[8 marks]** Some plausible mechanisms:
+
+  + The cash transfer may have improved financial stability, reducing stress-related health problems. This is consistent with the observed reduction in visits related to behavioral health or substance use disorder. 
+  + The transfer may have allowed recipients to afford over-the-counter medications, transportation, or basic needs, preventing conditions from worsening to the point of requiring emergency care.
+
+### Question 4 — [8 marks]
+
+**a. [4 marks]** Some reasons the results may not generalise:
+
+  + **Single city**: The population of Chelsea, Massachusetts, may differ from other populations in terms of demographics, health care access, or other factors. For example, in the US there are more financial barriers to seeking care than in many other high-income countries. 
+  + **COVID-19 pandemic**: the study was conducted during an unusual period of disrupted health care utilization, fear of hospital attendance, and widespread economic hardship. The effect of cash on health care use may differ in normal times when people are not avoiding hospitals out of fear of infection.
+  + **Specific cash intervention**: the effect of a \$400/month unconditional cash transfer may not generalise to other types of cash interventions (e.g. smaller amounts, conditional transfers, one-off payments). \$400/month may be more or less impactful in different cost-of-living contexts.)
+
+**b. [4 marks]** To assess external validity, useful evidence would include:
+
+  + **Replication studies** in other cities, states, or countries with different population characteristics and health care systems. If consistent effects are found across diverse settings, external validity is stronger.
+  + **Heterogeneity analysis** within this study e.g. examining whether effects differ by subgroup (urban vs suburban, different baseline insurance status, different health conditions) can show which populations drive the results and help identify where they are likely to generalise.
+

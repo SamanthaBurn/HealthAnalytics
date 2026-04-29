@@ -1,0 +1,1051 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Linear Regression"
+author: "Dr. Sam Burn"
+format:
+  revealjs:
+    theme: simple
+    html-math-method: katex
+    css: burn_slides.css
+    slide-number: true
+    incremental: true
+    transition: fade
+    width: 1600
+    height: 900
+    toc: true
+    toc-title: "Today"
+    toc-depth: 1
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(fixest)
+library(patchwork)
+library(gghighlight)
+library(jtools)
+library(ggthemes)
+library(dagitty)
+library(gganimate)
+library(ggdag)
+library(ggpubr)
+library(fixest)
+library(scales)
+library(magick)
+theme_metro <- function() {
+theme_classic() +
+theme(
+panel.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+plot.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+text = element_text(size = 16),
+axis.title.x = element_text(hjust = 1),
+axis.title.y = element_text(hjust = 1, angle = 0)
+)
+}
+theme_void_metro <- function(x) {
+  theme_void() + 
+  theme(panel.background = element_rect(color = '#FAFAFA',fill='#FAFAFA'),
+        plot.background = element_rect(color = '#FAFAFA',fill='#FAFAFA'),
+        text = element_text(size = 16))
+}
+theme_metro_regtitle <- function() {
+theme_classic() +
+theme(
+panel.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+plot.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+text = element_text(size = 16)
+)
+}
+# Plot theme (light, lecture-friendly)
+theme_lecture <- function() {
+  theme_classic(base_size = 22) +
+    theme(
+      plot.background  = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+      panel.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+      axis.title.x = element_text(hjust = 1),
+      axis.title.y = element_text(hjust = 1, angle = 0)
+    )
+}
+
+set.seed(123)
+n <- 600
+
+# Working example data (simulated but realistic enough for teaching)
+# Outcome: systolic blood pressure (SBP)
+# Main regressor: minutes of exercise/week (exercise_min)
+# Controls: age, gender, SES index
+# DGP feature: exercise reduces BP more for older people (age×exercise interaction)
+
+set.seed(123)
+n <- 600
+
+dat <- tibble(
+  age = round(runif(n, 25, 80)),
+  gender = factor(sample(c("Women", "Men"), n, replace = TRUE)),
+  ses = rnorm(n)   # higher = higher SES
+) %>%
+  mutate(
+    male = as.integer(gender == "Men"),
+    age_c = age - 50,  # centered age for interpretable interactions
+
+    # Baseline SBP level (no separate sbp0 object)
+    # Parametric age and age×gender interaction chosen to roughly match:
+    # 18–39: Men > Women
+    # 40–59: Similar
+    # 60+: Women > Men
+    sbp_base =
+      108 +                      # baseline (young women)
+      0.45 * age +               # age slope (women)
+      10 * male +                # male intercept premium at young ages
+      (-0.25) * age * male +     # shrinking & reversing gender gap
+      (-2.0) * ses,
+
+    # Exercise process (same as before)
+    exercise = pmax(
+      0,
+      round(120 + 1.3 * (50 - age) + 25 * ses + rnorm(n, sd = 60))
+    ),
+
+    # SBP with heterogeneous (stronger-for-older) exercise effect
+    # Effect of exercise on SBP:
+    #   at age 50:   -0.01 per minute
+    #   at age 70:   -0.01 - 0.0006*20 = -0.022 per minute
+    #   at age 30:   -0.01 - 0.0006*(-20) = +0.002 per minute (≈ zero)
+    sbp =
+      sbp_base +
+      (-0.01)   * exercise +
+      (-0.0006) * exercise * age_c +
+      rnorm(n, sd = 8),
+
+    exercise_any = as.integer(exercise >= 150),
+    exercise_cat = cut(
+      exercise,
+      breaks = c(-Inf, 30, 150, 300, Inf),
+      labels = c("Sedentary (0–30)", "Low (30–150)", "Moderate (150–300)", "High (300+)")
+    ),
+
+    age_band = cut(
+      age,
+      breaks = c(-Inf, 39, 59, Inf),
+      labels = c("18–39", "40–59", "60+")
+    )
+  ) %>%
+  select(-sbp_base)  # drop helper column; keep male/age_c if you like
+
+```
+
+## Course road map
+
+| Lecture | Topic |
+| --- | --- |
+| 1 | Introduction to health data & R |
+| 2 | Data visualization |
+| 3 | Data wrangling & exploratory data analysis |
+| 4 | Causal inference |
+| [**5**]{style="color: #C8102E"} | [**Linear regression**]{style="color: #C8102E"} |
+| 6 | Linear regression: uncertainty & hypothesis testing |
+| 7 | Panel data: difference-in-differences & fixed effects |
+| 8 | Limited dependent variables: LPM, logit, probit |
+| 9 | Introduction to machine learning for health analytics |
+| 10 | Course review |
+
+## The health analytics pipeline
+
+::: {.centered-fig .nonincremental}
+![](images/lec01_slide11_a.png){width="80%"}
+:::
+
+# Linear regression: theory and practice
+
+## What is regression?
+
+-   Regression is a **model-based summary** of how variables move together in data
+-   The same tool can be used for:
+    -   **Description**: summarise patterns
+    -   **Prediction**: forecast $Y$ given $X$
+    -   **Causal inference**: effect of changing $X$ on $Y$ **only with extra assumptions**
+
+## Working example
+
+-   $Y$: systolic blood pressure (BP)
+-   $X$: time spent exercising (minutes per week)
+
+::: {.fragment}
+```{r}
+#| echo: false
+ggplot(dat, aes(x = exercise, y = sbp)) +
+  geom_point(alpha = 0.35) +
+  labs(x = "Exercise (minutes/week)", y = "Systolic BP (mmHg)") +
+  theme_metro()
+```
+:::
+
+## Why we need a model
+
+-   For similar $X$, we see many different values of $Y$
+-   We want a rule that:
+    -   smooths noise
+    -   generalises beyond observed values
+    -   is interpretable
+
+## The linear regression model (population)
+
+$$
+Y = \beta_0 + \beta_1 X + \varepsilon
+$$
+
+-   $\beta_0, \beta_1$ are unknown population parameters
+    -   $\beta_0$ is the intercept
+    -   $\beta_1$ is the slope
+-   $\varepsilon$ captures unobserved determinants of $Y$
+
+## From model to data
+
+-   We observe data $(Y_i, X_i)$ for $i = 1, \dots, n$
+-   The fitted model is: $$\widehat{Y}_i = \widehat{\beta}_0 + \widehat{\beta}_1 X_i$$
+-   $\widehat{\beta}_0$ is the estimated intercept
+-   $\widehat{\beta}_1$ is the estimated slope
+-   $\widehat{Y}_i$ is the predicted outcome
+
+## What OLS does
+
+-   Ordinary Least Squares chooses coefficients to minimise:
+
+$$
+\sum_i (Y_i - \widehat{Y}_i)^2
+$$
+
+-   These are **squared vertical distances** from points to the fitted line
+
+## OLS in R (univariate)
+
+::: {.fragment}
+```{r}
+m1 <- lm(sbp ~ exercise, data = dat)
+summary(m1)
+```
+:::
+
+## OLS in R (univariate)
+
+::: {.fragment}
+```{r}
+#| echo: false
+ggplot(dat, aes(exercise, sbp)) +
+  geom_point(alpha = 0.25) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Unadjusted: Blood pressure vs exercise",
+        x = "Exercise (minutes/week)",
+        y = "Sys blood pressure (mmHg)") +
+  theme_metro()
+```
+:::
+
+## Visualising residuals
+
+::: {.fragment}
+```{r}
+dat2 <- dat %>%
+  mutate(
+    yhat = predict(m1),
+    resid = sbp - yhat
+  )
+
+ggplot(dat2 %>% slice_sample(n = 120), aes(exercise, sbp)) +
+  geom_point(alpha = 0.6) +
+  geom_line(aes(y = yhat), linewidth = 1.1) +
+  geom_segment(aes(xend = exercise, yend = yhat), alpha = 0.4) +
+  labs(title = "Residuals are vertical distances") +
+  theme_metro()
+```
+:::
+
+## Simplification is the point
+
+-   A line throws away information by design
+-   Memorising every point fits the data better *in sample*
+-   But performs worse *out of sample* (overfitting)
+-   Regression aims to recover a **systematic relationship**
+
+## How prediction works
+
+-   Once we estimate $\widehat{\beta}_0, \widehat{\beta}_1$:
+    -   choose a value of $X$
+    -   compute $\widehat{Y} = \widehat{\beta}_0 + \widehat{\beta}_1 X$
+
+::: {.fragment}
+```{r}
+newx <- tibble(exercise = c(0, 150, 300))
+predict(m1, newdata = newx)
+```
+:::
+
+::: {.fragment}
+```{r}
+#| echo: false
+## Points we want to "read off"
+newx <- tibble(exercise = c(0, 150, 300))
+newx$pred <- predict(m1, newdata = newx)
+
+## Points we want to read off
+newx <- tibble(exercise = c(0, 150, 300))
+newx$pred <- predict(m1, newdata = newx)
+
+## Prediction grid for fitted line
+grid <- tibble(exercise = seq(0, max(dat$exercise), length.out = 200))
+grid$pred <- predict(m1, newdata = grid)
+
+## Plot
+ggplot(dat, aes(x = exercise, y = sbp)) +
+  geom_point(alpha = 0.25) +
+  geom_line(data = grid, aes(y = pred), linewidth = 1.2) +
+
+  ## Vertical segments: from x up to y-hat
+  geom_segment(
+    data = newx,
+    aes(x = exercise, xend = exercise,
+        y = min(dat$sbp), yend = pred),
+    linetype = "dashed",
+    colour = "red"
+  ) +
+
+  ## Horizontal segments: from y-hat to x-axis (or y-axis when x = 0)
+  geom_segment(
+    data = newx,
+    aes(x = 0, xend = exercise,
+        y = pred, yend = pred),
+    linetype = "dashed",
+    colour = "red"
+  ) +
+
+  ## Points on the fitted line
+  geom_point(data = newx, aes(y = pred), size = 3) +
+
+  ## x labels
+  geom_label(
+    data = newx,
+    aes(x = exercise,
+        y = min(dat$sbp) + 2,
+        label = paste0("x = ", exercise)),
+    fill = "white",
+    size = 16 / .pt
+  ) +
+
+  ## y-hat labels (clearly read off the y-axis when x = 0)
+  geom_label(
+    data = newx,
+    aes(x = 5,
+        y = pred,
+        label = paste0("ŷ = ", round(pred, 1))),
+    hjust = 0,
+    fill = "white",
+    size = 16 / .pt
+  ) +
+
+  labs(
+    title = "Reading off predictions from the fitted line",
+    x = "Exercise (minutes/week)",
+    y = "Systolic blood pressure (mmHg)"
+  ) +
+  theme_metro()
+```
+:::
+
+## What the slope gives us (mechanically)
+
+-   A prediction rule $\widehat{Y}(X)$
+-   A summary of association in the data
+-   Interpretation depends on purpose:
+    -   descriptive
+    -   predictive
+    -   causal (requires extra assumptions)
+
+## Key assumption for causal interpretation
+
+-   To interpret $\beta_1$ causally, we need **conditional mean independence**: $\mathbb{E}[\varepsilon \mid X] = 0$
+-   No omitted confounders
+-   No "bad controls"
+
+# Multivariate regression
+
+## Why simple regression can mislead
+
+-   Exercise is not randomly assigned
+-   For example, age affects:
+    -   how much people exercise
+    -   blood pressure
+-   Simple regression mixes these channels
+
+## The multivariate model (population)
+
+$$
+Y = \beta_0 + \beta_1 X + \beta_2 Z + \varepsilon
+$$
+
+-   $Z$ is a covariate (often called "control variable" or even "control")
+-   $\beta_1$ is the association between $X$ and $Y$ **holding** $Z$ fixed
+
+## What “controlling for” means
+
+-   Compare units with the same value of $Z$
+    -   Use variation in $X$ that is **orthogonal to** $Z$\
+    -   Relate that residual variation in $X$ to variation in $Y$
+-   Adding covariate $Z$ changes the meaning of $\beta_1$
+    -   $\beta_1$ is identified from variation in $X$ **holding** $Z$ fixed
+-   Controls address confounding only under **conditional mean independence**: $$
+    \mathbb{E}[\varepsilon_i \mid X_i, Z_i] = 0
+    $$
+-   After conditioning on $X$ and $Z$, the remaining error is unrelated to $X$\
+-   If this fails (omitted variables, reverse causality, measurement error), $\beta_1$ is **not causal**
+
+## Adding covariates to the model in R
+
+::: {.fragment}
+```{r}
+m2 <- lm(sbp ~ exercise + age, data = dat)
+summary(m2)
+```
+:::
+
+## Unadjusted relationship
+
+::: {.fragment}
+```{r}
+#| echo: false
+ggplot(dat, aes(exercise, sbp)) +
+  geom_point(alpha = 0.25) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Unadjusted: Blood pressure vs exercise",
+        x = "Exercise (minutes/week)",
+        y = "Sys blood pressure (mmHg)") +
+  theme_metro()
+```
+:::
+
+## What controlling for age looks like
+
+-   Regress exercise on age and calculate the residuals (R1)
+-   Regress BP on age and calculate the residuals (R2)
+-   Regress R2 on R1!
+
+::: {.fragment}
+```{r}
+#| echo: false
+rx <- lm(exercise ~ age, data = dat)
+ry <- lm(sbp ~ age, data = dat)
+
+dat <- dat %>%
+  mutate(
+    exercise_res = resid(rx),
+    sbp_res = resid(ry)
+  )
+
+p_ex <- ggplot(dat %>% slice_sample(n = 150),
+               aes(age, exercise)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1.1) +
+  geom_segment(
+    aes(xend = age, yend = exercise - exercise_res),
+    alpha = 0.4
+  ) +
+  labs(
+    title = "Exercise regressed on age",
+    y = "Exercise"
+  ) +
+  theme_metro() + 
+  theme(
+      plot.title = element_text(size = 12, face = "bold"),
+      plot.subtitle = element_text(size = 10),
+      axis.title = element_text(size = 11)
+    )
+
+p_bp <- ggplot(dat %>% slice_sample(n = 120),
+               aes(age, sbp)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1.1) +
+  geom_segment(
+    aes(xend = age, yend = sbp - sbp_res),
+    alpha = 0.4
+  ) +
+  labs(
+    title = "Blood pressure regressed on age",
+    y = "BP"
+  ) +
+  theme_metro() +
+  theme(
+      plot.title = element_text(size = 12, face = "bold"),
+      plot.subtitle = element_text(size = 10),
+      axis.title = element_text(size = 11)
+    )
+
+p_fwl <- ggplot(dat %>% slice_sample(n = 120),
+                aes(exercise_res, sbp_res)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1.1) +
+  labs(
+    title = "BP vs exercise, adjusted for age",
+    x = "Exercise residual",
+    y = "BP residual"
+  ) +
+  theme_metro() +
+  theme(
+      plot.title = element_text(size = 12, face = "bold"),
+      plot.subtitle = element_text(size = 10),
+      axis.title = element_text(size = 11)
+    ) 
+
+blank <- ggplot() + theme_void()
+
+ggarrange(
+    ggarrange(p_ex, p_bp, blank, nrow = 1,
+        widths = c(1, 1, 0), legend = "none"),
+    ggarrange(blank, p_fwl, blank, nrow = 1,
+        widths = c(0.5, 1, 0.5), legend = "none"),
+    nrow = 2,
+    legend = "none"
+)
+```
+:::
+
+# Omitted Variable Bias (OVB)
+
+## When does omitted variable bias occur?
+
+-   Omitted variable bias occurs when:
+    1.  A relevant variable $Z$ affects the outcome $Y$
+    2.  That variable $Z$ is correlated with the regressor of interest $X$
+    3.  We leave $Z$ out of the regression
+-   The estimated relationship between $X$ and $Y$ will generally be **biased and inconsistent**
+    -   **Biased**: the estimated effect is systematically wrong
+    -   **Inconsistent**: the error does not vanish as the sample size grows
+
+## Omitted Variable Bias: Setup
+
+-   Suppose the **true population model** is: $$Y = \beta_0 + \beta_1 X + \beta_2 Z + \varepsilon$$
+    -   $X$: exercise (minutes/week)
+    -   $Y$: systolic blood pressure
+    -   $Z$: age
+    -   $\varepsilon$: all other unobserved factors
+-   But we estimate the **short regression**: $$Y = \tilde{\beta_0} + \tilde{\beta_1} X + u$$
+    -   the error term is now $u = \beta_2 Z + \varepsilon$
+
+## Why OVB Happens
+
+-   In the short regression, $X$ is now correlated with the error term $u$
+-   This violates the key OLS assumption: $\mathbb{E}[u \mid X] = 0$
+-   OLS no longer isolates the relationship between $X$ and $Y$
+-   Instead, it mixes:
+    -   the effect of $X$ on $Y$
+    -   the effect of omitted variables correlated with $X$
+
+## The OVB Formula
+
+-   Under standard assumptions, the **expected value** of the OLS slope estimator from the short regression is: $$\mathbb{E}[\tilde{\beta_1}]=\beta_1+\beta_2
+    \frac{\operatorname{Cov}(X, Z)}{\operatorname{Var}(X)}
+    $$
+-   Interpretation:
+    -   $\beta_1$: the relationship we actually care about
+    -   $\beta_2$: how strongly the omitted variable affects $Y$
+    -   $\operatorname{Cov}(X, Z)$: how strongly $X$ and $Z$ are related
+
+## Direction of Bias
+
+-   The *sign* of the bias depends on two things:
+    1.  The sign of $\beta_2$ (does $Z$ raise or lower $Y$?)
+    2.  The sign of $\operatorname{Cov}(X, Z)$ (is $Z$ positively or negatively related to $X$?)
+-   Examples:
+    -   $\beta_2 > 0$ and $\operatorname{Cov}(X, Z) > 0$ → upward bias
+    -   $\beta_2 > 0$ and $\operatorname{Cov}(X, Z) < 0$ → downward bias
+-   This logic lets us **predict the direction of bias**
+
+## OVB in Our Blood Pressure Example
+
+-   The true model is $$Y = \beta_0 + \beta_1 \text{exercise} + \beta_2 \text{age}  + \varepsilon$$
+-   We initially estimated $$Y = \tilde{\beta_0} + \tilde{\beta_1} \text{exercise} + u$$
+-   Plausible relationships:
+    -   Older age increases blood pressure → $\beta_2 > 0$
+    -   Older people tend to exercise less → $\operatorname{Cov}(\text{exercise}, \text{age}) < 0$
+-   So the bias term is **negative**
+-   A regression of blood pressure on exercise *without age* will make exercise look **more protective than it really is**
+
+------------------------------------------------------------------------
+
+## Drawing the DAG
+
+::: {.fragment}
+```{r}
+dag <- dagify(
+  sbp ~ exercise + age,
+  exercise ~ age,
+  coords = list(
+    x = c(exercise = 1, age = 2, sbp = 3),
+    y = c(exercise = 2, age = 1, sbp = 2)
+  )
+) %>% tidy_dagitty()
+
+ggdag_classic(dag, node_size = 10) +
+  theme_void_metro() +
+  expand_limits(x = c(.5, 3.5), y = c(.5, 2.5))
+```
+:::
+
+------------------------------------------------------------------------
+
+## Comparing coefficients across models
+
+::: {.fragment}
+```{r}
+# short regression (omit age)
+m_short <- lm(sbp ~ exercise, data = dat)
+
+# long regression (control for age)
+m_long <- lm(sbp ~ exercise + age, data = dat)
+
+# longest regression (control for age, gender + SES)
+m_longest <- lm(sbp ~ exercise + age + male + ses, data = dat)
+
+coef(m_short)["exercise"]
+coef(m_long)["exercise"]
+coef(m_longest)["exercise"]
+```
+:::
+
+------------------------------------------------------------------------
+
+## Examples of controls in the BP-exercise regression
+
+-   Age
+-   Gender
+-   Pre-existing health status
+-   Socioeconomic status (if pre-treatment)
+
+# Good and bad controls
+
+## Bad controls: why “control for everything” fails
+
+-   In principle, we choose controls by:
+    -   drawing a causal diagram,
+    -   identifying backdoor paths,
+    -   and controlling for variables that close those paths.
+-   Why not just control for everything we observe?
+-   Because adding the wrong controls can make estimates **worse**, not better:
+    -   introducing post-treatment bias,
+    -   creating collider bias.
+    -   washing out meaningful variation
+
+------------------------------------------------------------------------
+
+## Post-treatment bias
+
+-   A post-treatment variable is caused by the treatment.
+-   Controlling for it removes part of the treatment effect
+-   Suppose we are interested in whether the $PriceOfCigarettes$ affect $Health$
+-   If we controlled for $Smoking$, then there's no way for the price to affect health!
+-   We'd say that $PriceOfCigarettes$ has no effect when really it does
+
+::: {.fragment}
+```{r}
+#| echo: false
+dag <- dagify(Smoking~Price,
+              Health~Smoking,
+              coords=list(
+                x=c(Price=1,Smoking=2,Health=3),
+                y=c(Price=1,Smoking=2,Health=1)
+              )) %>% tidy_dagitty()
+ggdag_classic(dag,node_size=10) + 
+  theme_void_metro() + 
+  expand_limits(x=c(.5,3.5),y = c(.5,2.5))
+```
+:::
+
+## Post-treatment bias: exercise and blood pressure
+
+-   Suppose exercise affects blood pressure in part because it lowers weight
+-   These variables lie on the causal path: $$\text{Exercise} \rightarrow \text{Weight} \rightarrow \text{Blood pressure} $$
+-   But we have a problem here if weight also affects the likelihood of doing exercise!
+-   Once behavior feeds back on itself, we need time, exogenous shocks, or both. That’s why panel data and instrumental variables are useful!
+
+## Colliders
+
+-   A collider is a variable where two causal arrows point *into* it.
+-   Example structure: $X \rightarrow C \leftarrow Y$
+-   Paths with colliders are closed by default.
+-   Conditioning on a collider **opens** the path.
+-   Example: You want to estimate the effect of BMI on diabetes
+    -   You analyse data from **hospital patients only**.
+    -   Hospital admission is influenced by BMI and diabetes
+-   By conditioning on it, you induce a spurious relationship.
+
+## Washing out too much variation
+
+-   Controlling for a variable $Z$ removes all variation in $X$ and $Y$ associated with $Z$.
+-   The coefficient $\widehat{\beta}_1$is then interpreted as: “Within the same value of $Z$, a one-unit change in $X$ changes $Y$ by $\widehat{\beta}_1$.”
+-   We must ask whether that within-$Z$ comparison makes sense.
+-   Example: Controlling for step count in our regression of BP on exercise
+    -   "Holding step count fixed, increasing total exercise minutes" is basically “increasing non-running/walking exercise” which is a different treatment.
+    -   The remaining variation in exercise is small and noisy.
+
+# Measurement error in $X$
+
+## Measurement error in $X$
+
+-   Suppose the true regressor $X$ is not observed directly.
+-   Instead we observe: $$
+    X^{*} = X + u
+    $$
+    -   $u$ has mean zero,
+    -   $u$ is uncorrelated with $X$ and $\varepsilon$.
+-   We estimate the regression: $$
+    Y = \beta_0 + \beta_1 X^{*} + \varepsilon
+    $$
+
+## Direction of bias: attenuation
+
+Under these assumptions, the expected OLS slope is: 
+$$
+\mathbb{E}[\widehat{\beta}_1]
+= \beta_1 \,\frac{\operatorname{Var}(X)}{\operatorname{Var}(X) + \operatorname{Var}(u)}
+$$
+
+-   The fraction is **strictly less than 1**.
+-   Therefore:
+    -   $\widehat{\beta}_1$ is **biased toward zero**.
+    -   The true effect is **attenuated**.
+-   Measurement error in $X$ makes effects look smaller than they really are.
+
+# Binary and categorical variables
+
+## Binary and categorical variables
+
+-   So far, we have focused on:
+    -   continuous regressors
+    -   linear relationships
+-   In applied health analytics, variables are often:
+    -   binary
+    -   categorical
+
+------------------------------------------------------------------------
+
+## Interpreting a binary regressor
+
+-   Suppose $X$ is binary:
+    -   $X = 1$: patient exercises at least 150 minutes per week
+    -   $X = 0$: patient exercises less than 150 minutes per week
+-   Model: $Y = \beta_0 + \beta_1 X + \varepsilon$
+    -   $\beta_0$: mean $Y$ when $X = 0$
+    -   $\beta_1$: difference in mean $Y$ between $X = 1$ and $X = 0$
+
+------------------------------------------------------------------------
+
+## Binary regressor in R
+
+::: {.fragment}
+```{r}
+dat <- dat %>%
+  mutate(active = exercise >= 150)
+
+m_bin <- lm(sbp ~ active + age, data = dat)
+summary(m_bin)
+```
+:::
+
+-   Coefficient on active is a mean difference.
+-   Controls work exactly as before.
+
+------------------------------------------------------------------------
+
+## Interpreting a categorical regressor
+
+-   Suppose $X$ is grouped into:
+    -   none: patient does not exercise
+    -   some: patient exercises less than 150 minutes per week
+    -   high: patient exercises 150+ minutes per week
+-   One category is omitted and becomes the **reference group**
+-   Each coefficient compares a category to that reference
+-   You cannot include all categories simultaneously: doing so would create **perfect multicollinearity** (the dummies sum to one)
+
+## Categorical regressors in R
+
+::: {.fragment}
+```{r}
+dat <- dat %>%
+  mutate(
+    exercise_cat = case_when(
+      exercise == 0 ~ "none",
+      exercise < 150 ~ "some",
+      TRUE ~ "high"
+    ),
+    exercise_cat = factor(exercise_cat)
+  )
+
+m_cat <- lm(sbp ~ exercise_cat + age, data = dat)
+summary(m_cat)
+```
+:::
+
+-   What is the omitted category?
+
+------------------------------------------------------------------------
+
+## Specifying the reference category
+
+::: {.fragment}
+```{r}
+dat <- dat %>%
+  mutate(
+    exercise_cat = case_when(
+      exercise == 0 ~ "none",
+      exercise < 150 ~ "some",
+      TRUE ~ "high"
+    ),
+    exercise_cat = factor(exercise_cat, levels = c("none", "some", "high"))
+  )
+
+m_cat <- lm(sbp ~ exercise_cat + age, data = dat)
+summary(m_cat)
+```
+:::
+
+-   First level of factor variable will always be the reference
+
+# Polynomials
+
+## Functional form
+
+-   Sometimes a straight line is not a good description of the relationship.
+-   As long as the nonlinearity is on the **right-hand side**, OLS still works.
+-   We fix this by letting $X$ enter nonlinearly via **transformations**.
+-   The two most common: **polynomials** and **logarithms**.
+
+## Functional Form
+
+-   Why do this? Because sometimes a straight line is clearly not going to do the trick!
+
+::: {.fragment}
+```{r}
+#| echo: false
+set.seed(500)
+df <- tibble(X = 5*runif(200)) %>%
+  mutate(Y = X - 2*X^2 + 2*rnorm(200))
+```
+:::
+
+::: {.fragment}
+```{r}
+ggplot(df, aes(x = X, y = Y)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm', se = FALSE) + 
+  geom_line(aes(x = X, y = predict(lm(Y~X+I(X^2), data = df))), color = 'red', size = 1) + 
+  theme_metro() + 
+  annotate(geom = 'text', x = 2.5, y = -20, label = 'Straight Line', color = 'blue', size = 15/.pt) + 
+  annotate(geom = 'text', x = 3, y = -9, label = 'Quadratic', color = 'red', size = 15/.pt)
+```
+:::
+
+## Interpreting polynomials
+
+-   With polynomials, the effect of $X$ depends on the value of $X$.
+-   Interpret effects using the **derivative**. $$ Y = \beta_1 X + \beta_2 X^2$$
+    $$\frac{\partial Y}{\partial X} = \beta_1 + 2\beta_2 X$$
+-   The slope changes with $X$.
+-   Individual coefficients are not meaningful on their own.
+-   Test polynomial terms **jointly**, not one by one.
+
+## Polynomials in R
+
+-   We can add an `I()` function to our regression to do a calculation on a variable before including it. So `I(X^2)` adds a squared term
+-   There's also a `poly()` function but you **must** set `raw=TRUE` if you do
+
+::: {.fragment}
+```{r}
+# Linear
+lm(Y ~ X, data = df)
+# Quadratic
+lm(Y ~ X + I(X^2), data = df)
+```
+:::
+
+------------------------------------------------------------------------
+
+## Higher order polynomials
+
+-   Adding terms makes the relationship more flexible.
+    -   $\beta_1 X$: linear (first order)
+    -   $\beta_1 X + \beta_2 X^2$: quadratic (second order)
+    -   $\beta_1 X + \beta_2 X^2 + \beta_3 X^3$: cubic
+-   In practice, **quadratics are usually enough**.
+-   Higher-order terms often add noise and hurt interpretation.
+
+# Log transformations
+
+## Log transformations
+
+-   Sometimes a linear relationship in levels is a poor approximation.
+-   Common reasons to transform variables:
+    -   diminishing returns
+    -   skewed distributions
+    -   interest in percentage changes
+
+## Log transformations
+
+::: {.fragment}
+```{r}
+#| echo: false
+set.seed(500)
+logdf <- tibble(X = 10*runif(200)) %>%
+  mutate(Y = log(X) + .3*rnorm(200))
+ggplot(logdf, aes(x = X, y = Y)) + geom_point() + 
+  theme_metro() + 
+  geom_line(aes(x = X, y = predict(lm(Y~X, data = logdf))), color = 'blue', size = 1) + 
+  geom_line(aes(x = X, y = predict(lm(Y~log(X), data = logdf))), color = 'red', size = 1) + 
+  annotate(geom = 'text', x = 4.1, y = .5, color = 'blue', label = 'Straight Line', size = 15/.pt) + 
+  annotate(geom = 'text', x = 1.5, y = 1.5, color = 'red', label = 'Y regressed on log(X)', size = 15/.pt) 
+  
+```
+:::
+
+## Log transformations
+
+-   Notice the change in axes
+
+::: {.fragment}
+```{r}
+#| echo: false
+ggplot(logdf, aes(x = log(X), y = Y)) + geom_point() + 
+  theme_metro() + 
+  geom_line(aes(x = log(X), y = predict(lm(Y~X, data = logdf))), color = 'blue', size = 1) + 
+  geom_line(aes(x = log(X), y = predict(lm(Y~log(X), data = logdf))), color = 'red', size = 1) + 
+  annotate(geom = 'text', x = 1.25, y = -.25, color = 'blue', label = '"Straight Line" (Y regressed on X)', size = 15/.pt) + 
+  annotate(geom = 'text', x = -.5, y = 1, color = 'red', label = 'Y regressed on log(X)', size = 15/.pt) 
+  
+```
+:::
+
+## Interpreting logarithms
+
+-   Logs turn changes in a variable into **percentage changes**.
+-   Key idea: $\Delta\log(X)\approx \%\Delta X$
+-   This approximation works well for **small changes** (e.g. 1–10%)
+-   Linear-log regression
+    -   $Y = \beta_0 + \beta_1 \log(X)$\
+    -   1% increase in $X$ is associated with a $\beta_1/100$ unit change in $Y$
+-   Log-linear regression
+    -   $\log(Y) = \beta_0 + \beta_1 X$
+    -   One-unit increase in $X$ is associated with a $\beta_1 \times 100\%$ change in $Y$
+-   Log-log regression
+    -   $\log(Y) = \beta_0 + \beta_1 \log(X)$
+    -   1% increase in $X$ is associated with a $\beta_1\%$ change in $Y$
+-   For large changes, interpret exactly:
+    -   $\log(Y) = \beta_0 + \beta_1 X$: 1 unit increase in $X$ is associated with $(e^{\beta_1}-1)\times 100\%$ increase in $Y$
+    -   $Y = \beta_0 + \beta_1 \log(X)$: Going from $X_0$ to $X_1$ is associated with an increase in $Y$ of $\beta_1[\log(X_1)/\log(X_0)]$
+    -   $\log(Y) = \beta_0 + \beta_1 \log(X)$: A 1% increase in $X$ is associated with a $(1.01^\beta_1-1)\times 100\%$ change in $Y$
+
+## Log model in R
+
+::: {.fragment}
+```{r}
+m_log <- lm(log(sbp) ~ exercise + age, data = dat)
+summary(m_log)
+```
+:::
+
+-   The coefficient on exercise is -0.00018.
+-   This means:
+    -   1 minute more per week of exercise $\rightarrow \quad \approx$ 0.018% lower BP
+    -   100 minutes more per week of exercise $\rightarrow \quad \approx$ 1.8% lower BP
+
+## Downsides of logarithms
+
+-   Logarithms require that all data be positive. No negatives or zeroes!
+-   Zeroes are common! A common practice is to just do $log(X+1)$ or $asinh(X)=\ln(X+\sqrt{X^2+1})$ but these are pretty arbitrary
+-   On the left-hand side at least, better to deal with 0s with Poisson regression
+
+## Functional form takeaways
+
+-   In general, you want the shape of your function to match the shape of the relationship in the data (or, even better, the true relationship)
+-   Polynomials and logs can usually get you there!
+-   Which to use? Use logs for highly skewed data or variables with exponential relationships
+-   Use polynomials if it doesn't look straight! **Check that scatterplot and see how not-straight it is!**
+
+# Interactions
+
+## Interactions
+
+-   Sometimes the effect of $X$ depends on another variable.
+-   Example: Exercise may reduce blood pressure more (or less) for younger patients than for older patients
+-   Interaction model $$
+    Y = \beta_0  + \beta_1 X + \beta_2 Z + \beta_3 (X \times Z) + \varepsilon
+    $$
+    -   $\beta_1$: effect of $X$ when $Z = 0$
+    -   $\beta_3$: how the effect of $X$ changes with $Z$
+
+## Interaction in R
+
+::: {.fragment}
+```{r}
+m_int <- lm(sbp ~ exercise * age, data = dat)
+summary(m_int)
+```
+:::
+
+-   Main effects and interaction terms must be interpreted **together**
+-   The coefficient on exercise alone is no longer the “average effect”
+
+## Visualising interactions
+
+-   Different slopes show how the effect of exercise depends on age
+
+::: {.fragment}
+```{r, echo = FALSE}
+newdat <- expand.grid(
+  exercise = seq(0, 300, by = 10),
+  age = c(40, 60)
+)
+
+newdat$pred <- predict(m_int, newdata = newdat)
+
+ggplot(newdat, aes(exercise, pred, colour = factor(age))) +
+  geom_line(linewidth = 1.2) +
+  labs(
+    title = "",
+    y = "Predicted BP",
+    x = "Exercise",
+    colour = "Age"
+  ) +
+  theme_lecture()
+```
+:::
+
+## Notes on interactions
+
+$$
+Y = \beta_0  + \beta_1 X + \beta_2 Z + \beta_3 (X \times Z) + \varepsilon
+$$
+
+-   The coefficients on their own now have little meaning and must be evaluated alongside each other. $\beta_1$ by itself is just "the effect of $X$ when $Z = 0$", not "the effect of $X$"
+-   Yes usually want to include both variables in un-interacted form and interacted form.
+-   Interaction effects are *poorly powered*. You need a *lot* of data to be able to tell whether an effect is different in two groups.
+
+## Key Takeaways
+
+-   A linear regression model of $Y$ on $X$ fits a straight line: $Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i$
+    -   $\beta_1$ is the slope of this line: the average change in $Y$ associated with a one-unit increase in $X$
+-   How $X$ is coded matters for interpretation (levels, logs, binary/categorical variables)\
+-   In a multivariate regression, $Y_i = \beta_0 + \beta_1 X_i + \beta_2 Z_i + \varepsilon_i$
+    -   $\beta_1$ measures the relationship between $X$ and $Y$ adjusting for $Z$
+-   Controls address confounding only under conditional mean independence: $\mathbb{E}[\varepsilon_i \mid X_i, Z_i] = 0$
+-   Omitted variable bias arises if relevant confounders are excluded and correlated with $X$\
+-   Measurement error in regressors can bias coefficients towards zero
+-   Controlling for the wrong variables can introduce bias:
+    -   Conditioning on colliders opens spurious correlations\
+    -   Controlling for post-treatment variables blocks part of the causal effect
+
+## Coming Next
+
+-   How to quantify uncertainty around estimated coefficients\
+-   How to interpret standard errors, t-statistics, p-values, and confidence intervals
+-   Testing single and multiple hypotheses using t-tests and F-tests\
+-   Reading regression tables critically

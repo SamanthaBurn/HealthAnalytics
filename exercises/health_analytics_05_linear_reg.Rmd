@@ -1,0 +1,115 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Linear regression 1"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+# Introduction
+
+This exercise will guide you through running linear regression in R and interpreting the results. We will use the `NHANES` dataset available from the `R` package `NHANES`. We will study the relationship between **education** and **mental health**.
+
+- $y$ is `DaysMentalHlthBad` is the number of days in the past 30 days when respondent \(i\) reported their mental health was “not good”.  (In NHANES this is often coded as a 0–30 count with many zeros.)
+- $x$ is is `Education`, coded as categories.
+- You will be using gender and age as covariates
+
+As always start by loading the necessary packages. We're going to use `tidyverse` for data manipulation and visualization, `NHANES` to load the NHANES data, and `modelsummary` and `kableExtra` and `knitr` to produce nice looking tables.
+
+```{r, include=FALSE, results='hide'}
+packages <- c("tidyverse", "broom", "tidyr","srvyr", "NHANES", "modelsummary", "kableExtra")
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+Load the NHANES data into an R dataframe called `nhanes_data`.
+
+```{r}
+# View structure of the dataset
+nhanes_data <- NHANES
+```
+
+# Data cleaning and summary statistics
+
+1. Filter the data to exclude people who have `NA` recorded for any of the following variables:  `Education`, `DaysMentHlthBad`, `Gender` or `Age`.  
+2. Create two new binary variables:
+
+  - `CollegeGrad` equal to 1 if `Education` is "College Grad" and zero otherwise. 
+  - `Male` equal to 1 if `Gender` is "male" and zero otherwise. 
+
+3. For the filtered observations calculate:
+
+  a) What percent of people have `DaysMentHlthBad` equal to zero? 
+  b) What is the mean and standard deviation of `DaysMentHlthBad` across all observations?  
+  c) What is the mean and standard deviation of `DaysMentHlthBad` for people with `CollegeGrad` equal to 1 and for people with `CollegeGrad` equal to 0?
+
+```{r wrangle}
+```
+
+
+```{r descriptives}
+```
+
+# Data visualization
+Using the filtered data from question 1, generate a bar chart showing the average number of days of bad mental health (`DaysMentHlthBad`) by the new `CollegeGrad' variable. Plot density bars side by side for college graduates and non-college graduates. Would a log transformation of \(Y\) make sense here? Why or why not?
+
+```{r barplot}
+```
+
+# Univariate regression
+
+1. Estimate a linear regression where `DaysMentHlthBad` is the dependent variable and the explanatory variable is the `CollegeGrad` dummy variable. Use `summary()` to show the coefficients and from your estimated model.
+
+2. How do you interpret the coefficient on CollegeGrad? In your answer, comment on the direction of the relationship and the magnitude of the effect? Ignore statistical uncertainty for now.
+
+3. Explain why the coefficient on `CollegeGrad` in the model might not be a causal estimate of the effect of a college education on mental health. 
+
+```{r linear}
+```
+
+# Multivariate regression
+
+1. Estimate a linear regression where `DaysMentHlthBad` is the dependent variable, and the explanatory variables are `CollegeGrad`, `Age`, and `Male`. 
+
+2. How do you interpret the coefficients on `CollegeGrad`, `Age` and `Male`? Ignore statistical uncertainty for now.
+
+3. Predict the number of days of bad mental health for (i) a 35-year old female with a college degree and (ii) a 35-year old male with a college degree.
+
+```{r linearmv}
+```
+# Interactions
+
+1. Estimate a linear regression where `DaysMentHlthBad` is the dependent variable, and the explanatory variables are `CollegeGrad`, `Age`, `Male`. and an interaction between `CollegeGrad` and `Male`.How do you interpret the coefficients on `CollegeGrad`, `Age` and `Male`?
+
+2. How do you interpret the coefficients on `CollegeGrad`, `Male` and `CollegeGrad`\(\times\)`Male`? Ignore statistical uncertainty for now.
+
+3. Predict the number of days of bad mental health for (i) a 35-year old female with a college degree and (ii) a 35-year old male with a college degree.
+
+```{r linearmvint}
+
+```
+
+# Regression tables
+
+1. You can put the results from all three regressions side-by-side in a regression table as follows. NOTE: you can get this to run by deleting `eval=FALSE` once you have estimated your models. You may need to change the list of models to match your model object names.
+
+```{r table, eval=FALSE}
+modelsummary(
+  list("Model 1" = lm1, "Model 2" = lm2, "Model 3" = lm3),
+  output = "kableExtra",
+  statistic = "({std.error})",   # show SEs in parentheses
+  stars = TRUE
+)
+```

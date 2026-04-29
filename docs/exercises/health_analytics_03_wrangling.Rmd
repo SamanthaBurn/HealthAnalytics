@@ -1,0 +1,183 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Data wrangling"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+# Introduction
+
+In this exercise will give you practice core data wrangling skills used in health analytics. You will practice merging datasets, recoding variables, handling missing values, computing proportions and group level summaries and interpreting descriptive statistics.
+
+We will again use data from the **National Health and Nutrition Examination Survey (NHANES)**, a large, ongoing survey run by the U.S. Centers for Disease Control and Prevention (CDC). In this exercise, we will use a realistic version of NHANES data from the R package `nhanesA` with multiple different tables that can be merged together using a unique identifier for each survey participant. We will be exploring the relationship between education level and tooth decay.
+
+As always start by loading the necessary packages. We're going to use `tidyverse` for data manipulation and visualization, `nhanesA` to load the NHANES data, and `kableExtra` and `knity` to produce nice looking tables. 
+
+```{r, include=FALSE}
+packages = (c("tidyverse", "nhanesA", "knitr", "kableExtra"))
+
+## Now load or install&load all
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE, repos = "https://cloud.r-project.org")
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+# Loading the data
+
+Load two tables into dataframes from the `nhanesA` package:
+
+-   DEMO_D table contains geographic information, demographics, and socioeconomic information
+-   OHX_D table contains oral health examination data
+
+Both of these datasets contain the variable SEQN, which is a unique identifier for each survey participant.
+
+```{r}
+demo_d <- nhanes('DEMO_D')
+ohx_d <- nhanes('OHX_D')
+```
+
+We can use the codebooks built into the `nhanesA` package to understand the variables in each table. For example, to see the codebook for the OHXDECAY variable in the OHX_table, we can run:
+nhanesTableVars('EXAM', 'BMX_D')
+
+```{r}
+nhanesCodebook('DEMO_D', 'RIDAGEYR')
+```
+
+1. What do you notice about the values of the age variable? What does this tell you about the sample?
+2. Use the codebook to find out what the OHXDECAY variable in the OHX_table measures. What are the possible values of this variable?
+
+```{r}
+
+```
+
+# Merging two dataframes
+
+We are going to merge the OHXDECAY variable from the OHX_table into together using the SEQN variable.
+
+1.  Select the following variables from the DEMO_table:
+
+-   SEQN
+-   RIDAGEYR
+-   RIAGENDR
+-   DMDEDUC2
+
+2.  Use `left_join` to merge the OHXDECAY variable from the OHX_table into the DEMO_table using the SEQN variable. Before you run the code: how many rows do you expect the merged data frame to have? How would this differ if you used `inner_join` instead of `left_join`? How about `right_join`?
+
+```{r}
+```
+
+# Generating variables with case_when()
+
+1. Create a binary variable tooth_decay equal to 1 if OHXDECAY is "Yes" and 0 if OHXDECAY is "No". Set this to NA if OHXDECAY is "Could not assess" or missing.
+
+```{r}
+```
+
+
+# Summarising data using group_by and summarise
+
+1.  Use `group_by` and `summarise` to calculate the proportion of people with tooth decay by education level (DMDEDUC2). Make sure you set na.rm = TRUE inside the mean() function to ignore missing values when calculating the proportion. What happens if you don't do this?
+
+Note that DMDEDUC2 is coded as follows:
+
+-   1: Less than 9th grade
+-   2: 9-11th grade (Includes 12th grade with no diploma)
+-   3: High school graduate/GED or equivalent
+-   4: Some college or AA degree
+-   5: College graduate or above
+-   6: Refused
+-   7: Don't know
+
+
+```{r}
+
+```
+
+2. Adapt your code so that it also calculates the average age of people in each education level group and the number of people in each education level group and. What can you say about the people who have education level NA?
+
+```{r}
+
+```
+
+3. Adapt your code so that it filters out the people who have DMDEDUC2 values of 6 (Refused), 7 (Don't know) or NA before calculating the summary statistics. Round the proportion of people with tooth decay to 2 decimal place and the mean age to 1 decimal place.
+
+```{r}
+
+```
+
+# Producing a descriptive statistics table
+
+There are many packages that allow us to produce attractive tables. We will use one called `kableExtra` here. The basic idea is to create a data frame with the summary statistics you want to show in the table, and then pipe this into the `kable` function. Here's a simple example showing the mean and  standard deviation of age for our sample. You can then add a title, column and/or row names and styling.
+
+```{r}
+table_data <- demo_d %>%
+ summarise(mean_age = round(mean(RIDAGEYR, na.rm = TRUE),3),
+            sd_age = round(sd(RIDAGEYR, na.rm = TRUE),3))
+
+table_data %>%
+  kable(
+    col.names = c("Mean", "Standard deviation"),
+    caption = "Summary statistics for age"
+  ) %>%
+  kable_classic(full_width = FALSE, html_font = "Times") 
+```
+
+We often want to produce a descriptive statistics table that shows multiple summary statistics for multiple variables. For example, we might want to show the mean and sum for multiple variables in a single table. One way to do this is to use the `pivot_longer` function from the `tidyr` package to reshape the data frame after summarising it.
+
+```{r}
+dat %>%
+  summarise_all(list(mean = mean,sum  = sum)) %>%
+  tidyr::pivot_longer(cols = everything(),
+               names_sep = "_",
+               names_to  = c("variable", ".value"))
+```
+
+
+1. Using your code from the previous sections, use the Kable package to generate a table showing the different education groups on rows and the following summary statistics as columns:
+-   Number of people
+-   Average age
+-   Proportion with tooth decay
+
+```{r}
+
+```
+
+
+# Data visualization redux
+
+1. Use your calculations from the previous section to create a bar plot showing the proportion of people with tooth decay by education level. 
+
+```{r}
+
+```
+2. Adapt the code for the plot to make it more readable. Specifically, make the group labels smaller and rotate them 45 degrees. CHALLENGE: can you also relabel the DMDEDUC2 levels to be more 
+
+```{r}
+
+```
+
+# Doing calculations on your data
+
+1. What is the overall proportion of people with tooth decay in this dataset?
+2. What is the difference in average age between people who have tooth decay and those who do not? CHALLENGE: is this difference statistically significant? (Hint: you can use a t-test for this)
+
+```{r}
+
+```
+
+
+```{r}
+
+```

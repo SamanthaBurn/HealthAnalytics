@@ -1,0 +1,365 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Introduction to R"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+This exercise is based on material from https://bioinformatics-core-shared-training.github.io/r-crash-course/
+In this exercise we will see some of the basic features of R including how to:
+
+- Enter commands in R
+- R packages
+- Create variables
+- Use functions
+- Vectors
+- Data frame
+- How to get help
+- Plotting with R
+
+# Getting started in R
+## Entering commands in R
+
+### Using the Console
+- The **RStudio Console** is the simplest place to type and run R commands.
+- It is useful for quick checks and experimentation.
+- **However:** the console does *not* keep a permanent record of what you did.
+
+### Using R scripts
+- An **R script** (`.R`) is a plain text file that stores a sequence of R commands.
+- Scripts let you:
+  - Save your work
+  - Rerun analyses
+  - Share code with others
+
+### Using R Markdown (what we use in this course)
+- An **R Markdown** file (`.Rmd`) combines:
+  - Plain text (explanations, notes)
+  - R code
+  - Output (tables, figures, results)
+- R code is written inside **code chunks**.
+- Each chunk can be run from inside the document, and the output appears directly below it.
+
+A typical R code chunk looks like this:
+
+```{r}
+print("Hello World")
+```
+
+- Each line of R can be executed by clicking on the line and pressing CTRL and ENTER
+- Or you can press the green triangle on the right-hand side to run everything in the chunk
+- Try this now!
+
+- You can add R chunks by pressing CRTL + ALT + I
+    + or using the Insert menu option
+    + (can also include code from other languages such as Python or bash)
+
+- When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+    
+
+## Packages in R
+
+R “packages” are tools that aren't built into the language but were created later by other programmers. We will be using lots of these during the course. Before you can use a package, you need to:
+
+- Install it using `install.packages`. You only need to do this once!
+- Load it using `library`. You need to do this every time you load a new RStudio session.
+
+The **Packages** tab in the bottom-right panel of RStudio lists all packages that you currently have installed. 
+
+We will be using the `gapminder` and `tidyverse` R package in this practical. The following code installs them if they haven't already been installed and load them
+
+```{r}
+packages = (c("gapminder", "tidyverse"))
+
+## Now load or install&load all
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+A package may have several *dependencies*; other R packages from which it uses functions or data types (re-using code from other packages is strongly-encouraged). If this is the case, the other R packages will be located and installed too.
+
+## Using R as a calculator
+At a basic level, we can use R as a calculator to compute simple sums with the `+`, `-`, `*` (for multiplication) and `/` (for division) symbols. 
+
+```{r}
+2 + 2
+2 - 2
+4 * 3
+10 / 2
+```
+The answer is displayed at the console with a `[1]` in front of it. The `1` inside the square brackets is a place-holder to signify how many values were in the answer (in this case only one). We will talk about dealing with lists of numbers shortly. In the case of expressions involving multiple operations, R respects the [BODMAS](https://en.wikipedia.org/wiki/Order_of_operations#Mnemonics) system to decide the order in which operations should be performed.
+
+```{r}
+2 + 2 *3
+```
+
+R is capable of more complicated arithmetic such as trigonometry and logarithms; like you would find on a fancy scientific calculator. Of course, R also has a plethora of statistical operations as we will see.
+
+```{r}
+pi
+sin(pi/2)
+```
+
+We can only go so far with performing simple calculations like this. Eventually we will need to store our results for later use. For this, we need to make use of *variables*.
+
+## Objects and Variables
+
+R uses symbolic variables: words or letters that can be used to represent or store other values or objects. We use the assignment 'operator', `<-` to create a variable and store some value in it. 
+
+```{r}
+x <- 10
+y <- 25
+x
+y
+```
+We also can perform arithmetic on variables using functions:
+
+```{r}
+sqrt(y)
+```
+
+We can add variables together:
+```{r}
+x + y
+```
+
+
+We can change the value of an existing variable:
+
+```{r}
+x <- 21
+x
+```
+
+- We can set one variable to equal the value of another variable:
+
+```{r}
+x <- y
+x
+```
+
+- We can modify the contents of a variable:
+
+```{r}
+y <- y + sqrt(16)
+y
+```
+
+When we are feeling lazy we might give our variables short names (`x`, `y`, `i`...etc), but a better practice would be to give them meaningful names. There are some restrictions on creating variable names. They cannot start with a number or contain characters such as `-`. Naming variables the same as in-built functions in R, such as `c`, `T`, `mean` should also be avoided.
+
+## Functions
+
+**Functions** in R perform operations on **arguments** (the inputs(s) to the function). We have already used:
+
+```{r}
+sin(x)
+```
+
+this returns the sine of x. In this case the function has one argument: **x**. Arguments are always contained in parentheses -- curved brackets, **()** -- separated by commas.
+
+You can get help on any function by typing `?` followed by the function name. For example, to get help on the `sin` function, type `?sin` in the console.
+
+Arguments can be named or unnamed, but if they are unnamed they must be ordered (we will see later how to find the right order). The names of the arguments are determined by the author of the function and can be found in the help page for the function. When testing code, it is easier and safer to name the arguments. `seq` is a function for generating a numeric sequence *from* and *to* particular numbers. Type `?seq` to get the help page for this function.
+
+```{r}
+seq(from = 3, to = 20, by = 4)
+seq(3, 20, 4)
+```
+
+Arguments can have *default* values, meaning we do not need to specify values for these in order to run the function.
+
+## Vectors
+
+- The basic data structure in R is a **vector** -- an ordered collection of values. 
+- R treats even single values as 1-element vectors. 
+- The function `c` *combines* its arguments into a vector:
+- As `c` is a function, we specify it's arguments in curved brackets`(...)`
+
+```{r}
+x <- c(3,4,5,6)
+x
+```
+
+
+The `seq` function we saw before was another example of how to create a sequence of values. A useful shortcut is to use the `:` symbol. 
+
+```{r}
+x <- 3:6
+x
+```
+
+
+The square brackets `[]` indicate the position within the vector (the ***index***). We can extract individual elements by using the `[]` notation:
+
+```{r}
+x[4]
+x[2:3]
+```
+
+We can even put a vector inside the square brackets: (*vector indexing*)
+
+A vector can also contain text; called a character vector. Such a vector can also be constructed using the `c` function. 
+
+```{r}
+x <- c("A","B","C","D")
+```
+
+The quote marks are crucial. Why?
+
+```{r eval=FALSE}
+##You can ignore eval=FALSE for now — I am using it to stop example code from running automatically
+x <- c(A, B, C, D)
+```
+
+```{r echo=FALSE}
+### you don't need to run this code
+tt <- try(x <- c(A, B, C, D),silent = TRUE)
+cat(tt)
+```
+
+
+Another useful type of data that we will see is the *logical* or *boolean* which can take either the values of `TRUE` or `FALSE`
+
+```{r}
+x <- c(TRUE,TRUE,FALSE)
+```
+
+Logical values are useful when we want to create subsets of our data. We can use *comparison* operators; `==`, `>`, `<`, `!=` to check if values are equal, greater than, less than, or not equal.
+
+```{r}
+x <- c("A","A", "B","B","C")
+x == "A"
+x != "A"
+x <- rnorm(10)
+x > 0
+```
+
+However, all items in the vector **must** be the same type. If you attempt anything else, R will convert all values to the same (most basic) type.
+
+```{r}
+x <- c(1, 2, "three")
+x
+```
+
+Usually a list of TRUE and FALSE values is not very useful on its own. However, we can use it to index into another vector to extract only the values we want. We can do this using the square bracket notation `[]` we saw earlier. The below code generates a vector of random numbers with mean 40 and standard deviation 5. It then extracts only those values greater than 40.
+
+```{r}
+set.seed(123) 
+x <- rnorm(100, mean=40, sd=5) 
+x_gt40 <- x[x > 40]
+```
+
+We might also want to find the number of elements of a vector that satisfy a particular condition. We can do this using the sum() function as follows:
+
+```{r}
+sum(x > 40)
+```
+
+## Exercise
+
+  1. Create the following vectors in R: a = (5, 10, 15, 20, ..., 160) and b = (87, 86, 85, ..., 56)
+    a. Use vector arithmetic to multiply a and b and call the result d.
+    b. Find the 19th, 20th and 21st elements of d
+    c. Find which elements of d are less than 2000
+    d. How many elements of d are greater than 6000?
+    
+```{r}
+```
+    
+  2. Create a vector containing all the square numbers from 1 to 10000 (i.e. 1, 4, 9, 16...etc). Calculate the mean of these numbers.
+  
+   - HINT: you can use the `^` operator to raise a number to a power (e.g. `2^3` is 2 to the power of 3)
+   - HINT: see the help page for the `mean` function `?mean`
+
+```{r}
+```
+    
+
+    
+# Getting started with data in R
+
+We are going to explore data from the [gapminder](https://www.gapminder.org/data/) project, which have been bundled into an [R package](https://github.com/jennybc/gapminder). These data give various indicator variables for different countries around the world (life expectancy, population and Gross Domestic Product). 
+
+## Data frames
+R allows us to work with "dataframes", containing rows and columns. The values in each column have to all be of the same type (i.e. all numbers or all text). 
+
+Usually you will have to load your data into R from an external file e.g., a .csv or .txt file. We will cover how to do this later on in the course. Here, can load the Gapminder data frame directly from the `gapminder` package using the following command:
+
+```{r}
+df <- gapminder::gapminder
+```
+
+## Viewing the data
+We can take a look at the data frame in a couple of ways:
+
+- use the `View` function or click on the dataframe name in the top right "Environment" panel
+- use the `head` function which shows us the first 6 rows of the data frame
+
+```{r}
+head(df)
+```
+The `summary` function is a useful way of summarising the data containing in each column. It will give information about the *type* of data (remember, data frames can have a mixture of numeric and character columns) and also an appropriate summary. For numeric columns, it will report some stats about the distribution of the data. For categorical data, it will report the different *levels*.
+
+```{r}
+summary(df)
+```
+
+We can access the columns of a data frame by knowing the column name. 
+
+```{r eval=FALSE}
+countries <- df$country
+```
+
+
+## Exercise
+
+1. What are the dimensions of the data frame?
+2. What columns are available?
+  - HINT: see the `dim`, `ncol`, `nrow` and `colnames` functions
+3. Save the life expectancy and population as variables
+    a. what is the maximum life expectancy?
+    b. what is the smallest population?
+    c. create a new vector containing the life expectancy to the nearest whole number (HINT: see the `round` function)
+    d. create a new vector containing the populations expressed as millions of people
+    
+```{r}
+
+```
+
+## Making graphs with ggplot: a preview
+
+In the next session, we will spend a lot of time learning how to **make clear, professional-looking graphs**.  In this course, we will mainly use a package called **`ggplot2`** for this.
+
+The key idea behind `ggplot2` is simple:
+- You start with a **dataset**
+- You choose which variables go on the **x-axis** and **y-axis**
+- You add a **type of plot** (for example, points, lines, or bars)
+
+Here is an example of the kind of graph you will learn to make. This graph shows the relationship between GDP per capita (on the x-axis) and life expectancy (on the y-axis) for all countries in the year 2007:
+
+```{r}
+df %>%
+  filter(year == 2007) %>%
+  ggplot(aes(gdpPercap, lifeExp)) +
+  geom_point()
+```
+
+
+## Exercise
+1. Adapt the code above to plot life expectancy against GDP per capita for 1987. How did the relationship between GDP and life expectancy change from 1987 to 2007? CHALLENGE: plot the data for both years on the same plot, using different colours for each year.
+2. Adapt the code above to plot life expectancy against log GDP per capita. What is the advantage of using the log scale here?
+3. Adapt the code above to plot life expectancy against year for the country "China".
+4. CHALLENGE: Using the 2007 data, adapt the code to make the plot as close as possible to the one here https://ourworldindata.org/grapher/life-expectancy-vs-gdp-per-capita. You can use AI to help you with this! 

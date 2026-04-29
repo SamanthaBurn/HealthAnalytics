@@ -1,0 +1,321 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Data visualization"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+# Introduction 
+
+Data visualization is a key skill for anyone working with data. In this exercise, we will practice making plots using the `ggplot2` package, which is the most widely used R package for data visualization. Most of the material in this exercise comes from this textbook https://rafalab.dfci.harvard.edu/dsbook-part-1/dataviz/dataviz-principles.html
+
+As for all exercises, we start by loading the necessary packages. `ggplot2` is part of the `tidyverse` collection of packages, so we load that. We will also use the `dslabs` package which contains several datasets we will use for practice.
+
+```{r, include=FALSE}
+packages = (c("tidyverse", "dslabs", "ggthemes", "ggrepel","ggpubr","scales"))
+
+## Now load or install&load all
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE, repos = "https://cloud.r-project.org")
+      library(x, character.only = TRUE)
+    }
+  }
+)
+
+```
+
+To use **ggplot2** you need functions and arguments. These are hard to memorize, so it is useful to have the ggplot2 cheat sheet handy. You can get a copy from Posit's website[^ggplot2-3] or simply perform an internet search for "ggplot2 cheat sheet".
+
+[^ggplot2-3]: <https://posit.co/resources/cheatsheets/>
+
+# Building a scatter plot with ggplot2
+
+We are going to construct a graph using the US murders dataset included in the **dslabs** package. This dataset contains information about the total number of murders and population size for each of the 50 states in the US in 2010. The data frame has 50 rows and 5 columns:
+
+```{r}
+murders <- dslabs::murders
+```
+
+## Initializing a plot
+Initialize a plot using the murders dataset.
+
+```{r}
+p <- murders %>% ggplot()
+p
+```
+
+## Specifying plot type
+Add a scatter plot of total murders versus population size in millions, with population in millions on the x-axis and total murders on the y-axis.
+
+```{r}
+p + geom_point(aes(x = population/10^6, y = total))
+```
+
+## Adding text labels
+Add text labels for each marker showing the state abbreviations
+
+```{r}
+p +  geom_point(aes(x = population/10^6, y = total)) + geom_text(aes(population/10^6, total, label = abb))
+```
+
+## Global vs. local aesthetic mappings
+Edit the code for the plot so the x and y variables and the abbreviation label are specified globally. 
+
+```{r}
+p_global <- murders %>% ggplot(aes(x = population/10^6, y = total, label = abb))
+p_global +  geom_point() + geom_text()
+```
+
+## Marker size
+Change the size of the markers to 3
+
+```{r}
+p_global +  geom_point(size = 3) + geom_text()
+```
+
+## Scales
+Change the scales of both axes to log scale
+
+```{r}
+p_global +  geom_point() + geom_text() + scale_x_log10() + scale_y_log10() 
+```
+
+## Shifting text labels
+Shift the marker labels to the right by 0.05 units using `nudge_x()`. Set the mark
+
+```{r}
+p_global +  geom_point() + geom_text(nudge_x=0.05) + scale_x_log10() + scale_y_log10() 
+```
+
+## Adding labels and title
+Add a chart title "US Gun Murders in 2010". Add axis labels "Populations in millions (log scale)" and "Total number of murders (log scale)"
+
+```{r}
+p_global + geom_point(size = 3)  + 	geom_text(nudge_x = 0.05) + 	
+  scale_x_log10() + 	scale_y_log10() +
+	xlab("Populations in millions (log scale)") + ylab("Total number of murders (log scale)") +
+	ggtitle("US Gun Murders in 2010")
+```
+
+## Categories as colors
+Add color to the points based on the region of the country (Northeast, South, North Central, West)
+
+```{r}
+p_global + geom_point(aes(col=region), size = 3) + 	geom_text(nudge_x = 0.05) + 	
+  scale_x_log10() + 	scale_y_log10() +
+	xlab("Populations in millions (log scale)") + ylab("Total number of murders (log scale)") +
+	ggtitle("US Gun Murders in 2010")
+```
+
+## Adding a reference line
+Calculate the murder rate (number of murders/total population) per million people across the country. Add a line to the graph showing expected number of murders by population
+
+```{r}
+r <- sum(murders$total) / sum(murders$population) * 10^6
+
+p_global + geom_abline(intercept = log10(r), slope = 1) +
+  geom_point(aes(col=region), size = 3) + 	geom_text(nudge_x = 0.05) + 	
+  scale_x_log10() + 	scale_y_log10() +
+	xlab("Populations in millions (log scale)") + ylab("Total number of murders (log scale)") +
+	ggtitle("US Gun Murders in 2010")
+```
+Edit the line representing the average murder rate to make it dashed (`lty'= 2) and dark gray
+
+```{r}
+p_global + geom_abline(intercept = log10(r), lty = 2, color = "darkgrey") +
+  geom_point(aes(col=region), size = 3) + 	geom_text(nudge_x = 0.05) + 	
+  scale_x_log10() + 	scale_y_log10() +
+	xlab("Populations in millions (log scale)") + ylab("Total number of murders (log scale)") +
+	ggtitle("US Gun Murders in 2010")
+```
+
+## Add-on packages 
+
+Change the theme to `theme_economist()`
+```{r}
+p_global + geom_abline(intercept = log10(r), lty = 2, color = "darkgrey") +
+  geom_point(aes(col=region), size = 3) + 	geom_text(nudge_x = 0.05) + 	
+  scale_x_log10() + 	scale_y_log10() +
+	xlab("Populations in millions (log scale)") + ylab("Total number of murders (log scale)") +
+	ggtitle("US Gun Murders in 2010") + 
+  theme_economist()
+```
+Use the `ggrepel' package to `repel' overlapping text labels. Add a layer `scale_color_discrete(name = "Region")` to capitalize the legend title.
+
+```{r}
+p_global + geom_abline(intercept = log10(r), lty = 2, color = "darkgrey") +
+  geom_point(aes(col=region), size = 3) +  geom_text_repel() + 	
+  scale_x_log10() + 	scale_y_log10() +
+	xlab("Populations in millions (log scale)") + ylab("Total number of murders (log scale)") +
+	ggtitle("US Gun Murders in 2010") + 
+  scale_color_discrete(name = "Region") +
+  theme_economist()
+```
+
+
+
+# Other Geometries
+`ggplot2` has many other geometries
+
+## Line plots
+
+Let's use another dataset from the DSLabs package called `gapminder`. This dataset contains information about life expectancy, fertility, population and GDP for several countries over time. Let's plot fertility over time for South Korea.
+```{r}
+gapminder <- dslabs::gapminder
+head(gapminder)
+```
+
+```{r}
+gapminder %>% filter(country == "South Korea" & !is.na(fertility)) %>%
+  ggplot(aes(year,fertility)) +
+  geom_line()
+```
+
+```{r}
+countries <- c("South Korea","Germany")
+gapminder |> filter(country %in% countries & !is.na(fertility)) |> 
+  ggplot(aes(year,fertility, col = country)) +
+  geom_line()
+```
+
+## Barplots
+
+`geom_bar` geometry shows the number of observations in each category. 
+
+```{r barplot-geom}
+murders %>% ggplot(aes(region)) + geom_bar()
+```
+`geom_col`  draws bars with heights that come directly from values you have already computed in your data, rather than counting observations for you. For example, compute the proportion of states in each region and plot this using `geom_col` 
+
+```{r}
+tab <- murders %>%
+  count(region) %>% 
+  mutate(proportion = n/sum(n)) 
+tab %>% ggplot(aes(region, proportion)) + geom_col()
+```
+
+## Histograms
+
+To generate histograms we use `geom_histogram`. Let's plot a histogram of total murders
+
+
+```{r}
+murders %>%
+  ggplot(aes(total)) + 
+  geom_histogram(binwidth = 20 ,fill = "blue", col = "black")
+```
+
+Note that we use the optional arguments `bandwidth = 20` to change the bin size. The default is to create 30 bins. We also use the optional arguments `fill = "blue"` and `col = "black"` to fill the bars with colors and use a different color to outline the bars.
+
+```{r}
+bins_5 <- murders %>% ggplot(aes(total)) + geom_histogram(bins = 5)
+bins_10 <- murders %>% ggplot(aes(total)) + geom_histogram(bins = 10)
+bins_20 <- murders %>% ggplot(aes(total)) + geom_histogram(bins = 20)
+bins_30 <- murders %>% ggplot(aes(total)) + geom_histogram(bins = 30)
+
+ggarrange(bins_5, bins_10, bins_20, bins_30, labels=c("5 bins", "10 bins", "20 bins", "30 bins"), vjust=14.5, ncol = 2, nrow = 2)
+```
+
+## Density plots
+
+To create a smooth density, we use the `geom_density`. To make a smooth density plot with the data previously shown as a histogram we can use this code:
+```{r}
+murders %>%
+  ggplot(aes(total)) + 
+  geom_density(adjust = 1)
+```
+
+Note that we use the optional argument `fill` to change the color. To change the smoothness of the density, we use the `adjust` argument to multiply the default value by that `adjust`. For example, if we want the bandwidth to be twice as big we use `adjust` equal to 2.
+
+You can superimpose a density plot on a histogram:
+```{r}
+murders %>%
+  ggplot(aes(x= total, y = after_stat(density))) + 
+  geom_histogram(binwidth=50) +
+  geom_density()
+```
+`geom_histogram()` computes counts and densities. `after_stat(density)` maps the y-axis to that computed density, so the histogram is on the same scale as `geom_density()`.
+
+## Boxplots
+
+The geometry for boxplot is `geom_boxplot`. As discussed, boxplots are useful for comparing distributions. For example, below are the previously shown heights for women, but compared to men. For this geometry, we need arguments `x` as the categories, and `y` as the values.
+
+```{r}
+murders %>%
+ggplot(aes(x = region, y = total)) +
+  geom_boxplot() +
+  labs(
+    x = "Region",
+    y = "Total murders"
+  ) +
+  theme_minimal()
+```
+
+## Violin plots
+```{r}
+murders %>%
+ggplot(aes(x = region, y = total)) +
+  geom_violin() +
+  labs(
+    x = "Region",
+    y = "Total murders"
+  ) +
+  theme_minimal()
+```
+
+#  Exercises
+##  Ordered bar chart
+Plot a bar graph of murder rate per million by state. Colour the bars according to region and sort by size.
+
+```{r}
+```
+
+##  Replicating published scatter chart
+Save the data "life-expectancy-vs-gdp-per-capita.csv" into your R project directory. Load it into memory and use it to replicate the figure at this link https://ourworldindata.org/grapher/life-expectancy-vs-gdp-per-capita as closely as possible! Try out using your favourite large language model e.g. ChatGPT or Claude. What did you enter as a prompt? How well did it do?
+
+To load the data into `df':
+```{r}
+df <- read.csv("life-expectancy-vs-gdp-per-capita.csv")
+```
+
+![](life-expectancy-vs-gdp-per-capita.jpg)
+```{r}
+
+```
+
+
+##  Exploring the relationship between life expectancy, fertility and income
+Answer the following questions using the gapminder dataset contained in the `dslabs` package. The snippet for loading it is repeated below.
+
+```{r}
+gapminder <- dslabs::gapminder
+head(gapminder)
+```
+
+1. Plot life expectancy against log GDP per capita for 1967 and 2007. How did the relationship between GDP and life expectancy change between 1982 and 2012? Try plotting the two year on the same graph using different colours. Now try plotting them side-by-side using faceting.
+
+```{r}
+```
+```{r}
+```
+
+2. What do you notice about the number of countries on the graph for earlier vs later years? Why do you think this is? How might this bias your interpretation of the relationship between GDP and life expectancy?
+
+
+```{r}
+
+```
+3. Make an interesting graph exploring any aspect of this dataset! 
+
+
+
+

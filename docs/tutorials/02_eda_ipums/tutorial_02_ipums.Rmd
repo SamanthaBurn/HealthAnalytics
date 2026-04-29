@@ -1,0 +1,197 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Tutorial 2: Downloading and analysing IPUMS NHIS data in R"
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: false
+---
+
+# Introduction
+
+In this tutorial you will be working with the IPUMS National Health Interview Survey (NHIS) dataset: <https://nhis.ipums.org/nhis/> The NHIS is a survey collecting information on the health, health care access, and health behaviors of the U.S. population, with digital data files available from 1963 to present. IPUMS Health Surveys harmonizes these data and allows users to create custom NHIS data extracts for analysis.
+
+The learning goals for this exercise are as follows:
+
+-   Understand how to get data extracts from IPUMS
+-   Understand how to use survey design and weighting in analysis
+-   Reinforce skills from previous exercises in data wrangling and visualization and producing summary statistics
+
+This exercise is based on IPUMS training material. There is a lot more available here <https://www.ipums.org/support/exercises>
+
+## Quick Reference: R Commands
+
+| Command           | Purpose                                                 |
+|-------------------|---------------------------------------------------------|
+| `%>%`             | Pipe operator to chain commands for readable code       |
+| `as_factor()`     | Converts labeled values to factors for categorical data |
+| `group_by()`      | Groups data for summary operations                      |
+| `summarize()`     | Aggregates data with summary statistics                 |
+| `filter()`        | Filters rows based on conditions                        |
+| `mutate()`        | Adds new variables or modifies existing ones            |
+| `weighted.mean()` | Computes weighted means for numerical variables         |
+
+Load the necessary packages.
+
+```{r, include=FALSE}
+packages = (c("ipumsr", "dplyr", "ggplot2", "tidyr", "here", "rmdformats", "srvyr","knitr","kableExtra"))
+
+## Now load or install&load all
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+# Download extracts of IPUMS NHIS data
+
+You are going to create a data extract from IPUMS NHIS that contains 2010 data on health insurance status and educational attainment.
+
+-   Go to <https://nhis.ipums.org/nhis/> and click on Log in. If you are a first time user, click on Create an account, enter an email address and password, and then submit your user information so you can create NHIS data extracts.
+-   Once you are logged in, return to the homepage and click on Browse and Select Data.
+-   Click the Select Samples button, and check the boxes for the year 2010. Click the submit sample selections button.
+-   The variable drop-down menus allow you to explore variables by topic. For example, you might expect to find variables about flu shots under the "Vaccinations" group. The search tool allows you to search for variables. Observe the options for limiting your search results by variable characteristics or variable type. You may add a variable to your cart by clicking on the plus sign in the "Add to Cart" column of the topical variable list, or list of search results.
+-   Using the drop down menu or search feature, select the following variables and add them to your data cart using the plus symbol to the left of the variables:
+    -   HINOTCOVE: Health insurance status
+    -   EDUCREC2: Educational attainment
+-   Click the green VIEW CART button under your data cart. Review variable selection. Note that additional variables are in your data cart. The data extract system automatically supplies variables that indicate the sample (YEAR), household identifier (SERIAL) and person identifier (PERNUM), and are used for weighting the variables and years selected. Click the green Create Data Extract button. Review the 'Extract Request Summary' screen, describe your extract, and click Submit Extract.
+-   You will receive an email when the data is available to download. To access the page to download the data, follow the link in the email, or click on the Download or Revise Extracts link on the homepage. You will need to download both the data file and the DDI codebook. Put them in the same directory. Ideally you should use the R project directory that you created for this course. The DDI file is a helper file that helps R read in the data and format and label each of the variables correctly.
+
+## Exercise
+
+Create two additional extracts of NHIS data in the same way:
+
+1.  Create an extract using the 1972, 1981, 1997, and 2010 samples and the HEALTH variable.
+2.  Create an extract using the samples of years 1997 through 2010 and the VACFLUSH12M variable.
+
+# Import the data into R
+
+Load the data into R! The `ipumsr` package includes `read_ipums` functions to read in data extracts. `read_ipums_ddi` reads in the metadata file and `read_ipums_micro` reads in the actual data using the metadata. Edit the code to make sure you use the right input file!
+
+```{r, include=TRUE}
+# Load data
+ddi <- read_ipums_ddi("nhis_00003.xml")
+data <- read_ipums_micro(ddi)
+
+# View first few rows of the dataset
+head(data)
+```
+
+## Exercise
+
+Load the other two data extracts you constructed in exercise 1 in the same way! Call them something different to avoid confusion.
+
+```{r, include=TRUE}
+```
+
+```{r, include=TRUE}
+```
+
+# Analyze the data
+
+These questions use the first data extract with the variables `HINOTCOVE` and `EDUCREC2` for the 2010 sample.
+
+## Exercise: Getting to know the data
+
+1.  How many observations does the data set have?
+2.  How many variables does it have?
+
+```{r, include=TRUE}
+summary(data)
+```
+
+3.  Use `ipums_var_desc()` to look up the description of the variables `HINOTCOVE` and `EDUCREC2`. What do this variable measure? What are the possible values?
+4.  Use `class()` to check the variable type of `HINOTCOVE` and `EDUCREC2`. Are they numeric, character, factor, or something else? You will see these are stored as `haven_labelled`. This means they are saved as integers with value labels attached to them. It is useful to keep them in this format since you can use the original survey codes. For example, here are the codes for educational attainment: <https://nhis.ipums.org/nhis-action/variables/EDUCREC2#codes_section>.
+
+For some operations (e.g. `group_by`) you will have to convert them to factors using `as_factor()` to keep the labels (Note that this function comes from the `haven` package and behaves slightly differently from the base R function `as.factor()` that we covered in lecture since it preserves the original labels)
+
+```{r, include=TRUE}
+```
+
+## Exercise: Sample frequencies
+
+1.  Use `group_by()` and `summarize()` to calculate the unweighted count and proportion of people in each category of health insurance coverage (HINOTCOVE) in the 2010 sample (HINT: to use group_by on HINOTCOVE you will need convert it to a factor i.e. `group_by(HINOTCOVE = as_factor(HINOTCOVE))`
+2.  How many people in the 2010 sample report being uninsured?
+3.  What proportion of the 2010 sample report being uninsured?
+
+```{r, include=TRUE}
+```
+
+## Exercise: Frequencies with survey weights
+
+1.  Read the description of IPUMS NHIS sampling weights here <https://nhis.ipums.org/nhis/userNotes_weights.shtml>. Which weight variable do you need to use to calculate the percent of people who are uninsured?
+2.  Using the appropriate survey weights, how many people were uninsured in 2010?
+3.  Using the appropriate survey weights, what fraction of the population was uninsured in 2010?
+
+```{r, include=TRUE}
+```
+
+Use the survey weights for all exercises below!
+
+4.  How many people had a 4-year college or Bachelor's degree as their highest educational attainment?
+5.  What proportion of the population had a 4 year college or Bachelor's degree as their highest educational attainment? **Note this is a percent of the whole population including children under 5 who were not asked the question, and people who were asked but didn't know or refused to answer.**
+
+```{r, include=TRUE}
+```
+
+## Exercise: Relationships between variables
+
+1.  Calculate the fraction of people who are uninsured by education level.
+2.  What fraction of people with a 4 year college degree are uninsured?
+
+```{r, include=TRUE}
+```
+
+## Exercise: More wrangling and plotting
+
+1.  Create a new variable called `education_group` that recodes the detailed education codes in `EDUCREC2` into broader categories. Use `mutate()` together with `case_when()` to define the following groups:
+
+-   Codes 10, 20, 31, and 32 -\> “Elementary or lower”
+-   Codes 41 and 42 -\> “High school”
+-   Code 51 -\> “Some college”
+-   Codes 54 and 60 -\> “4+ years of college”
+-   Codes 97, 98, and 99 -\> “Unknown”
+-   Any other values should be set to NA
+
+2.  Create a bar chart using ggplot showing fraction of people uninsured by each education category in your new variable `education_group`.
+
+```{r, include=TRUE}
+
+```
+
+# More optional exercises
+
+These questions require the second data extract using the 1972, 1981, 1997, and 2010 samples and the `HEALTH` variable.
+
+1.  Recode observations with `HEALTH` "Unknown-refused", "Unknown-not ascertained" and Unknown-don't know" as NA
+2.  Excluding all observations with `HEALTH` NA, what proportion of the population reported excellent health status in each year?
+3.  From the last question it looks like excellent health has declined since 1972. This interpretation is complicated by a change in the data collection during this time period. Using the website, navigate to the HEALTH variable description and find the year that this variable changed from a four-point scale to a five-point scale
+
+```{r, include=TRUE}
+```
+
+These questions require you to use the third data extract with the VACFLUSH12M variable for the samples of years 1997 through 2010.
+
+4.  Examine the documentation for the flu vaccination variable (VACFLUSH12M), Who is in the universe of data from 1997 to 2010? Which survey weights should be used for analysing this variable?
+5.  Calculate the proportion of people who had the flu vaccination for each year in the sample. Filter out anyone who had any response other than No or Yes.
+6.  Plot the percent of people who had a flu vaccination over time. Can you work out what is happening in 2005?
+
+```{r, include=TRUE}
+
+```
+
+```{r, include=TRUE}
+
+```
+
+```{r, include=TRUE}
+
+```

@@ -1,0 +1,55 @@
+---
+title: "Tutorials"
+format:
+  html:
+    toc: true
+---
+
+## Tutorial Modules
+
+Tutorials provide step-by-step guidance through complete data analysis workflows. Each tutorial includes a problem set and solutions.
+
+### Tutorial 1: Data Visualization with ggplot2
+
+Learn fundamental data visualization principles and techniques using the ggplot2 package in R.
+
+- [Problem Set](01_dataviz/tutorial_01_dataviz.Rmd)
+- [Solutions](01_dataviz/tutorial_01_dataviz_solutions.Rmd)
+
+### Tutorial 2: Exploratory Data Analysis with IPUMS Data
+
+Explore and analyze large public use microdata from IPUMS, learning techniques for working with real-world health survey datasets.
+
+- [Problem Set](02_eda_ipums/tutorial_02_ipums.Rmd)
+- [Solutions](02_eda_ipums/tutorial_02_ipums_solutions.Rmd)
+
+### Tutorial 3: Linear Regression Modeling
+
+Build and interpret linear regression models using R, with practical applications to health data.
+
+- [Problem Set](03_linear_reg/tutorial_03_linear_reg.Rmd)
+- [Solutions](03_linear_reg/tutorial_03_linear_reg_solutions.Rmd)
+
+### Tutorial 4: Logit and Probit Models
+
+Master binary choice models for analyzing health outcomes and policy impacts.
+
+- [Problem Set](04_logit_probit/tutorial_04_ldvs.Rmd)
+- [Solutions](04_logit_probit/tutorial_04_ldvs_solutions.Rmd)
+
+## How to Use These Tutorials
+
+1. Each tutorial is organized in its own folder
+2. Open the `.Rmd` file in RStudio
+3. Work through the tutorial exercises in order
+4. Run the code as you go to see the results
+5. Refer to the solutions if you need guidance
+6. Experiment with modifying the code and data to deepen your understanding
+
+## Tips for Success
+
+- Take your time and don't rush through the tutorials
+- Try to understand each line of code, not just run it
+- Experiment by changing parameters and observing results
+- Work with the solutions only after attempting the problem set
+- Use these tutorials as templates for your own analyses

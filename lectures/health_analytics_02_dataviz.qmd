@@ -1,0 +1,915 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Data Visualization"
+format:
+  revealjs:
+    theme: simple
+    html-math-method: katex
+    css: burn_slides.css
+    slide-number: true
+    incremental: true
+    transition: fade
+    width: 1600
+    height: 900
+    toc: false
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(dslabs)
+library(ggthemes)
+library(ggrepel)
+library(ggpubr)
+library(gapminder)
+
+theme_metro <- function() {
+  theme_classic() +
+  theme(
+    panel.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+    plot.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+    text = element_text(size = 16),
+    axis.title.x = element_text(hjust = 1),
+    axis.title.y = element_text(hjust = 1, angle = 0)
+  )
+}
+```
+
+## Course road map
+
+| Lecture | Topic |
+| --- | --- |
+| 1 | Introduction to health data & R |
+| [**2**]{style="color: #C8102E"} | [**Data visualization**]{style="color: #C8102E"} |
+| 3 | Data wrangling & exploratory data analysis |
+| 4 | Causal inference |
+| 5 | Linear regression |
+| 6 | Linear regression: uncertainty & hypothesis testing |
+| 7 | Panel data: difference-in-differences & fixed effects |
+| 8 | Limited dependent variables: LPM, logit, probit |
+| 9 | Introduction to machine learning for health analytics |
+| 10 | Course review |
+
+## The health analytics pipeline
+
+::: {.centered-fig .nonincremental}
+![](images/lec01_slide11_a.png){width="80%"}
+:::
+
+
+## Today: Data visualization
+
+- **Principles of data visualization**
+- **Data visualization in practice**
+  - Basic data wrangling with tidyverse
+  - Plotting a scatter plot with ggplot
+  - Other types of plot in R
+- **Using AI as a coding tutor**
+
+# Principles of data visualization
+
+## Guiding principles for graphical excellence (Tufte)
+
+- **Substance**: Induce the viewer to think about the substance rather than about other things (e.g., methodology, design, technology, etc.)
+- **No distortion**: Avoid distorting what the data have to say
+- **Information-dense**: Present many numbers in a small space
+- **Coherence**: Make large data sets coherent
+- **Encourage comparisons**: Encourage the eye to compare different pieces of data
+- **Broad-to-fine details**: Reveal the data at several levels of detail, from a broad overview to the fine structure
+- **Clear purpose**: Serve a reasonably clear purpose – why is it graphed in the first place?
+- **Alignment with verbal descriptions**: Be aligned with the verbal descriptions accompanying the graph
+
+## A picture is worth 1,000 data points
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide07_a.png)
+:::
+
+
+## How recently did modern economic growth start?
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide08_a.png)
+:::
+
+
+## One of the most famous health data visualizations of all time?
+
+:::: {.columns}
+::: {.column width="50%"}
+**Original**
+
+![](images/lec02_slide09_a.png){width="70%"}
+
+:::
+
+::: {.column width="50%"}
+**Modern**
+
+![](images/lec02_slide09_d.png){width="70%"}
+:::
+::::
+- **John Snow's Cholera Map (1855)**
+  - Shows deaths and water pump locations in Soho
+  - By identifying clustering around a specific pump, Snow demonstrated that contaminated water was the source
+ 
+## A common problem with maps
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide10_a.png)
+:::
+
+
+## What can go wrong? Axes of evil
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide11_a.png)
+
+[Source: Georgia Dept of Public Health via FT]{.source}
+:::
+
+
+## What can go wrong? Whirlwind
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide12_a.png)
+
+[Source: Donny Dorling via FT]{.source}
+:::
+
+
+## Principle: Ease comparisons — use common axes!
+
+- The two subplots have different axes, making comparison difficult
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide13_a.png)
+
+[Source: Georgia Dept of Public Health via X]{.source}
+:::
+
+
+## Principle: Ease comparisons — angles vs. lengths
+
+- Angles are harder to read than lengths
+
+::: {.centered-fig .incremental}
+![](images/lec02_slide14_a.png){width="40%"}
+
+![](images/lec02_slide14_b.png){width="40%"}
+:::
+
+
+## Principle: Do not distort quantities
+
+- Radius is proportionate to quantity, but our brains judge area or volume, which distorts the comparison
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide15_a.png)
+:::
+
+
+## Principle: Do not distort quantities 
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide16_a.png)
+:::
+
+
+## Principle: Avoid chart junk — no pseudo-3D plots
+
+- Humans are not good at seeing in three dimensions
+- Pseudo-3D makes it nearly impossible to determine accurate values
+- Color can represent categorical variables more effectively
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide17_b.png)
+:::
+
+
+## What can go wrong? More is better?
+
+:::: {.columns}
+::: {.column width="50%"}
+![](images/lec02_slide18_a.png){width="100%"}
+:::
+
+
+::: {.column width="50%"}
+![](images/lec02_slide18_b.png){width="100%"}
+:::
+
+::::
+
+## What can go wrong? Too cluttered
+
+:::: {.columns}
+::: {.column width="50%"}
+![](images/lec02_slide19_a.png){width="100%"}
+:::
+
+
+::: {.column width="50%"}
+![](images/lec02_slide19_b.png){width="80%"}
+:::
+
+::::
+
+# Data visualization in practice
+
+## Basic data wrangling with tidyverse
+
+- **What is tidyverse?**
+  - A collection of R packages designed for data science
+  - Share a common grammar
+  - Make data import, wrangling, visualization, and modeling more consistent and readable
+
+- **Installation**:
+
+::: {.fragment}
+  ```r
+  install.packages("tidyverse")
+  library(tidyverse)
+  ```
+
+:::
+
+## Tidyverse: Core packages
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide23_a.png)
+:::
+
+
+## Tidyverse: Data transformation
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide24_a.png)
+:::
+
+
+## Tidyverse: Visualization
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide25_a.png)
+:::
+
+
+## Tidy data
+
+- **Definition**: A data table is in tidy format if:
+  - Each row represents one observation
+  - Columns represent the different variables available for each observation
+
+- **Example**: Fertility rates in the UK and South Korea (1960-1962)
+
+
+::: {.fragment}
+```r
+library(tidyverse)
+fertility_rate <- data.frame (
+  Year = c(1960, 1961, 1962),
+  Fertility_rate_UK = c(2.62, 2.68, 2.75),
+  Fertility_rate_South_Korea = c(6.04, 5.89, 5.75)
+)
+```
+
+| Year | Fertility_rate_UK | Fertility_rate_South_Korea |
+| --- | --- | --- |
+| 1960 | 2.62 | 6.04 |
+| 1961 | 2.68 | 5.89 |
+| 1962 | 2.75 | 5.75 |
+
+:::
+
+## Data manipulation: select()
+
+- **Purpose**: Select particular columns from a data frame
+
+
+::: {.fragment}
+```r
+sk <- select(fertility_rate, Year, Fertility_rate_South_Korea)
+```
+
+| Year | Fertility_rate_South_Korea |
+| --- | --- |
+| 1960 | 6.04 |
+| 1961 | 5.89 |
+| 1962 | 5.75 |
+
+:::
+
+## Data manipulation: filter()
+
+- **Purpose**: Keep only the rows of a dataframe that meet certain logical conditions
+- **Conditions**: Can be combined using `&` and `|`
+- **Checking lists**: Use `%in%` to check whether each value appears in a list of specified values
+
+
+::: {.fragment}
+```r
+sk_lt6 <- filter(fertility_rate, Fertility_rate_South_Korea < 6)
+```
+
+| Year | Fertility_rate_South_Korea |
+| --- | --- |
+| 1961 | 5.89 |
+| 1962 | 5.75 |
+
+:::
+
+## Data manipulation: mutate()
+
+- **Purpose**: Create new columns that are functions of existing variables
+- **Can also**: Modify or delete existing columns
+
+
+::: {.fragment}
+```r
+fertility_rate <- mutate(fertility_rate, rate_change_UK =
+  (Fertility_rate_UK - lag(Fertility_rate_UK)) / lag(Fertility_rate_UK) * 100)
+```
+
+| Year | Fertility_rate_UK | Fertility_rate_South_Korea | rate_change_UK |
+| --- | --- | --- | --- |
+| 1960 | 2.62 | 6.04 | NA |
+| 1961 | 2.68 | 5.89 | 2.290076 |
+| 1962 | 2.75 | 5.75 | 2.611940 |
+
+:::
+
+## Data manipulation: arrange()
+
+- **Purpose**: Sort a data frame by a particular column
+
+
+::: {.fragment}
+```r
+arrange(fertility_rate, Fertility_rate_South_Korea)
+```
+
+| Year | Fertility_rate_South_Korea |
+| --- | --- |
+| 1962 | 5.75 |
+| 1961 | 5.89 |
+| 1960 | 6.04 |
+
+:::
+
+## The pipe operator %>%
+
+- **What it does**: Performs operations sequentially without defining intermediate objects
+- **How it works**: Passes the left-hand side to the first argument of the right-hand side
+  - `x %>% f()` is equal to `f(x)`
+  - Allows: `a %>% b() %>% c() %>% d()` instead of `d(c(b(a())))`
+
+
+::: {.fragment}
+```r
+pi %>% sin() %>% cos()
+pi %>% round(3)
+```
+
+:::
+
+# Plotting a scatter plot with ggplot
+
+## ggplot2 case study: we will generate this plot together!
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide34_a.png)
+:::
+
+
+## ggplot2 overview
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide35_a.png)
+:::
+
+
+## ggplot2: The murders dataset
+
+- **Data source**: US murders by state from the dslabs package
+
+
+::: {.fragment}
+```{r}
+murders <- dslabs::murders
+head(murders)
+```
+
+:::
+
+## ggplot2: Three main components
+
+- **Data**: A dataset
+- **Geometry**: The type of plot (scatterplot, barplot, histogram, smooth densities, qqplot, boxplot)
+- **Aesthetic mapping**: Additional visual cues to represent information (x-axis, y-axis, color, size)
+
+## Creating a ggplot object
+
+- **Step 1**: Define a ggplot object using the `ggplot()` function:
+
+
+::: {.fragment}
+```{r}
+p <- ggplot(data = murders)
+```
+
+:::
+
+- **Alternative**: Pipe the data in
+
+::: {.fragment}
+```{r}
+murders %>% ggplot()
+```
+:::
+
+- **Note**: The above renders a blank plot since no geometry has been defined
+
+## Plot layers
+
+- **How to build**: Create graphs by adding "layers" to the base plot using the `+` symbol
+
+
+::: {.fragment}
+```r
+DATA %>% ggplot() + LAYER_1 + LAYER_2 + ... + LAYER_N
+```
+
+:::
+
+- **First layer**: Usually defines the **geometry** (what shape to draw)
+  - `geom_point()` → scatterplot
+  - `geom_bar()` → bar chart
+  - `geom_histogram()` → histogram
+  - `geom_boxplot()` → boxplot
+
+## Making a scatter plot with geom_point()
+
+- **geom_point()**: Draws points (a scatterplot)
+- **aes()**: Tells ggplot which variables go on the axes (short for aesthetics)
+  - Read this as: "Using the murders data, draw points with population on the x-axis and total on the y-axis"
+
+
+::: {.fragment}
+```{r}
+p <- murders %>% ggplot(aes(x = population, y = total))
+p + geom_point()
+```
+
+:::
+
+## Transforming variables inside aes()
+
+- **How it works**: Modify variables directly inside `aes()` to change how data are shown (not the underlying dataset)
+- **Example**: Rescale population to millions for readability
+
+
+::: {.fragment}
+```{r}
+p <- murders %>% ggplot(aes(x = population/10^6, y = total))
+p + geom_point()
+```
+
+:::
+
+## Adding labels to data points
+
+- **geom_text()**: Add labels to points
+
+
+::: {.fragment}
+```{r}
+murders %>% ggplot(aes(population/10^6, total, label = abb)) +
+  geom_point() +
+  geom_text()
+```
+
+:::
+
+## Global vs. local aesthetic mappings
+
+- **Problem**: When defining the same `aes()` mapping in multiple geometries, avoid repetition
+- **Solution**: Use a global aesthetic mapping in the `ggplot()` function
+
+
+::: {.fragment}
+```{r}
+p <- murders %>% ggplot(aes(population/10^6, total, label = abb))
+p + geom_point() + geom_text()
+```
+
+:::
+
+- **Note**: Other aesthetic mappings (like size) can be specific to individual layers
+
+## Adjusting marker size
+
+- **How it works**: Each geometry function has many arguments beyond `aes()` and `data`
+- **Example**: To increase marker size:
+
+
+::: {.fragment}
+```{r}
+p + geom_point(size = 3) + geom_text()
+```
+
+:::
+
+- **Important**: `size` is specified **outside** `aes()` because it's not mapped to a variable
+
+## Using log scales
+
+- **When to use**: Better visualize data that spans multiple orders of magnitude
+- **Why**: Particularly useful for right-skewed data where many small states would be hard to see on a linear scale
+
+
+::: {.fragment}
+```{r}
+p + geom_point(size = 3) +
+  geom_text() +
+  scale_x_log10() + scale_y_log10()
+```
+
+:::
+
+## Positioning text labels
+
+- **nudge_x argument**: Move text labels to avoid overlap
+
+
+::: {.fragment}
+```{r}
+p + geom_point(size = 3) +
+  geom_text(nudge_x = 0.05) +
+  scale_x_log10() + scale_y_log10()
+```
+
+:::
+
+- **Alternative**: For overlapping labels, use `ggrepel::geom_text_repel()` for automatic label placement
+
+## Adding labels and titles
+
+- **Functions**: Use `xlab()`, `ylab()`, and `ggtitle()` to customize labels
+
+
+::: {.fragment}
+```{r}
+p + geom_point(size = 3) +
+  geom_text(nudge_x = 0.05) +
+  scale_x_log10() + scale_y_log10() +
+  xlab("Population in millions (log scale)") +
+  ylab("Total number of murders (log scale)") +
+  ggtitle("US Gun Murders in 2010")
+```
+
+:::
+
+## Changing marker color by region
+
+- **How it works**: Assign a categorical variable to `col` to automatically color-code points and add a legend
+- **Aesthetic mapping**: Since the choice of color is determined by a feature of each observation, this is an aesthetic mapping specific to the `geom_point()` layer
+
+
+::: {.fragment}
+```{r}
+murders %>% ggplot(aes(population/10^6, total, label = abb, col = region)) +
+  geom_point(size = 3) +
+  scale_x_log10() + scale_y_log10()
+```
+
+:::
+
+## Adding a reference line for average murder rate
+
+- **Formula**: The line is defined by `log(y) = log(r) + log(x)`
+  - Straight line with slope 1 and intercept `log(r)`
+  - r is `mean(murders$total) / mean(murders$population) * 10^6`
+
+## Adding reference lines and annotations
+
+- **geom_abline()**: Draw reference lines
+- **Ordering**: Draw it first so it doesn't obscure points
+
+
+::: {.fragment}
+```{r}
+r <- mean(murders$total) / mean(murders$population) * 10^6
+p <- murders %>% ggplot(aes(population/10^6, total, label = abb, col = region))
+
+p + geom_abline(intercept = log10(r), lty = 2, color = "darkgrey") +
+  geom_point(size = 3) +
+  scale_x_log10() + scale_y_log10()
+```
+
+:::
+
+## We are pretty close!
+
+:::: {.columns}
+::: {.column width="50%"}
+![](images/lec02_slide52_a.png){width="100%"}
+:::
+
+
+::: {.column width="50%"}
+![](images/lec02_slide52_b.png){width="100%"}
+:::
+
+::::
+
+- Two final adjustments: change the theme and fix label positioning
+
+## Add-on packages: ggthemes
+
+- **What themes do**: Customize the non-data components of your plots: titles, labels, fonts, background, gridlines, and legends
+- **How to use**: Simply add a theme layer
+
+
+::: {.fragment}
+```{r}
+library(ggthemes)
+p + theme_economist()
+```
+
+:::
+
+- **Browse available themes**: https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/
+
+## Add-on packages: ggrepel
+
+- **What it does**: Provides geometries to repel overlapping text labels
+  - `geom_text_repel()` for text labels
+  - `geom_label_repel()` for labeled boxes
+
+- **How to use**: Simply replace `geom_text()` with `geom_text_repel()`:
+
+
+::: {.fragment}
+```{r}
+library(ggrepel)
+p + geom_point(size = 3) +
+  geom_text_repel() +
+  theme_economist()
+```
+
+:::
+
+## We made it!
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide55_a.png)
+:::
+
+
+# Other types of plot in R
+
+## Line plots
+
+- **What they show**: How a variable changes over an ordered dimension (like time) by connecting observations with lines
+
+- **Example**: Using the `gapminder` dataset, plot life expectancy over time for South Korea
+
+
+::: {.fragment}
+```{r}
+gapminder %>%
+  filter(country == "China" & !is.na(lifeExp)) %>%
+  ggplot(aes(x = year, y= lifeExp)) +
+  geom_line()
+```
+
+:::
+
+## Multiple line plots
+
+- **How to plot multiple countries on the same graph**:
+
+
+::: {.fragment}
+```{r}
+countries <- c("China", "India")
+gapminder %>%
+  filter(country %in% countries & !is.na(lifeExp)) %>%
+  ggplot(aes(year, lifeExp, col = country)) +
+  geom_line()
+```
+
+:::
+
+## Histograms
+
+- **What they answer**:
+  - Is the distribution unimodal or multimodal?
+  - Is the distribution symmetric?
+  - What ranges contain 95% of the values?
+
+- **How they work**: Divide the data span into non-overlapping bins of equal size and count values in each interval
+
+## Creating a histogram
+
+- **Function**: Use `geom_histogram()` with the x-axis variable
+
+
+::: {.fragment}
+```{r}
+murders %>%
+  ggplot(aes(total)) +
+  geom_histogram()
+```
+
+:::
+
+## Histograms with different bin counts
+
+- **Why it matters**: The number of bins can change how you perceive the distribution
+- **Compare**: Histograms with 5 and 20 bins
+
+
+::: {.fragment}
+```{r}
+bins_5 <- murders %>% ggplot(aes(total)) + geom_histogram(bins = 5) + ggtitle("5 bins")
+bins_20 <- murders %>% ggplot(aes(total)) + geom_histogram(bins = 20) + ggtitle("20 bins")
+
+library(ggpubr)
+ggarrange(bins_5, bins_20, ncol = 2, nrow = 1)
+```
+
+:::
+
+## Adding density plots to histograms
+
+- **How to combine them**: Overlay a density curve on a histogram
+
+
+::: {.fragment}
+```{r}
+murders %>%
+  ggplot(aes(x = total, y = after_stat(density))) +
+  geom_histogram(bins = 10) +
+  geom_density()
+```
+
+:::
+
+## Box plots
+
+- **What they show**:
+  - **Median**: the center line
+  - **Interquartile range (IQR)**: the box containing the middle 50% of data
+  - **Outliers**: unusually high or low values
+
+:::: {.columns}
+::: {.column width="50%"}
+![](images/lec02_slide64_a.png){width="100%"}
+:::
+
+
+::: {.column width="50%"}
+![](images/lec02_slide64_b.jpeg){width="100%"}
+:::
+
+::::
+
+## Violin plots
+
+- **What they show**: The full distribution by combining a box-plot summary with a smoothed density curve
+- **Width**: Indicates how common values are
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide65_a.png)
+:::
+
+
+## Beware scatterplots with many data points
+
+- **Problem**: Overplotting makes it hard to see the density of points
+- **Solutions**: Binscatter or hexagonal binning might be a better choice
+
+:::: {.columns}
+::: {.column width="50%"}
+![](images/lec02_slide66_b.png){width="100%"}
+:::
+
+
+::: {.column width="50%"}
+![](images/lec02_slide66_a.png){width="100%"}
+:::
+
+::::
+
+## Mapping in R: A choropleth example
+
+- **What it shows**: A basic choropleth map showing median age by local authority
+
+- **Steps**:
+  1. **Read your data**: Dataset with local authority code and median age
+  2. **Read geographic boundaries**: Data in GeoJSON format — find from government statistical office websites (may need conversion from other shape file formats)
+  3. **Combine data**: Merge data into one dataframe
+  4. **Plot**: Use `geom_sf()` and related spatial functions
+
+## Mapping in R: Getting geographic boundaries via API
+
+::: {.centered-fig .nonincremental}
+![](images/lec02_slide68_a.png)
+:::
+
+
+## Mapping in R: Combining and plotting
+
+:::: {.columns}
+::: {.column width="50%"}
+![](images/lec02_slide69_b.png){width="100%"}
+:::
+
+
+::: {.column width="50%"}
+![](images/lec02_slide69_c.png){width="100%"}
+:::
+
+::::
+
+## Bonus: Interactive maps with Plotly
+
+- **What it does**: The `plotly` package produces interactive maps you can zoom into and view data points on hover
+
+:::: {.columns}
+::: {.column width="50%"}
+![](images/lec02_slide70_a.png){width="100%"}
+:::
+
+
+::: {.column width="50%"}
+![](images/lec02_slide70_b.png){width="100%"}
+:::
+
+::::
+
+# Using AI as a coding tutor
+
+## Using AI as a coding tutor: Problem setup
+
+- **Problem**: Replicate a published figure
+
+- **Prompt to ChatGPT**: "Give me R code to make this graph using ggplot. My dataframe is called `df` and the variables are: `LifeExpectancy`, `GDPPerCapita`, `Population`, `Country`, and `Region`"
+
+- **Top tip**: Be specific about the structure of your data!
+
+:::: {.columns}
+::: {.column width="50%"}
+![](images/lec02_slide73_a.png){width="100%"}
+:::
+
+::: {.column width="50%"}
+![](images/lec02_slide73_c.png){width="100%"}
+:::
+
+::::
+
+## Using AI as a coding tutor: Refinement
+- **Follow-up prompt**: "Edit the code you produced to make the following changes:
+  - Label fewer data points. Only label the 4 countries in each continent with the highest population.
+  - Match the colour scheme of the original figure as closely as possible
+  - Make the x-axis labels smaller, round them to the nearest $, and include commas"
+
+- **Top tip**: Once you get code that works, ask the LLM to explain what's going on. Then ask it to quiz you!
+
+:::: {.columns}
+::: {.column width="50%"}
+![](images/lec02_slide74_a.png){width="100%"}
+
+:::
+
+
+::: {.column width="50%"}
+![](images/lec02_slide74_c.png){width="100%"}
+:::
+
+::::
+
+## Takeaways
+
+- **Principles of good data visualization**
+  - Choose the right plot for the task
+  - Avoid distortion: scales, axes, and areas must represent quantities honestly
+  - Prioritize comparisons: lengths > angles; aligned scales; consistent legends
+  - Reduce chart junk
+
+- **Data wrangling with the tidyverse**
+  - Work with tidy data: one row per observation, one column per variable
+  - Use core verbs: `select()`, `filter()`, `mutate()`, `arrange()`
+  - Chain operations clearly using the pipe (`%>%`)
+
+- **Building figures with ggplot2**
+  - Understand the grammar of ggplot (data, geometries, aesthetics)
+  - Construct, modify, and interpret different plot types: scatter plots, line plots, histograms, box plots, violin plots
+  - Use transformations (e.g., log scales) appropriately
+  - Add annotations, reference lines, labels, and themes to improve interpretability

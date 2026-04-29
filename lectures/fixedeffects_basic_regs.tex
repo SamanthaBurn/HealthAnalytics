@@ -1,0 +1,24 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+entry=none,label=none,
+note{}={+ p \num{< 0.1}, * p \num{< 0.05}, ** p \num{< 0.01}, *** p \num{< 0.001}},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]},
+column{2,3}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{6}={1,2,3}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Life Expectancy (within) & Life Expectancy \\ \midrule %% TinyTableHeader
+Log GDP per Capita          &                 & \num{9.769}*** \\
+&                 & (\num{0.297})  \\
+Log GDP per Capita (within) & \num{9.769}*** &                 \\
+& (\num{0.284})  &                 \\
+Num.Obs.                    & \num{1704}     & \num{1704}     \\
+R2                          & \num{0.410}    & \num{0.846}    \\
+RMSE                        & \num{5.06}     & \num{5.06}     \\
+\bottomrule
+\end{talltblr}
+\end{table}

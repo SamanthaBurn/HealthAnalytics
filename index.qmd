@@ -1,0 +1,76 @@
+---
+title: "Introduction to Health Analytics"
+format:
+  html:
+    toc: true
+---
+
+## Course Overview
+
+This course provides a comprehensive introduction to health analytics using R and RStudio. Health analytics combines statistical methods, data visualization, and computational tools to analyze health data and answer critical questions about population health, treatment effectiveness, and health disparities.
+
+Throughout this course, you will learn to work with real health datasets, explore data visualization techniques, clean and wrangle messy health data, and apply advanced statistical methods to extract meaningful insights. We cover foundational concepts in causal inference, regression analysis, hypothesis testing, and machine learning—all with a focus on practical applications in health research and policy.
+
+By the end of this course, you will be equipped to conduct your own health analytics projects, interpret statistical results critically, and communicate findings to both technical and non-technical audiences. This course emphasizes reproducible research practices and uses R and RStudio as our primary computational tools.
+
+## Course Materials
+
+### Lectures
+
+The course consists of 10 core lectures that build progressively from foundational concepts to advanced methods:
+
+| # | Topic | Slides | Exercise | Solutions |
+|---|-------|--------|----------|-----------|
+| 1 | Introduction to Health Data & R | [Slides](lectures/health_analytics_01_intro.qmd) | [Rmd](exercises/health_analytics_01_intro.Rmd) | [Rmd](exercises/health_analytics_01_intro_solutions.Rmd) |
+| 2 | Data Visualization | [Slides](lectures/health_analytics_02_dataviz.qmd) | [Rmd](exercises/health_analytics_02_dataviz.Rmd) | [Rmd](exercises/health_analytics_02_dataviz_solutions.Rmd) |
+| 3 | Data Wrangling | [Slides](lectures/health_analytics_03_wrangling.qmd) | [Rmd](exercises/health_analytics_03_wrangling.Rmd) | [Rmd](exercises/health_analytics_03_wrangling_solutions.Rmd) |
+| 4 | Causal Inference | [Slides](lectures/health_analytics_04_causal_inference.qmd) | — | — |
+| 5 | Linear Regression | [Slides](lectures/health_analytics_05_linear_reg.qmd) | [Rmd](exercises/health_analytics_05_linear_reg.Rmd) | [Rmd](exercises/health_analytics_05_linear_reg_solutions.Rmd) |
+| 6 | Hypothesis Testing | [Slides](lectures/health_analytics_06_hypothesis_testing.qmd) | [Rmd](exercises/health_analytics_06_hypothesis_testing.Rmd) | [Rmd](exercises/health_analytics_06_hypothesis_testing_solutions.Rmd) |
+| 7 | Fixed Effects & Difference-in-Differences | [Slides](lectures/health_analytics_07_fe_dd.qmd) | [Rmd](exercises/health_analytics_07_fe_dd.Rmd) | [Rmd](exercises/health_analytics_07_fe_dd_solutions.Rmd) |
+| 8 | Limited Dependent Variables | [Slides](lectures/health_analytics_08_ldvs.qmd) | [Rmd](exercises/health_analytics_08_limited_depvars.Rmd) | [Rmd](exercises/health_analytics_08_limited_depvars_solutions.Rmd) |
+| 9 | Machine Learning | [Slides](lectures/health_analytics_09_ml.qmd) | [Rmd](exercises/health_analytics_09_ml.Rmd) | [Rmd](exercises/health_analytics_09_ml_solutions.Rmd) |
+| 10 | Course Review | [Slides](lectures/health_analytics_10_review.qmd) | — | — |
+
+Slide links open in your browser; `Rmd` links download the source — open in RStudio to work through.
+
+### Exercises
+
+[View all exercises →](exercises/index.qmd)
+
+Practice exercises accompany each lecture. These hands-on assignments help reinforce concepts and develop practical coding skills in R. Both problem sets and solutions are provided.
+
+### Tutorials
+
+[View all tutorials →](tutorials/index.qmd)
+
+Step-by-step tutorials guide you through specific data analysis workflows. These include exploratory data analysis, linear regression modeling, and logistic/probit models.
+
+### Practice Materials
+
+Additional practice problems and exam preparation materials are available in the `practice_exam/` directory, including:
+
+- Practice exam questions with solutions
+- Extra coding exercises
+- Additional practice problems
+
+## Technology
+
+This course uses:
+
+- **R**: A free, open-source language for statistical computing and graphics
+- **RStudio**: An integrated development environment (IDE) that makes R easier to use
+- **Quarto**: A publishing system for creating dynamic documents that combine code and narrative
+
+All course materials are available on GitHub and use industry-standard tools for reproducible research.
+
+## Getting Started
+
+To work with the course materials:
+
+1. Install R from [https://www.r-project.org/](https://www.r-project.org/)
+2. Install RStudio from [https://posit.co/download/rstudio-desktop/](https://posit.co/download/rstudio-desktop/)
+3. Clone the course repository or download the course files
+4. Open the `.Rproj` file in RStudio to get started
+
+Each exercise and tutorial is a self-contained R Markdown file that you can open and run directly in RStudio.

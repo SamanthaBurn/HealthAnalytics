@@ -1,0 +1,180 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Introduction to Machine Learning"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+This exercise will guide you through some basic machine learning models in R using the `tidymodels` framework. By the end of this exercise you should be able to:
+
+1.  See how collinearity destabilises a standard logistic regression.
+2.  Understand regularisation as a way of preventing overfitting in regression.
+3.  Fit and tune a LASSO logistic regression.
+4.  Fit and tune a Random Forest classifier.
+5.  Compare LASSO and Random Forests as *predictive* tools.
+
+```{r, include=FALSE, results='hide'}
+packages <- c(
+  "tidyverse",
+  "tidymodels",
+  "yardstick",
+  "corrplot",
+  "glmnet"
+)
+
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+
+set.seed(122)
+```
+
+# Exercise: Exploratory data analysis and standard logit
+
+You will read in the dataset, which contains data on patients who have had biopsies for breast cancer. The goal is to predict `diagnosis` using the other variables in the dataset.
+
+1.  Load the `bdiag.csv` data
+2.  Convert `bdiag` to a factor variable
+3.  What fraction of patients in the dataset had breast cancer? (`diagnosis==M`)
+
+```{r}
+
+```
+
+4.  Make a correlation heatmap of the numeric predictors. Are there any highly correlated predictors?
+
+```{r}
+
+```
+
+5.  Estimate a standard logistic regression with `radius_mean` as the only predictor. What is the coefficient and standard error?
+6.  Now add `perimeter_mean` to the regression. What happens to the coefficient and standard error on `radius_mean`? Why?
+
+```{r}
+
+```
+
+7.  Estimate a model with all predictors. Do you see any convergence warnings? Why do you think this happens?
+
+```{r}
+
+```
+
+# Exercise: Preprocessing
+
+1.  Split the data into a training set and a test set (70% training, 30% testing). Stratify by diagnosis.
+2.  Split the training data into 10 "cross-validation folds". In cross-validation, we repeatedly fit the model on a subset of the training data and evaluate it on the held-out fold. This allows us to get an estimate of how well the model will perform on new data, without using the test set.
+
+```{r}
+
+```
+
+3.  Build the machine learning "recipe". This will define how the data should be prepared before modelling. In this case we do two things:
+
+-   define `id` as an identifier variable, which should not be used as a predictor. This is important because `id` is just a unique identifier for each patient, and has no relationship with the outcome.
+-   normalize all numeric predictors. This is important for regularised regression, because it puts all predictors on the same scale, preventing those with large units from dominating the model.
+
+```{r}
+
+```
+
+# Exercise: LASSO regression
+
+In this exercise, you will fit the LASSO model across a range of penalty values and evaluate predictive performance using cross-validation. The goal is to identify the penalty value that delivers the best out-of-sample performance.
+
+1.  Specify a logistic regression model with a LASSO penalty, where the penalty term $\lambda$ is a tuning parameter. This means that we will choose $\lambda$ using cross-validation.
+2.  Specify a `workflow` that combines the recipe and the model specification.
+
+```{r}
+
+```
+
+3.  Define a grid of values for $\lambda$ to search over. We will use 50 values, spaced evenly on the log scale.
+4.  Fit the LASSO model for all values of $\lambda$ in the grid and for each cross-validation \`fold' of the data.
+
+```{r}
+
+```
+
+5.  Pick the value of $\lambda$ that maximises the average ROC AUC across the folds. This is the value of $\lambda$ that gives the best out-of-sample performance according to cross-validation. The best $\lambda$ is very small here. This means that regularisation is not very helpful for this dataset, which is not surprising given that we have a lot of observations relative to the number of predictors. In other datasets with more predictors and fewer observations, we might see a much larger optimal $\lambda$.
+
+```{r}
+
+```
+
+6.  At this point we have chosen $\lambda$ using cross-validation on the training data. Now we evaluate the final model on the held-out test set. This is the performance we would report as an estimate of how the model generalises.
+
+7.  Calculate the accuracy of the final model on the test set using `collect_metrics()`. The default is to predict `M` if predicted probability is greater than 0.5.
+
+```{r}
+
+```
+
+8.  Which variables are most important for predicting breast cancer according to the LASSO model? To answer this question, we can look at the variable importance plot for the final model. This will show us which predictors have the largest absolute coefficients in the LASSO model, which indicates their importance for prediction.
+
+```{r}
+
+```
+
+# Exercise: Random Forests
+
+Below we fit a Random Forest classifier using **exactly the same**:
+
+\- training/test split (`bdiag_split`)
+
+\- cross-validation folds (`bdiag_folds`)
+
+\- preprocessing recipe (`bdiag_recipe`)
+
+\- workflow structure used for LASSO
+
+1.  Define a Random Forest classification model that we will tune.\
+    We will tune:
+
+-   `mtry` (how many predictors are considered at each split), and
+-   `min_n` (minimum number of observations in a terminal node).\
+    Hold the number of trees fixed (e.g. 500).
+
+2.  Build a workflow that combines the recipe and the model specification.
+
+```{r}
+
+```
+
+3.  Define a grid of values for `mtry` and `min_n` to search over. We will use 5 values for `mtry` and 5 values for `min_n`, giving us a total of 25 combinations to evaluate.
+4.  Fit the Random Forest workflow across all combinations in rf_grid using the same cross-validation folds (bdiag_folds).
+
+```{r}
+
+```
+
+5.  Select the best combination of `mtry` and `min_n` based on the average ROC AUC across the folds. This is the combination that gives us the best out-of-sample performance according to cross-validation.
+
+```{r}
+
+```
+
+6.  Finalise the Random Forest workflow by plugging in the chosen tuning parameters, then fit once on the training set and evaluate on the held-out test set.
+7.  Calculate the accuracy of the final Random Forest model on the test set using `collect_metrics()`.
+
+```{r}
+
+```

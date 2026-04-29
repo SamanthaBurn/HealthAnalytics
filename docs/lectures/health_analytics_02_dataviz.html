@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.8.27">
+
+  <title>Introduction to Health Analytics</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-0fde88a82f0356838740f155f1088782.css">
+  <link rel="stylesheet" href="burn_slides.css">
+  <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Introduction to Health Analytics</h1>
+  <p class="subtitle">Data Visualization</p>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section id="course-road-map" class="slide level2">
+<h2>Course road map</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Lecture</th>
+<th>Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Introduction to health data &amp; R</td>
+</tr>
+<tr class="even">
+<td><span style="color: #C8102E"><strong>2</strong></span></td>
+<td><span style="color: #C8102E"><strong>Data visualization</strong></span></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Data wrangling &amp; exploratory data analysis</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Causal inference</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Linear regression</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Linear regression: uncertainty &amp; hypothesis testing</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Panel data: difference-in-differences &amp; fixed effects</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Limited dependent variables: LPM, logit, probit</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Introduction to machine learning for health analytics</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Course review</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-health-analytics-pipeline" class="slide level2">
+<h2>The health analytics pipeline</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec01_slide11_a.png" style="width:80.0%"></p>
+</div>
+</section>
+<section id="today-data-visualization" class="slide level2">
+<h2>Today: Data visualization</h2>
+<ul>
+<li class="fragment"><strong>Principles of data visualization</strong></li>
+<li class="fragment"><strong>Data visualization in practice</strong>
+<ul>
+<li class="fragment">Basic data wrangling with tidyverse</li>
+<li class="fragment">Plotting a scatter plot with ggplot</li>
+<li class="fragment">Other types of plot in R</li>
+</ul></li>
+<li class="fragment"><strong>Using AI as a coding tutor</strong></li>
+</ul>
+</section>
+<section>
+<section id="principles-of-data-visualization" class="title-slide slide level1 center">
+<h1>Principles of data visualization</h1>
+
+</section>
+<section id="guiding-principles-for-graphical-excellence-tufte" class="slide level2">
+<h2>Guiding principles for graphical excellence (Tufte)</h2>
+<ul>
+<li class="fragment"><strong>Substance</strong>: Induce the viewer to think about the substance rather than about other things (e.g., methodology, design, technology, etc.)</li>
+<li class="fragment"><strong>No distortion</strong>: Avoid distorting what the data have to say</li>
+<li class="fragment"><strong>Information-dense</strong>: Present many numbers in a small space</li>
+<li class="fragment"><strong>Coherence</strong>: Make large data sets coherent</li>
+<li class="fragment"><strong>Encourage comparisons</strong>: Encourage the eye to compare different pieces of data</li>
+<li class="fragment"><strong>Broad-to-fine details</strong>: Reveal the data at several levels of detail, from a broad overview to the fine structure</li>
+<li class="fragment"><strong>Clear purpose</strong>: Serve a reasonably clear purpose – why is it graphed in the first place?</li>
+<li class="fragment"><strong>Alignment with verbal descriptions</strong>: Be aligned with the verbal descriptions accompanying the graph</li>
+</ul>
+</section>
+<section id="a-picture-is-worth-1000-data-points" class="slide level2">
+<h2>A picture is worth 1,000 data points</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide07_a.png"></p>
+</div>
+</section>
+<section id="how-recently-did-modern-economic-growth-start" class="slide level2">
+<h2>How recently did modern economic growth start?</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide08_a.png"></p>
+</div>
+</section>
+<section id="one-of-the-most-famous-health-data-visualizations-of-all-time" class="slide level2">
+<h2>One of the most famous health data visualizations of all time?</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Original</strong></p>
+<p><img data-src="images/lec02_slide09_a.png" style="width:70.0%"></p>
+</div><div class="column" style="width:50%;">
+<p><strong>Modern</strong></p>
+<p><img data-src="images/lec02_slide09_d.png" style="width:70.0%"></p>
+</div></div>
+<ul>
+<li class="fragment"><strong>John Snow’s Cholera Map (1855)</strong>
+<ul>
+<li class="fragment">Shows deaths and water pump locations in Soho</li>
+<li class="fragment">By identifying clustering around a specific pump, Snow demonstrated that contaminated water was the source</li>
+</ul></li>
+</ul>
+</section>
+<section id="a-common-problem-with-maps" class="slide level2">
+<h2>A common problem with maps</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide10_a.png"></p>
+</div>
+</section>
+<section id="what-can-go-wrong-axes-of-evil" class="slide level2">
+<h2>What can go wrong? Axes of evil</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide11_a.png"></p>
+<p><span class="source">Source: Georgia Dept of Public Health via FT</span></p>
+</div>
+</section>
+<section id="what-can-go-wrong-whirlwind" class="slide level2">
+<h2>What can go wrong? Whirlwind</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide12_a.png"></p>
+<p><span class="source">Source: Donny Dorling via FT</span></p>
+</div>
+</section>
+<section id="principle-ease-comparisons-use-common-axes" class="slide level2">
+<h2>Principle: Ease comparisons — use common axes!</h2>
+<ul>
+<li class="fragment">The two subplots have different axes, making comparison difficult</li>
+</ul>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide13_a.png"></p>
+<p><span class="source">Source: Georgia Dept of Public Health via X</span></p>
+</div>
+</section>
+<section id="principle-ease-comparisons-angles-vs.-lengths" class="slide level2">
+<h2>Principle: Ease comparisons — angles vs.&nbsp;lengths</h2>
+<ul>
+<li class="fragment">Angles are harder to read than lengths</li>
+</ul>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide14_a.png" style="width:40.0%"></p>
+<p><img data-src="images/lec02_slide14_b.png" style="width:40.0%"></p>
+</div>
+</section>
+<section id="principle-do-not-distort-quantities" class="slide level2">
+<h2>Principle: Do not distort quantities</h2>
+<ul>
+<li class="fragment">Radius is proportionate to quantity, but our brains judge area or volume, which distorts the comparison</li>
+</ul>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide15_a.png"></p>
+</div>
+</section>
+<section id="principle-do-not-distort-quantities-1" class="slide level2">
+<h2>Principle: Do not distort quantities</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide16_a.png"></p>
+</div>
+</section>
+<section id="principle-avoid-chart-junk-no-pseudo-3d-plots" class="slide level2">
+<h2>Principle: Avoid chart junk — no pseudo-3D plots</h2>
+<ul>
+<li class="fragment">Humans are not good at seeing in three dimensions</li>
+<li class="fragment">Pseudo-3D makes it nearly impossible to determine accurate values</li>
+<li class="fragment">Color can represent categorical variables more effectively</li>
+</ul>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide17_b.png"></p>
+</div>
+</section>
+<section id="what-can-go-wrong-more-is-better" class="slide level2">
+<h2>What can go wrong? More is better?</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide18_a.png" style="width:100.0%"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide18_b.png" style="width:100.0%"></p>
+</div></div>
+</section>
+<section id="what-can-go-wrong-too-cluttered" class="slide level2">
+<h2>What can go wrong? Too cluttered</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide19_a.png" style="width:100.0%"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide19_b.png" style="width:80.0%"></p>
+</div></div>
+</section></section>
+<section>
+<section id="data-visualization-in-practice" class="title-slide slide level1 center">
+<h1>Data visualization in practice</h1>
+
+</section>
+<section id="basic-data-wrangling-with-tidyverse" class="slide level2">
+<h2>Basic data wrangling with tidyverse</h2>
+<ul>
+<li class="fragment"><strong>What is tidyverse?</strong>
+<ul>
+<li class="fragment">A collection of R packages designed for data science</li>
+<li class="fragment">Share a common grammar</li>
+<li class="fragment">Make data import, wrangling, visualization, and modeling more consistent and readable</li>
+</ul></li>
+<li class="fragment"><strong>Installation</strong>:</li>
+</ul>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">install.packages</span>(<span class="st">"tidyverse"</span>)</span>
+<span id="cb1-2"><a></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="tidyverse-core-packages" class="slide level2">
+<h2>Tidyverse: Core packages</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide23_a.png"></p>
+</div>
+</section>
+<section id="tidyverse-data-transformation" class="slide level2">
+<h2>Tidyverse: Data transformation</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide24_a.png"></p>
+</div>
+</section>
+<section id="tidyverse-visualization" class="slide level2">
+<h2>Tidyverse: Visualization</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide25_a.png"></p>
+</div>
+</section>
+<section id="tidy-data" class="slide level2">
+<h2>Tidy data</h2>
+<ul>
+<li class="fragment"><strong>Definition</strong>: A data table is in tidy format if:
+<ul>
+<li class="fragment">Each row represents one observation</li>
+<li class="fragment">Columns represent the different variables available for each observation</li>
+</ul></li>
+<li class="fragment"><strong>Example</strong>: Fertility rates in the UK and South Korea (1960-1962)</li>
+</ul>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a></a>fertility_rate <span class="ot">&lt;-</span> <span class="fu">data.frame</span> (</span>
+<span id="cb2-3"><a></a>  <span class="at">Year =</span> <span class="fu">c</span>(<span class="dv">1960</span>, <span class="dv">1961</span>, <span class="dv">1962</span>),</span>
+<span id="cb2-4"><a></a>  <span class="at">Fertility_rate_UK =</span> <span class="fu">c</span>(<span class="fl">2.62</span>, <span class="fl">2.68</span>, <span class="fl">2.75</span>),</span>
+<span id="cb2-5"><a></a>  <span class="at">Fertility_rate_South_Korea =</span> <span class="fu">c</span>(<span class="fl">6.04</span>, <span class="fl">5.89</span>, <span class="fl">5.75</span>)</span>
+<span id="cb2-6"><a></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Fertility_rate_UK</th>
+<th>Fertility_rate_South_Korea</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1960</td>
+<td>2.62</td>
+<td>6.04</td>
+</tr>
+<tr class="even">
+<td>1961</td>
+<td>2.68</td>
+<td>5.89</td>
+</tr>
+<tr class="odd">
+<td>1962</td>
+<td>2.75</td>
+<td>5.75</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data-manipulation-select" class="slide level2">
+<h2>Data manipulation: select()</h2>
+<ul>
+<li class="fragment"><strong>Purpose</strong>: Select particular columns from a data frame</li>
+</ul>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>sk <span class="ot">&lt;-</span> <span class="fu">select</span>(fertility_rate, Year, Fertility_rate_South_Korea)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Fertility_rate_South_Korea</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1960</td>
+<td>6.04</td>
+</tr>
+<tr class="even">
+<td>1961</td>
+<td>5.89</td>
+</tr>
+<tr class="odd">
+<td>1962</td>
+<td>5.75</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data-manipulation-filter" class="slide level2">
+<h2>Data manipulation: filter()</h2>
+<ul>
+<li class="fragment"><strong>Purpose</strong>: Keep only the rows of a dataframe that meet certain logical conditions</li>
+<li class="fragment"><strong>Conditions</strong>: Can be combined using <code>&amp;</code> and <code>|</code></li>
+<li class="fragment"><strong>Checking lists</strong>: Use <code>%in%</code> to check whether each value appears in a list of specified values</li>
+</ul>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>sk_lt6 <span class="ot">&lt;-</span> <span class="fu">filter</span>(fertility_rate, Fertility_rate_South_Korea <span class="sc">&lt;</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Fertility_rate_South_Korea</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1961</td>
+<td>5.89</td>
+</tr>
+<tr class="even">
+<td>1962</td>
+<td>5.75</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data-manipulation-mutate" class="slide level2">
+<h2>Data manipulation: mutate()</h2>
+<ul>
+<li class="fragment"><strong>Purpose</strong>: Create new columns that are functions of existing variables</li>
+<li class="fragment"><strong>Can also</strong>: Modify or delete existing columns</li>
+</ul>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>fertility_rate <span class="ot">&lt;-</span> <span class="fu">mutate</span>(fertility_rate, <span class="at">rate_change_UK =</span></span>
+<span id="cb5-2"><a></a>  (Fertility_rate_UK <span class="sc">-</span> <span class="fu">lag</span>(Fertility_rate_UK)) <span class="sc">/</span> <span class="fu">lag</span>(Fertility_rate_UK) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Fertility_rate_UK</th>
+<th>Fertility_rate_South_Korea</th>
+<th>rate_change_UK</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1960</td>
+<td>2.62</td>
+<td>6.04</td>
+<td>NA</td>
+</tr>
+<tr class="even">
+<td>1961</td>
+<td>2.68</td>
+<td>5.89</td>
+<td>2.290076</td>
+</tr>
+<tr class="odd">
+<td>1962</td>
+<td>2.75</td>
+<td>5.75</td>
+<td>2.611940</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data-manipulation-arrange" class="slide level2">
+<h2>Data manipulation: arrange()</h2>
+<ul>
+<li class="fragment"><strong>Purpose</strong>: Sort a data frame by a particular column</li>
+</ul>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="fu">arrange</span>(fertility_rate, Fertility_rate_South_Korea)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Fertility_rate_South_Korea</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1962</td>
+<td>5.75</td>
+</tr>
+<tr class="even">
+<td>1961</td>
+<td>5.89</td>
+</tr>
+<tr class="odd">
+<td>1960</td>
+<td>6.04</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="the-pipe-operator" class="slide level2">
+<h2>The pipe operator %&gt;%</h2>
+<ul>
+<li class="fragment"><strong>What it does</strong>: Performs operations sequentially without defining intermediate objects</li>
+<li class="fragment"><strong>How it works</strong>: Passes the left-hand side to the first argument of the right-hand side
+<ul>
+<li class="fragment"><code>x %&gt;% f()</code> is equal to <code>f(x)</code></li>
+<li class="fragment">Allows: <code>a %&gt;% b() %&gt;% c() %&gt;% d()</code> instead of <code>d(c(b(a())))</code></li>
+</ul></li>
+</ul>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a>pi <span class="sc">%&gt;%</span> <span class="fu">sin</span>() <span class="sc">%&gt;%</span> <span class="fu">cos</span>()</span>
+<span id="cb7-2"><a></a>pi <span class="sc">%&gt;%</span> <span class="fu">round</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section></section>
+<section>
+<section id="plotting-a-scatter-plot-with-ggplot" class="title-slide slide level1 center">
+<h1>Plotting a scatter plot with ggplot</h1>
+
+</section>
+<section id="ggplot2-case-study-we-will-generate-this-plot-together" class="slide level2">
+<h2>ggplot2 case study: we will generate this plot together!</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide34_a.png"></p>
+</div>
+</section>
+<section id="ggplot2-overview" class="slide level2">
+<h2>ggplot2 overview</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide35_a.png"></p>
+</div>
+</section>
+<section id="ggplot2-the-murders-dataset" class="slide level2">
+<h2>ggplot2: The murders dataset</h2>
+<ul>
+<li class="fragment"><strong>Data source</strong>: US murders by state from the dslabs package</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>murders <span class="ot">&lt;-</span> dslabs<span class="sc">::</span>murders</span>
+<span id="cb8-2"><a></a><span class="fu">head</span>(murders)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       state abb region population total
+1    Alabama  AL  South    4779736   135
+2     Alaska  AK   West     710231    19
+3    Arizona  AZ   West    6392017   232
+4   Arkansas  AR  South    2915918    93
+5 California  CA   West   37253956  1257
+6   Colorado  CO   West    5029196    65</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="ggplot2-three-main-components" class="slide level2">
+<h2>ggplot2: Three main components</h2>
+<ul>
+<li class="fragment"><strong>Data</strong>: A dataset</li>
+<li class="fragment"><strong>Geometry</strong>: The type of plot (scatterplot, barplot, histogram, smooth densities, qqplot, boxplot)</li>
+<li class="fragment"><strong>Aesthetic mapping</strong>: Additional visual cues to represent information (x-axis, y-axis, color, size)</li>
+</ul>
+</section>
+<section id="creating-a-ggplot-object" class="slide level2">
+<h2>Creating a ggplot object</h2>
+<ul>
+<li class="fragment"><strong>Step 1</strong>: Define a ggplot object using the <code>ggplot()</code> function:</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> murders)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<ul>
+<li class="fragment"><strong>Alternative</strong>: Pipe the data in</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a>murders <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-3-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment"><strong>Note</strong>: The above renders a blank plot since no geometry has been defined</li>
+</ul>
+</section>
+<section id="plot-layers" class="slide level2">
+<h2>Plot layers</h2>
+<ul>
+<li class="fragment"><strong>How to build</strong>: Create graphs by adding “layers” to the base plot using the <code>+</code> symbol</li>
+</ul>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a>DATA <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>() <span class="sc">+</span> LAYER_1 <span class="sc">+</span> LAYER_2 <span class="sc">+</span> ... <span class="sc">+</span> LAYER_N</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li class="fragment"><strong>First layer</strong>: Usually defines the <strong>geometry</strong> (what shape to draw)
+<ul>
+<li class="fragment"><code>geom_point()</code> → scatterplot</li>
+<li class="fragment"><code>geom_bar()</code> → bar chart</li>
+<li class="fragment"><code>geom_histogram()</code> → histogram</li>
+<li class="fragment"><code>geom_boxplot()</code> → boxplot</li>
+</ul></li>
+</ul>
+</section>
+<section id="making-a-scatter-plot-with-geom_point" class="slide level2">
+<h2>Making a scatter plot with geom_point()</h2>
+<ul>
+<li class="fragment"><strong>geom_point()</strong>: Draws points (a scatterplot)</li>
+<li class="fragment"><strong>aes()</strong>: Tells ggplot which variables go on the axes (short for aesthetics)
+<ul>
+<li class="fragment">Read this as: “Using the murders data, draw points with population on the x-axis and total on the y-axis”</li>
+</ul></li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a>p <span class="ot">&lt;-</span> murders <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> population, <span class="at">y =</span> total))</span>
+<span id="cb13-2"><a></a>p <span class="sc">+</span> <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-4-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="transforming-variables-inside-aes" class="slide level2">
+<h2>Transforming variables inside aes()</h2>
+<ul>
+<li class="fragment"><strong>How it works</strong>: Modify variables directly inside <code>aes()</code> to change how data are shown (not the underlying dataset)</li>
+<li class="fragment"><strong>Example</strong>: Rescale population to millions for readability</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a>p <span class="ot">&lt;-</span> murders <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> population<span class="sc">/</span><span class="dv">10</span><span class="sc">^</span><span class="dv">6</span>, <span class="at">y =</span> total))</span>
+<span id="cb14-2"><a></a>p <span class="sc">+</span> <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-5-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="adding-labels-to-data-points" class="slide level2">
+<h2>Adding labels to data points</h2>
+<ul>
+<li class="fragment"><strong>geom_text()</strong>: Add labels to points</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a>murders <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(population<span class="sc">/</span><span class="dv">10</span><span class="sc">^</span><span class="dv">6</span>, total, <span class="at">label =</span> abb)) <span class="sc">+</span></span>
+<span id="cb15-2"><a></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb15-3"><a></a>  <span class="fu">geom_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-6-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="global-vs.-local-aesthetic-mappings" class="slide level2">
+<h2>Global vs.&nbsp;local aesthetic mappings</h2>
+<ul>
+<li class="fragment"><strong>Problem</strong>: When defining the same <code>aes()</code> mapping in multiple geometries, avoid repetition</li>
+<li class="fragment"><strong>Solution</strong>: Use a global aesthetic mapping in the <code>ggplot()</code> function</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a>p <span class="ot">&lt;-</span> murders <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(population<span class="sc">/</span><span class="dv">10</span><span class="sc">^</span><span class="dv">6</span>, total, <span class="at">label =</span> abb))</span>
+<span id="cb16-2"><a></a>p <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-7-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment"><strong>Note</strong>: Other aesthetic mappings (like size) can be specific to individual layers</li>
+</ul>
+</section>
+<section id="adjusting-marker-size" class="slide level2">
+<h2>Adjusting marker size</h2>
+<ul>
+<li class="fragment"><strong>How it works</strong>: Each geometry function has many arguments beyond <code>aes()</code> and <code>data</code></li>
+<li class="fragment"><strong>Example</strong>: To increase marker size:</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a>p <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span> <span class="fu">geom_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-8-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment"><strong>Important</strong>: <code>size</code> is specified <strong>outside</strong> <code>aes()</code> because it’s not mapped to a variable</li>
+</ul>
+</section>
+<section id="using-log-scales" class="slide level2">
+<h2>Using log scales</h2>
+<ul>
+<li class="fragment"><strong>When to use</strong>: Better visualize data that spans multiple orders of magnitude</li>
+<li class="fragment"><strong>Why</strong>: Particularly useful for right-skewed data where many small states would be hard to see on a linear scale</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a>p <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb18-2"><a></a>  <span class="fu">geom_text</span>() <span class="sc">+</span></span>
+<span id="cb18-3"><a></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span> <span class="fu">scale_y_log10</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-9-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="positioning-text-labels" class="slide level2">
+<h2>Positioning text labels</h2>
+<ul>
+<li class="fragment"><strong>nudge_x argument</strong>: Move text labels to avoid overlap</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a>p <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb19-2"><a></a>  <span class="fu">geom_text</span>(<span class="at">nudge_x =</span> <span class="fl">0.05</span>) <span class="sc">+</span></span>
+<span id="cb19-3"><a></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span> <span class="fu">scale_y_log10</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-10-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment"><strong>Alternative</strong>: For overlapping labels, use <code>ggrepel::geom_text_repel()</code> for automatic label placement</li>
+</ul>
+</section>
+<section id="adding-labels-and-titles" class="slide level2">
+<h2>Adding labels and titles</h2>
+<ul>
+<li class="fragment"><strong>Functions</strong>: Use <code>xlab()</code>, <code>ylab()</code>, and <code>ggtitle()</code> to customize labels</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a>p <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb20-2"><a></a>  <span class="fu">geom_text</span>(<span class="at">nudge_x =</span> <span class="fl">0.05</span>) <span class="sc">+</span></span>
+<span id="cb20-3"><a></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span> <span class="fu">scale_y_log10</span>() <span class="sc">+</span></span>
+<span id="cb20-4"><a></a>  <span class="fu">xlab</span>(<span class="st">"Population in millions (log scale)"</span>) <span class="sc">+</span></span>
+<span id="cb20-5"><a></a>  <span class="fu">ylab</span>(<span class="st">"Total number of murders (log scale)"</span>) <span class="sc">+</span></span>
+<span id="cb20-6"><a></a>  <span class="fu">ggtitle</span>(<span class="st">"US Gun Murders in 2010"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-11-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="changing-marker-color-by-region" class="slide level2">
+<h2>Changing marker color by region</h2>
+<ul>
+<li class="fragment"><strong>How it works</strong>: Assign a categorical variable to <code>col</code> to automatically color-code points and add a legend</li>
+<li class="fragment"><strong>Aesthetic mapping</strong>: Since the choice of color is determined by a feature of each observation, this is an aesthetic mapping specific to the <code>geom_point()</code> layer</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a>murders <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(population<span class="sc">/</span><span class="dv">10</span><span class="sc">^</span><span class="dv">6</span>, total, <span class="at">label =</span> abb, <span class="at">col =</span> region)) <span class="sc">+</span></span>
+<span id="cb21-2"><a></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb21-3"><a></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span> <span class="fu">scale_y_log10</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-12-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="adding-a-reference-line-for-average-murder-rate" class="slide level2">
+<h2>Adding a reference line for average murder rate</h2>
+<ul>
+<li class="fragment"><strong>Formula</strong>: The line is defined by <code>log(y) = log(r) + log(x)</code>
+<ul>
+<li class="fragment">Straight line with slope 1 and intercept <code>log(r)</code></li>
+<li class="fragment">r is <code>mean(murders$total) / mean(murders$population) * 10^6</code></li>
+</ul></li>
+</ul>
+</section>
+<section id="adding-reference-lines-and-annotations" class="slide level2">
+<h2>Adding reference lines and annotations</h2>
+<ul>
+<li class="fragment"><strong>geom_abline()</strong>: Draw reference lines</li>
+<li class="fragment"><strong>Ordering</strong>: Draw it first so it doesn’t obscure points</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a>r <span class="ot">&lt;-</span> <span class="fu">mean</span>(murders<span class="sc">$</span>total) <span class="sc">/</span> <span class="fu">mean</span>(murders<span class="sc">$</span>population) <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">6</span></span>
+<span id="cb22-2"><a></a>p <span class="ot">&lt;-</span> murders <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(population<span class="sc">/</span><span class="dv">10</span><span class="sc">^</span><span class="dv">6</span>, total, <span class="at">label =</span> abb, <span class="at">col =</span> region))</span>
+<span id="cb22-3"><a></a></span>
+<span id="cb22-4"><a></a>p <span class="sc">+</span> <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="fu">log10</span>(r), <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="st">"darkgrey"</span>) <span class="sc">+</span></span>
+<span id="cb22-5"><a></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb22-6"><a></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span> <span class="fu">scale_y_log10</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-13-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="we-are-pretty-close" class="slide level2">
+<h2>We are pretty close!</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide52_a.png" style="width:100.0%"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide52_b.png" style="width:100.0%"></p>
+</div></div>
+<ul>
+<li class="fragment">Two final adjustments: change the theme and fix label positioning</li>
+</ul>
+</section>
+<section id="add-on-packages-ggthemes" class="slide level2">
+<h2>Add-on packages: ggthemes</h2>
+<ul>
+<li class="fragment"><strong>What themes do</strong>: Customize the non-data components of your plots: titles, labels, fonts, background, gridlines, and legends</li>
+<li class="fragment"><strong>How to use</strong>: Simply add a theme layer</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a><span class="fu">library</span>(ggthemes)</span>
+<span id="cb23-2"><a></a>p <span class="sc">+</span> <span class="fu">theme_economist</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-14-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment"><strong>Browse available themes</strong>: https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/</li>
+</ul>
+</section>
+<section id="add-on-packages-ggrepel" class="slide level2">
+<h2>Add-on packages: ggrepel</h2>
+<ul>
+<li class="fragment"><strong>What it does</strong>: Provides geometries to repel overlapping text labels
+<ul>
+<li class="fragment"><code>geom_text_repel()</code> for text labels</li>
+<li class="fragment"><code>geom_label_repel()</code> for labeled boxes</li>
+</ul></li>
+<li class="fragment"><strong>How to use</strong>: Simply replace <code>geom_text()</code> with <code>geom_text_repel()</code>:</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a><span class="fu">library</span>(ggrepel)</span>
+<span id="cb24-2"><a></a>p <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb24-3"><a></a>  <span class="fu">geom_text_repel</span>() <span class="sc">+</span></span>
+<span id="cb24-4"><a></a>  <span class="fu">theme_economist</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-15-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="we-made-it" class="slide level2">
+<h2>We made it!</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide55_a.png"></p>
+</div>
+</section></section>
+<section>
+<section id="other-types-of-plot-in-r" class="title-slide slide level1 center">
+<h1>Other types of plot in R</h1>
+
+</section>
+<section id="line-plots" class="slide level2">
+<h2>Line plots</h2>
+<ul>
+<li class="fragment"><p><strong>What they show</strong>: How a variable changes over an ordered dimension (like time) by connecting observations with lines</p></li>
+<li class="fragment"><p><strong>Example</strong>: Using the <code>gapminder</code> dataset, plot life expectancy over time for South Korea</p></li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a>gapminder <span class="sc">%&gt;%</span></span>
+<span id="cb25-2"><a></a>  <span class="fu">filter</span>(country <span class="sc">==</span> <span class="st">"China"</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(lifeExp)) <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y=</span> lifeExp)) <span class="sc">+</span></span>
+<span id="cb25-4"><a></a>  <span class="fu">geom_line</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-16-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="multiple-line-plots" class="slide level2">
+<h2>Multiple line plots</h2>
+<ul>
+<li class="fragment"><strong>How to plot multiple countries on the same graph</strong>:</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a>countries <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"China"</span>, <span class="st">"India"</span>)</span>
+<span id="cb26-2"><a></a>gapminder <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a></a>  <span class="fu">filter</span>(country <span class="sc">%in%</span> countries <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(lifeExp)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-4"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(year, lifeExp, <span class="at">col =</span> country)) <span class="sc">+</span></span>
+<span id="cb26-5"><a></a>  <span class="fu">geom_line</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-17-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="histograms" class="slide level2">
+<h2>Histograms</h2>
+<ul>
+<li class="fragment"><strong>What they answer</strong>:
+<ul>
+<li class="fragment">Is the distribution unimodal or multimodal?</li>
+<li class="fragment">Is the distribution symmetric?</li>
+<li class="fragment">What ranges contain 95% of the values?</li>
+</ul></li>
+<li class="fragment"><strong>How they work</strong>: Divide the data span into non-overlapping bins of equal size and count values in each interval</li>
+</ul>
+</section>
+<section id="creating-a-histogram" class="slide level2">
+<h2>Creating a histogram</h2>
+<ul>
+<li class="fragment"><strong>Function</strong>: Use <code>geom_histogram()</code> with the x-axis variable</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a>murders <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(total)) <span class="sc">+</span></span>
+<span id="cb27-3"><a></a>  <span class="fu">geom_histogram</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-18-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="histograms-with-different-bin-counts" class="slide level2">
+<h2>Histograms with different bin counts</h2>
+<ul>
+<li class="fragment"><strong>Why it matters</strong>: The number of bins can change how you perceive the distribution</li>
+<li class="fragment"><strong>Compare</strong>: Histograms with 5 and 20 bins</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a>bins_5 <span class="ot">&lt;-</span> murders <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(total)) <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">5</span>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">"5 bins"</span>)</span>
+<span id="cb28-2"><a></a>bins_20 <span class="ot">&lt;-</span> murders <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(total)) <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">"20 bins"</span>)</span>
+<span id="cb28-3"><a></a></span>
+<span id="cb28-4"><a></a><span class="fu">library</span>(ggpubr)</span>
+<span id="cb28-5"><a></a><span class="fu">ggarrange</span>(bins_5, bins_20, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">nrow =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-19-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="adding-density-plots-to-histograms" class="slide level2">
+<h2>Adding density plots to histograms</h2>
+<ul>
+<li class="fragment"><strong>How to combine them</strong>: Overlay a density curve on a histogram</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a></a>murders <span class="sc">%&gt;%</span></span>
+<span id="cb29-2"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> total, <span class="at">y =</span> <span class="fu">after_stat</span>(density))) <span class="sc">+</span></span>
+<span id="cb29-3"><a></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb29-4"><a></a>  <span class="fu">geom_density</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_02_dataviz_files/figure-revealjs/unnamed-chunk-20-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="box-plots" class="slide level2">
+<h2>Box plots</h2>
+<ul>
+<li class="fragment"><strong>What they show</strong>:
+<ul>
+<li class="fragment"><strong>Median</strong>: the center line</li>
+<li class="fragment"><strong>Interquartile range (IQR)</strong>: the box containing the middle 50% of data</li>
+<li class="fragment"><strong>Outliers</strong>: unusually high or low values</li>
+</ul></li>
+</ul>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide64_a.png" style="width:100.0%"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide64_b.jpeg" style="width:100.0%"></p>
+</div></div>
+</section>
+<section id="violin-plots" class="slide level2">
+<h2>Violin plots</h2>
+<ul>
+<li class="fragment"><strong>What they show</strong>: The full distribution by combining a box-plot summary with a smoothed density curve</li>
+<li class="fragment"><strong>Width</strong>: Indicates how common values are</li>
+</ul>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide65_a.png"></p>
+</div>
+</section>
+<section id="beware-scatterplots-with-many-data-points" class="slide level2">
+<h2>Beware scatterplots with many data points</h2>
+<ul>
+<li class="fragment"><strong>Problem</strong>: Overplotting makes it hard to see the density of points</li>
+<li class="fragment"><strong>Solutions</strong>: Binscatter or hexagonal binning might be a better choice</li>
+</ul>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide66_b.png" style="width:100.0%"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide66_a.png" style="width:100.0%"></p>
+</div></div>
+</section>
+<section id="mapping-in-r-a-choropleth-example" class="slide level2">
+<h2>Mapping in R: A choropleth example</h2>
+<ul>
+<li class="fragment"><p><strong>What it shows</strong>: A basic choropleth map showing median age by local authority</p></li>
+<li class="fragment"><p><strong>Steps</strong>:</p>
+<ol type="1">
+<li class="fragment"><strong>Read your data</strong>: Dataset with local authority code and median age</li>
+<li class="fragment"><strong>Read geographic boundaries</strong>: Data in GeoJSON format — find from government statistical office websites (may need conversion from other shape file formats)</li>
+<li class="fragment"><strong>Combine data</strong>: Merge data into one dataframe</li>
+<li class="fragment"><strong>Plot</strong>: Use <code>geom_sf()</code> and related spatial functions</li>
+</ol></li>
+</ul>
+</section>
+<section id="mapping-in-r-getting-geographic-boundaries-via-api" class="slide level2">
+<h2>Mapping in R: Getting geographic boundaries via API</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec02_slide68_a.png"></p>
+</div>
+</section>
+<section id="mapping-in-r-combining-and-plotting" class="slide level2">
+<h2>Mapping in R: Combining and plotting</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide69_b.png" style="width:100.0%"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide69_c.png" style="width:100.0%"></p>
+</div></div>
+</section>
+<section id="bonus-interactive-maps-with-plotly" class="slide level2">
+<h2>Bonus: Interactive maps with Plotly</h2>
+<ul>
+<li class="fragment"><strong>What it does</strong>: The <code>plotly</code> package produces interactive maps you can zoom into and view data points on hover</li>
+</ul>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide70_a.png" style="width:100.0%"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide70_b.png" style="width:100.0%"></p>
+</div></div>
+</section></section>
+<section>
+<section id="using-ai-as-a-coding-tutor" class="title-slide slide level1 center">
+<h1>Using AI as a coding tutor</h1>
+
+</section>
+<section id="using-ai-as-a-coding-tutor-problem-setup" class="slide level2">
+<h2>Using AI as a coding tutor: Problem setup</h2>
+<ul>
+<li class="fragment"><p><strong>Problem</strong>: Replicate a published figure</p></li>
+<li class="fragment"><p><strong>Prompt to ChatGPT</strong>: “Give me R code to make this graph using ggplot. My dataframe is called <code>df</code> and the variables are: <code>LifeExpectancy</code>, <code>GDPPerCapita</code>, <code>Population</code>, <code>Country</code>, and <code>Region</code>”</p></li>
+<li class="fragment"><p><strong>Top tip</strong>: Be specific about the structure of your data!</p></li>
+</ul>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide73_a.png" style="width:100.0%"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide73_c.png" style="width:100.0%"></p>
+</div></div>
+</section>
+<section id="using-ai-as-a-coding-tutor-refinement" class="slide level2">
+<h2>Using AI as a coding tutor: Refinement</h2>
+<ul>
+<li class="fragment"><strong>Follow-up prompt</strong>: “Edit the code you produced to make the following changes:
+<ul>
+<li class="fragment">Label fewer data points. Only label the 4 countries in each continent with the highest population.</li>
+<li class="fragment">Match the colour scheme of the original figure as closely as possible</li>
+<li class="fragment">Make the x-axis labels smaller, round them to the nearest $, and include commas”</li>
+</ul></li>
+<li class="fragment"><strong>Top tip</strong>: Once you get code that works, ask the LLM to explain what’s going on. Then ask it to quiz you!</li>
+</ul>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide74_a.png" style="width:100.0%"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/lec02_slide74_c.png" style="width:100.0%"></p>
+</div></div>
+</section>
+<section id="takeaways" class="slide level2">
+<h2>Takeaways</h2>
+<ul>
+<li class="fragment"><strong>Principles of good data visualization</strong>
+<ul>
+<li class="fragment">Choose the right plot for the task</li>
+<li class="fragment">Avoid distortion: scales, axes, and areas must represent quantities honestly</li>
+<li class="fragment">Prioritize comparisons: lengths &gt; angles; aligned scales; consistent legends</li>
+<li class="fragment">Reduce chart junk</li>
+</ul></li>
+<li class="fragment"><strong>Data wrangling with the tidyverse</strong>
+<ul>
+<li class="fragment">Work with tidy data: one row per observation, one column per variable</li>
+<li class="fragment">Use core verbs: <code>select()</code>, <code>filter()</code>, <code>mutate()</code>, <code>arrange()</code></li>
+<li class="fragment">Chain operations clearly using the pipe (<code>%&gt;%</code>)</li>
+</ul></li>
+<li class="fragment"><strong>Building figures with ggplot2</strong>
+<ul>
+<li class="fragment">Understand the grammar of ggplot (data, geometries, aesthetics)</li>
+<li class="fragment">Construct, modify, and interpret different plot types: scatter plots, line plots, histograms, box plots, violin plots</li>
+<li class="fragment">Use transformations (e.g., log scales) appropriately</li>
+<li class="fragment">Add annotations, reference lines, labels, and themes to improve interpretability</li>
+</ul></li>
+</ul>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1600,
+
+        height: 900,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

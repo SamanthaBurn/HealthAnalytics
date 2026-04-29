@@ -1,0 +1,106 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Tutorial 4: Limited Dependent Variables with IPUMS NHIS Data"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+In this exercise, we will implement and interpret Linear Probability Models (LPM) and Logit and Probit models in R. We will use an extract of the National Health and Nutrition Examination Survey (NHANES) data from the R package `nhanes`. For the analysis in this exam you do **not** need to use survey weights.
+
+By the end of this exercise, you should be able to:
+
+1.  Estimate and interpret Linear Probability Models (LPM) and understand their pros and cons
+2.  Estimate and interpret Logit and Probit models and understand their pros and cons
+3.  Compute and interpret individual marginal effects and average marginal effects for logit and probit models.
+
+Load packages you will need and load the NHANES data into the R dataset `nhanes_data` using the below code.
+
+```{r loaddata, echo=T, results='hide', warning=FALSE, message=FALSE}
+
+```
+
+# Data cleaning and summary statistics
+
+1.  Filter the data to exclude people who have `NA` recorded for any of the following variables: `Age`, `Diabetes` or `BMI` variables.
+
+2.  Convert `Diabetes` to a numeric variable equal to 1 if a person has diabetes and zero otherwise
+
+3.  For the remaining observations calculate:
+
+<!-- -->
+
+a)  What percent of people have diabetes?
+b)  What is the mean and standard deviation of BMI?
+
+```{r summstats}
+
+```
+
+**7.8% of respondents have diabetes. Mean of BMI is 26.7 with a standard deviation of 7.4.**
+
+# Data visualization
+
+Using the filtered data from question 1, generate a bar chart showing the fraction of people diagnosed with diabetes in the following categories: Underweight (BMI \< 18.5), Normal (18.5 \<= BMI \< 25), Overweight (25 \<= BMI \< 30), Obesity (BMI \>= 30). Use the existing `BMI_WHO` variable for the categories and exclude observations with missing `BMI_WHO` values.
+
+```{r barchart}
+
+```
+
+# LPM, logit and probit
+
+1.  Estimate a linear probability model where `Diabetes` is the dependent variable and `BMI` and `Age` are explanatory variables. Show the coefficients and standard errors from your estimated model.
+2.  Estimate a logistic regression model where `Diabetes` is the dependent variable and `BMI` and `Age` are explanatory variables. Show the coefficients and standard errors from your estimated model.
+3.  Estimate a probit regression model where `Diabetes` is the dependent variable and `BMI` and `Age` are explanatory variables. Show the coefficients and standard errors from your estimated model.
+
+```{r lpm}
+
+```
+
+```{r logit}
+
+```
+
+```{r probit}
+
+```
+
+```{r raw-comparison}
+
+```
+
+4.  Calculate average marginal effects for all three of the models you have estimated using `avg_slopes()` from the `marginaleffects` package. Show the average marginal effects and standard errors for the `BMI` and `age` variables from all three models in a single table.
+
+```{r avg-marginal-effects}
+
+```
+
+5.  Predicted probabilities and changes in predicted probabilities
+
+<!-- -->
+
+a)  For the linear probability model, what is the effect of going from a `BMI` of 25 to 30 on the model's predicted probability of having diabetes for a person aged 70?\
+b)  For the logistic model, what is the effect of going from a `BMI` of 25 to 30 on the model's predicted probability of having diabetes for a person aged 70?
+c)  Suppose instead we are interested in the effect of going from a `BMI` of 20 to 25 on the predicted probability of having diabetes for a person aged 70. How does this change your answers to (a) and (b)? Explain the difference
+d)  Suppose instead we are interested in the effect of going from a `BMI` of 20 to 25 on the predicted probability of having diabetes for a person aged 60. How does this change your answers to (a) and (b)? Explain the difference
+
+```{r interp}
+
+```
+
+**The change in predicted probability of diabetes depends on BMI for the logistic model but not for the linear probability model. In an LPM, the predicted probability of having diabetes is a linear function of BMI and age so the change in BMI from 25 to 30 versus 20 to 25 has the same effect on predicted probability because the relationship is linear. In a logistic regression, the probability of having diabetes follows a nonlinear S-shaped relationship and depends on the starting BMI value. The predicted probability changes less at very low or very high BMI values because of the logistic curve’s shape. When BMI is relatively low (e.g., 20 to 25), a 5-unit increase in BMI has a smaller effect on probability because the probability is still in the lower, flatter part of the curve.**
+
+```{r interp}
+
+```

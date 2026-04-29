@@ -1,0 +1,305 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Tutorial 4: Limited Dependent Variables with IPUMS NHIS Data"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+In this tutorial you will be running and interpreting regressions with the IPUMS NHIS dataset.
+
+By the end of this exercise, you should be able to:
+
+1.  Fit and interpret LPM, logit and probit regression models
+2.  Understand and interpret the magnitude of coefficients, including transformations
+3.  Review methods to produce clean regression summary tables
+
+## Load Packages
+
+This code checks if packages are installed. It installs any missing packages, and then loads all needed packages. Include this at the beginning of any R code you write -- you just need to edit the list of packages at the top!
+
+```{r, include=FALSE, results='hide'}
+packages <- c("dplyr", "ggplot2", "broom", "tidyr","srvyr", "survey", "ipumsr",  "here", "car", "kableExtra", "modelsummary", "margins", "marginaleffects", "fixest")
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+# Download Data
+
+This exercise uses the same data as the previous tutorial! If you have already downloaded the data, you can skip this section.
+
+Go to <https://nhis.ipums.org/nhis/> and click on Log in.
+
+Once you are logged in, return to the homepage and click on Browse and Select Data.
+
+Click the Select Samples button, and check the box for 2018. Click the submit sample selections button.
+
+Using the drop down menu or search feature, select the following variables and add them to your data cart using the plus symbol to the left of the variables:
+
+-   AGE: Age
+-   SEX: Sex
+-   EDUCREC2: Education level 
+-   HEALTH: Health status
+-   BMI: BMI
+-   ALCSTAT1: Alcohol drinking status
+-   SMOKESTATUS2: Cigarette smoking
+-   MOD10FWK: Frequency of moderate physical activity lasting 10+ minutes per week
+-   VIG10FWK: Frequency of moderate physical activity lasting 10+ minutes per week
+
+Click the green VIEW CART button under your data cart. Review variable selection. Click the green Create Data Extract button. Review the 'Extract Request Summary' screen, describe your extract, and click Submit Extract.
+
+You will receive an email when the data is available to download. To access the page to download the data, follow the link in the email, or click on the Download or Revise Extracts link on the homepage. You will need to download both the data file and the DDI codebook. Put them in the same directory as this Markdown file.
+
+# Load Data
+
+If needed, set your working directory. You should be working in your R project file for the class, but if not this will set your working directory equal to the location of this R Markdown file!
+
+```{r, include=FALSE}
+# Set working directory
+setwd(here())
+```
+
+Load the data into R. Edit the code to use the right extract!
+
+```{r, include=TRUE}
+# Load data
+ddi <- read_ipums_ddi("nhis_00007.xml")
+data <- read_ipums_micro(ddi)
+
+# View the structure of the dataset
+summary(data)
+```
+
+# Data Cleaning
+
+1. Filter out any observations with missing, censored, unknown or refused codes for AGE, SEX, EDUCREC2 or BMI. Convert sex to a binary variable equal to 1 if an individual is female.
+
+2. Recode the `EDUCREC2` into a binary variable `COLLEGEGRAD` equal to 1 if the individual has completed 4 or more years of college, and 0 otherwise. This will make interpretation of the regression results easier later on when the model gets more complicated!
+
+3. Recode `HEALTH` variable into a binary variable `EXHEALTH` equal to 1 if the individual reports excellent health, and 0 otherwise. Note that this is a simplification of the health variable, which has 5 categories (excellent, very good, good, fair, poor). There are special models for ordered categorical variables, including ordered logit and probit. Look them up or ask if you want to know more! Note also that people with "unknown" health status are coded as zero. This may or may not be what we want!
+
+
+```{r, include=TRUE}
+# Filter Unknown records and NIU records
+filtered_data <- data %>%
+  filter(YEAR == 2018, AGE <= 85, SEX <= 2, 
+         (EDUCREC2 != 00 & EDUCREC2 <=60), 
+         (BMI != 0000 & BMI <= 1000)) %>%
+  # Convert sex to binary variable for analysis
+  mutate(SEX = as.integer(ifelse(SEX == 2, 1, 0)))  %>%
+  # Generate var equal to 1 if EDUCREC2 is 4+ years of college and/or BA degree or higher
+  mutate(COLLEGEGRAD = as.integer(ifelse(EDUCREC2 >= 54, 1, 0))) %>%
+  # Generate var equal to 1 if HEALTH is Excellent (coded 1), 0 otherwise
+  mutate(EXHEALTH = ifelse(HEALTH == 1, 1, 0)) 
+```
+
+# Data visualization 
+
+1. Plot the distribution of the HEALTH variable by COLLEGEGRAD status. What do you notice?
+
+```{r health-plot}
+ggplot(filtered_data, aes(x = as_factor(HEALTH), fill = as_factor(COLLEGEGRAD))) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Distribution of Health Status by College Graduation Status",
+    x = "Health Status",
+    y = "Count",
+    fill = "College Graduate"
+  ) +
+  theme_minimal()
+```
+
+# LPM
+
+1. Set the survey design using the survey package, with `NHISPID` as the ID variable and `PERWEIGHT` as the weight variable.
+
+2. Estimate a linear probability model of `EXHEALTH` on `COLLEGEGRAD`. Do this with and without survey weights. Interpret the coefficient on `COLLEGEGRAD`, commenting on sign, magnitude, and statistical significance.
+
+3. Then estimate a linear probability model of `EXHEALTH` on `COLLEGEGRAD`, controlling for `AGE` and `SEX`. Do this with and without survey weights. Interpret the coefficient on `COLLEGEGRAD`, commenting on sign, magnitude, and statistical significance.
+
+```{r lpm}
+# Set the survey design survey weighting
+surveyweight <- svydesign(data=filtered_data, id=~NHISPID, weights=~PERWEIGHT)
+
+# Fit an LPM model (weighted)
+lpm_wt <- svyglm(EXHEALTH ~ COLLEGEGRAD, design = surveyweight)
+summary(lpm_wt)
+# Fit an LPM model (unweighted) using feols and remembering to use heteroskedasticity robust standard errors
+lpm <- feols(EXHEALTH ~ COLLEGEGRAD, data = filtered_data, vcov='hetero')
+etable(lpm)
+
+# Fit an LPM model controlling for age and sex (weighted)
+lpm_wt_dem <- svyglm(EXHEALTH ~ COLLEGEGRAD + AGE + SEX, design = surveyweight)
+summary(lpm_wt_dem)
+lpm_dem <- feols(EXHEALTH ~ COLLEGEGRAD + AGE + SEX, data = filtered_data, vcov='hetero')
+etable(lpm_dem)
+
+# The COLLEGEGRAD coefficient is a percentage-point difference
+# in the probability of reporting excellent health
+```
+
+```{r lpm_summary}
+# Summary of weighted models
+modelsummary(
+  list(
+    "Education only" = lpm_wt,
+    "+ Demographics" = lpm_wt_dem),
+  stars = FALSE,
+  gof_omit = "IC|Log|RMSE"
+)
+```
+# Logit 
+
+1. Estimate a logit model of `EXHEALTH` on `COLLEGEGRAD`. Do this with and without survey weights. Use `family=quasibinomial(link = "logit")` in the `svyglm` package. Note that this is "quasi-binomial" because each observation represents $>=1$ individuals. Interpret the coefficient on `COLLEGEGRAD`, commenting on sign, magnitude, and statistical significance.
+
+2. Estimate a logit model of `EXHEALTH` on `EXHEALTH` on `COLLEGEGRAD`, controlling for `AGE` and `SEX`. Do this with survey weights. Interpret the coefficient on `COLLEGEGRAD`, commenting on sign, magnitude, and statistical significance.
+
+**Answer: **
+- The model is
+$$
+\log\!\left(
+\frac{\Pr(EXHEALTH = 1)}{1 - \Pr(EXHEALTH = 1)}
+\right)
+= X\beta,
+$$
+so coefficients are in **log-odds units**, not probabilities.
+
+Being a college graduate increases the log-odds of reporting excellent health by 0.66. Exponentiating:
+$$
+\exp(0.66) \approx 1.94
+$$
+College graduates have **about 94% higher odds** of reporting excellent health than
+non-graduates, holding other variables fixed.
+
+```{r logit}
+# Fit the logit model with survey weights
+logit_wt <- svyglm(EXHEALTH ~ COLLEGEGRAD,
+                   family = quasibinomial(link = "logit"), design = surveyweight)
+summary(logit_wt)
+# Fit the logit model without survey weights
+logit <- glm(EXHEALTH ~ COLLEGEGRAD,
+                   family = binomial(link = "logit"), data = filtered_data)
+summary(logit)
+
+# Fit the logit model with survey weights and demographic controls
+logit_wt_dem <- svyglm(EXHEALTH ~ COLLEGEGRAD + AGE + SEX,
+                   family = quasibinomial(link = "logit"), design = surveyweight)
+summary(logit_wt_dem)
+```
+```{r logit_summary}
+# Summary of weighted models
+modelsummary(
+  list(
+    "Education only" = logit_wt,
+    "+ Demographics" = logit_wt_dem),
+  stars = FALSE,
+  gof_omit = "IC|Log|RMSE"
+)
+```
+
+# Marginal effects
+
+The outputs directly from the logit and probit models can be difficult to understand. To help with intepreting the models, it's often easier to use the average marginal effects (AME) of the model. The AME is the average impact of a predictor across all individuals in the sample. 
+
+1. Calculate average marginal effects for `COLLEGEGRAD` in the weighted logit model from the previous exercise. Note: we used the `avg_slope()` function from the `marginaleffects` package in the lecture exercise, but use `margins()` here because you can use the survey design. How does this compare to the average marginal effects from the LPM?
+
+2. Plot a histogram of the individual marginal effects of `COLLEGEGRAD` from the weighted logit model with demographics. How does this compare to the individual marginal effects from the LPM?
+
+3. How do the average marginal effects  of `COLLEGEGRAD` from the logit model vary by age?
+
+```{r ame}
+logit_wt_margins <- margins(logit_wt, design = surveyweight)
+summary(logit_wt_margins)
+logit_wt_dem_margins <- margins(logit_wt_dem, design = surveyweight)
+summary(logit_wt_dem_margins)
+
+lpm_wt_dem_margins <- margins(lpm_wt_dem, design = surveyweight)
+summary(lpm_wt_dem_margins)
+```
+
+```{r visualise-effects}
+logit_wt_dem_margins %>%
+ ggplot(aes(x = dydx_COLLEGEGRAD)) +
+  geom_histogram() +
+  labs(
+    x = "Marginal effect of COLLEGEGRAD on Pr(EXCELLENT = 1)",
+    y = "Count",
+    title = "Histogram of marginal effects of college graduation on excellent health (Logit Model with Demographics)"
+  )
+```
+
+
+
+
+
+# Plot Marginal Effects with ggplot2
+ggplot(margins_combined, aes(x = factor, y = AME, fill = Model)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black", alpha = 0.8) +
+  geom_errorbar(aes(ymin = AME - SE, ymax = AME + SE), 
+                position = position_dodge(width = 0.9), width = 0.25) +
+  theme_minimal() +
+  labs(
+    title = "Marginal Effects of Predictors (Logit vs Probit Models)",
+    x = "Predictors",
+    y = "Average Marginal Effect (AME)",
+    fill = "Model"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+# Exercise 6: Output Regression Table
+
+Using the `broom` package, we can create a clean regression table that can be exported to Word or LaTeX. The table will be saved in the same directory as you saved this Markdown file
+
+```{r regression-table}
+library(kableExtra)
+library(modelsummary)
+
+### Outputting a single model ###
+
+# Use broom::tidy to create a clean table
+tidy_table <- broom::tidy(multivariate_model_lifestyle)
+
+# Create a formatted table
+kable(tidy_table, format = "html", table.attr = "class='table table-striped'") %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kableExtra::save_kable("multivariate_model_table.html")
+
+### Outputting multiple models ###
+
+models <- list( 
+  "Multivariate OLS" = multivariate_model_lifestyle,
+  "Multivariate Log-Linear" = multivariate_model_loglifestyle
+                )
+
+# Can output model table as .docx, .html, .png, etc
+modelsummary(models, 
+             estimate = "estimate",
+             statistic = "({std.error})", 
+             stars = TRUE, 
+             coef_rename = c("MOD10FWK" = "Weekly Moderate Physical Activity (10+ Minutes)"),
+             title = 'BMI vs Physical Activity Regression Models',
+             output = "table.html")
+
+```

@@ -1,0 +1,296 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Introduction to Machine Learning"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+This exercise will guide you through some basic machine learning models in R using the `tidymodels` framework. By the end of this exercise you should be able to:
+
+1.  See how collinearity destabilises a standard logistic regression.
+2.  Understand regularisation as a way of preventing overfitting in regression.
+3.  Fit and tune a LASSO logistic regression.
+4.  Fit and tune a Random Forest classifier.
+5.  Compare LASSO and Random Forests as *predictive* tools.
+
+```{r, include=FALSE, results='hide'}
+packages <- c(
+  "tidyverse",
+  "tidymodels",
+  "yardstick",
+  "corrplot",
+  "glmnet"
+)
+
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+
+set.seed(122)
+```
+
+# Exercise: Exploratory data analysis and standard logit
+
+You will read in the dataset, which contains data on patients who have had biopsies for breast cancer. The goal is to predict `diagnosis` using the other variables in the dataset.
+
+1.  Load the `bdiag.csv` data
+2.  Convert `bdiag` to a factor variable
+3.  What fraction of patients in the dataset had breast cancer? (`diagnosis==M`)
+
+```{r}
+# Load data 
+cancerdf <- read_csv("bdiag.csv")
+
+# Make outcome a factor (positive class = "M")
+cancerdf <- cancerdf |>
+  mutate(
+    diagnosis = factor(diagnosis, levels = c("B", "M"))
+  )
+
+# Fraction of patients with breast cancer
+cancerdf |>
+  summarise(fraction_cancer = mean(diagnosis == "M"))
+```
+
+4.  Make a correlation heatmap of the numeric predictors. Are there any highly correlated predictors?
+
+```{r}
+# Correlation heatmap 
+x_num <- cancerdf |> select(-id, -diagnosis)
+correlations <- cor(x_num)
+corrplot(correlations,
+         tl.cex = 0.5,      
+         number.cex = 0.4   
+)
+```
+
+5.  Estimate a standard logistic regression with `radius_mean` as the only predictor. What is the coefficient and standard error?
+6.  Now add `perimeter_mean` to the regression. What happens to the coefficient and standard error on `radius_mean`? Why?
+
+```{r}
+summary(glm(diagnosis ~ radius_mean, family = binomial(link = "logit"), data = cancerdf))
+
+summary(glm(diagnosis ~ radius_mean + perimeter_mean,
+            family = binomial(link = "logit"), data = cancerdf))
+```
+
+7.  Estimate a model with all predictors. Do you see any convergence warnings? Why do you think this happens?
+
+```{r}
+summary(glm(diagnosis ~ ., family =  binomial(link = "logit"), data = cancerdf |> select(-id)))
+```
+
+# Exercise: Preprocessing
+
+1.  Split the data into a training set and a test set (70% training, 30% testing). Stratify by diagnosis.
+2.  Split the training data into 10 "cross-validation folds". In cross-validation, we repeatedly fit the model on a subset of the training data and evaluate it on the held-out fold. This allows us to get an estimate of how well the model will perform on new data, without using the test set.
+
+```{r}
+# Train/test split
+bdiag_split <- initial_split(cancerdf, prop = 0.7, strata = diagnosis)
+bdiag_train <- training(bdiag_split)
+bdiag_test  <- testing(bdiag_split)
+
+# CV folds
+bdiag_folds <- vfold_cv(bdiag_train, v = 10, strata = diagnosis)
+```
+
+3.  Build the machine learning "recipe". This will define how the data should be prepared before modelling. In this case we do two things:
+
+-   define `id` as an identifier variable, which should not be used as a predictor. This is important because `id` is just a unique identifier for each patient, and has no relationship with the outcome.
+-   normalize all numeric predictors. This is important for regularised regression, because it puts all predictors on the same scale, preventing those with large units from dominating the model.
+
+```{r}
+# Build recipe
+bdiag_recipe <- recipe(diagnosis ~ ., data = bdiag_train) |>
+  update_role(id, new_role = "id") |>
+  step_normalize(all_numeric_predictors())
+```
+
+# Exercise: LASSO regression
+
+In this exercise, you will fit the LASSO model across a range of penalty values and evaluate predictive performance using cross-validation. The goal is to identify the penalty value that delivers the best out-of-sample performance.
+
+1.  Specify a logistic regression model with a LASSO penalty, where the penalty term $\lambda$ is a tuning parameter. This means that we will choose $\lambda$ using cross-validation.
+2.  Specify a `workflow` that combines the recipe and the model specification.
+
+```{r}
+lasso_spec <- logistic_reg(penalty = tune(), mixture = 1) |>
+  set_engine("glmnet")
+
+lasso_wf <- workflow() |>
+  add_recipe(bdiag_recipe) |>
+  add_model(lasso_spec)
+```
+
+3.  Define a grid of values for $\lambda$ to search over. We will use 50 values, spaced evenly on the log scale.
+4.  Fit the LASSO model for all values of $\lambda$ in the grid and for each cross-validation \`fold' of the data.
+
+```{r}
+lambda_grid <- grid_regular(penalty(), levels = 50)
+
+lasso_grid <- tune_grid(
+  lasso_wf,
+  resamples = bdiag_folds,
+  grid = lambda_grid,
+  metrics = metric_set(roc_auc, accuracy),
+  control = control_grid(save_pred = TRUE)
+)
+```
+
+5.  Pick the value of $\lambda$ that maximises the average ROC AUC across the folds. This is the value of $\lambda$ that gives the best out-of-sample performance according to cross-validation. The best $\lambda$ is very small here. This means that regularisation is not very helpful for this dataset, which is not surprising given that we have a lot of observations relative to the number of predictors. In other datasets with more predictors and fewer observations, we might see a much larger optimal $\lambda$.
+
+```{r}
+# Pick best lambda by ROC AUC
+best_lambda <- lasso_grid |>
+  select_best(metric = "roc_auc")
+
+best_lambda
+```
+
+6.  At this point we have chosen $\lambda$ using cross-validation on the training data. Now we evaluate the final model on the held-out test set. This is the performance we would report as an estimate of how the model generalises.
+
+7.  Calculate the accuracy of the final model on the test set using `collect_metrics()`. The default is to predict `M` if predicted probability is greater than 0.5.
+
+```{r}
+# Finalise workflow by plugging in the chosen penalty value
+final_lasso_wf <- finalize_workflow(lasso_wf, best_lambda)
+
+# Fit on the training set and evaluate once on the test set
+lasso_last <- last_fit(
+  final_lasso_wf,
+  bdiag_split,
+  metrics = metric_set(roc_auc, accuracy)
+)
+# Summarise performance on the test set
+lasso_last |>
+  collect_metrics()
+
+# Confusion matrix (note: .pred_class uses a default threshold)
+conf_mat(lasso_test_preds, truth = diagnosis, estimate = .pred_class)
+```
+
+8.  Which variables are most important for predicting breast cancer according to the LASSO model? To answer this question, we can look at the variable importance plot for the final model. This will show us which predictors have the largest absolute coefficients in the LASSO model, which indicates their importance for prediction.
+
+```{r}
+final_lasso_fit <- fit(final_lasso_wf, data = bdiag_train)
+
+lasso_vi <- final_lasso_fit |>
+  extract_fit_parsnip() |>
+  vip::vi(lambda = best_lambda$penalty)
+
+lasso_vi |>
+  mutate(
+    Importance = abs(Importance),
+    Variable = fct_reorder(Variable, Importance)
+  ) |>
+  ggplot(aes(x = Importance, y = Variable)) +
+  geom_col() +
+  labs(
+    x = "Absolute coefficient magnitude",
+    y = "Variable",
+    title = "Variable importance from LASSO"
+  )
+```
+
+# Exercise: Random Forests
+
+Below we fit a Random Forest classifier using **exactly the same**:
+
+\- training/test split (`bdiag_split`)
+
+\- cross-validation folds (`bdiag_folds`)
+
+\- preprocessing recipe (`bdiag_recipe`)
+
+\- workflow structure used for LASSO
+
+1.  Define a Random Forest classification model that we will tune.\
+    We will tune:
+
+-   `mtry` (how many predictors are considered at each split), and
+-   `min_n` (minimum number of observations in a terminal node).\
+    Hold the number of trees fixed (e.g. 500).
+
+2.  Build a workflow that combines the recipe and the model specification.
+
+```{r}
+rf_spec <- rand_forest(
+  mtry  = tune(),
+  trees = 500,
+  min_n = tune()
+) |>
+  set_engine("ranger") |>
+  set_mode("classification")
+
+rf_wf <- workflow() |>
+  add_recipe(bdiag_recipe) |>
+  add_model(rf_spec)
+```
+
+3.  Define a grid of values for `mtry` and `min_n` to search over. We will use 5 values for `mtry` and 5 values for `min_n`, giving us a total of 25 combinations to evaluate.
+4.  Fit the Random Forest workflow across all combinations in rf_grid using the same cross-validation folds (bdiag_folds).
+
+```{r}
+rf_grid <- grid_regular(
+  mtry(range = c(2, 20)),
+  min_n(range = c(2, 20)),
+  levels = 5
+)
+
+rf_tuned <- tune_grid(
+  rf_wf,
+  resamples = bdiag_folds,
+  grid = rf_grid,
+  metrics = metric_set(roc_auc, accuracy),
+  control = control_grid(save_pred = TRUE)
+)
+```
+
+5.  Select the best combination of `mtry` and `min_n` based on the average ROC AUC across the folds. This is the combination that gives us the best out-of-sample performance according to cross-validation.
+
+```{r}
+best_rf <- rf_tuned |>
+  select_best(metric = "roc_auc")
+
+best_rf
+```
+
+6.  Finalise the Random Forest workflow by plugging in the chosen tuning parameters, then fit once on the training set and evaluate on the held-out test set.
+7.  Calculate the accuracy of the final Random Forest model on the test set using `collect_metrics()`.
+
+```{r}
+final_rf_wf <- finalize_workflow(rf_wf, best_rf)
+
+rf_last <- last_fit(
+  final_rf_wf,
+  bdiag_split,
+  metrics = metric_set(roc_auc, accuracy)
+)
+
+rf_last |>
+  collect_metrics()
+
+rf_test_preds <- rf_last |>
+  collect_predictions()
+
+conf_mat(rf_test_preds, truth = diagnosis, estimate = .pred_class)
+```

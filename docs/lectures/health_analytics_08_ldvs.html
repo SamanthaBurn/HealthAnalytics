@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.8.27">
+
+  <meta name="author" content="Dr.&nbsp;Sam Burn">
+  <title>Introduction to Health Analytics</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-0fde88a82f0356838740f155f1088782.css">
+  <link rel="stylesheet" href="burn_slides.css">
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Introduction to Health Analytics</h1>
+  <p class="subtitle">Limited Dependent Variables: LPM, Logit, Probit and More!</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Dr.&nbsp;Sam Burn 
+</div>
+</div>
+</div>
+
+</section>
+<section id="course-road-map" class="slide level2">
+<h2>Course road map</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Lecture</th>
+<th>Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Introduction to health data &amp; R</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Data visualization</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Data wrangling &amp; exploratory data analysis</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Causal inference</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Linear regression</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Linear regression: uncertainty &amp; hypothesis testing</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Panel data: difference-in-differences &amp; fixed effects</td>
+</tr>
+<tr class="even">
+<td><span style="color: #C8102E"><strong>8</strong></span></td>
+<td><span style="color: #C8102E"><strong>Limited dependent variables: LPM, logit, probit</strong></span></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Introduction to machine learning for health analytics</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Course review</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-health-analytics-pipeline" class="slide level2">
+<h2>The health analytics pipeline</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec01_slide11_a.png" style="width:80.0%"></p>
+</div>
+</section>
+<section id="today" class="slide level2">
+<h2>Today</h2>
+<ul>
+<li class="fragment">What are limited dependent variables?</li>
+<li class="fragment">Binary outcome models
+<ul>
+<li class="fragment">Logit</li>
+<li class="fragment">Probit</li>
+</ul></li>
+<li class="fragment">Count data models
+<ul>
+<li class="fragment">Poisson</li>
+</ul></li>
+<li class="fragment">Time-to-event (survival) models
+<ul>
+<li class="fragment">Survival curves</li>
+<li class="fragment">Cox regression</li>
+</ul></li>
+</ul>
+</section>
+<section id="what-are-limited-dependent-variables" class="slide level2">
+<h2>What Are Limited Dependent Variables?</h2>
+<ul>
+<li class="fragment">Many outcomes in health data are <strong>not continuous</strong>:
+<ul>
+<li class="fragment">alive / dead (yes / no)</li>
+<li class="fragment">number of hospital admissions (integer greater than zero)</li>
+<li class="fragment">self-rated health status (ordered category)</li>
+</ul></li>
+<li class="fragment">A <strong>limited dependent variable</strong> is an outcome whose support is restricted by design or by the data-generating process.</li>
+<li class="fragment">Common cases in health analytics:
+<ul>
+<li class="fragment"><strong>Binary</strong>: two values only (0/1)</li>
+<li class="fragment"><strong>Count</strong>: non-negative integers</li>
+<li class="fragment"><strong>Duration</strong>: time until an event</li>
+<li class="fragment"><strong>Censored</strong>: outcome only observed within a range</li>
+<li class="fragment"><strong>Truncated</strong>: observations only in dataset if outcome is in some range</li>
+</ul></li>
+<li class="fragment">These outcomes violate assumptions of OLS</li>
+</ul>
+</section>
+<section id="linear-regression-benchmark" class="slide level2">
+<h2>Linear regression benchmark</h2>
+<ul>
+<li class="fragment">A typical linear regression model is: <span class="math display">
+Y = \beta_0 + \beta_1 X + \varepsilon
+</span></li>
+<li class="fragment">with the standard assumption that the error term <span class="math inline">\varepsilon</span> is <strong>normally distributed</strong>.</li>
+<li class="fragment">Two key ingredients:
+<ul>
+<li class="fragment">The normal distribution is <strong>continuous</strong>, <strong>smooth</strong>, and <strong>unbounded</strong></li>
+<li class="fragment">A linear function extends to <span class="math inline">-\infty</span> and <span class="math inline">+\infty</span> as <span class="math inline">X</span> varies</li>
+</ul></li>
+<li class="fragment">Together, this implies that the conditional distribution of <span class="math inline">Y \mid X</span>:
+<ul>
+<li class="fragment">is continuous</li>
+<li class="fragment">can take any real value</li>
+</ul></li>
+<li class="fragment">If <span class="math inline">Y</span> is binary, a count or bounded, this is violated mechanically and the model is <strong>misspecified</strong></li>
+<li class="fragment"><strong>This doesn’t mean OLS is useless!</strong>
+<ul>
+<li class="fragment">Can still be useful as a linear approximation to true data generating process</li>
+<li class="fragment">Easy to interpret</li>
+<li class="fragment">Works well with fixed effects &amp; instrumental variables</li>
+</ul></li>
+</ul>
+</section>
+<section id="why-we-need-other-models" class="slide level2">
+<h2>Why we need other models</h2>
+<ul>
+<li class="fragment">For limited dependent variables, we often want models that:
+<ul>
+<li class="fragment">Respect the support of <span class="math inline">Y</span></li>
+<li class="fragment">Produce sensible predictions</li>
+<li class="fragment">Have interpretations aligned with the outcome</li>
+</ul></li>
+<li class="fragment">Where we are going:
+<ul>
+<li class="fragment">Binary outcomes → logit and probit</li>
+<li class="fragment">Count outcomes → Poisson models</li>
+<li class="fragment">Duration outcomes → survival analysis</li>
+</ul></li>
+<li class="fragment">The goal of this lecture is <strong>interpretation</strong>, not technical mastery!</li>
+</ul>
+</section>
+<section>
+<section id="binary-outcomes" class="title-slide slide level1 center">
+<h1>Binary Outcomes</h1>
+
+</section>
+<section id="binary-outcomes-1" class="slide level2">
+<h2>Binary Outcomes</h2>
+<ul>
+<li class="fragment">Common examples:
+<ul>
+<li class="fragment">Insured vs uninsured</li>
+<li class="fragment">Diagnosis of disease</li>
+</ul></li>
+<li class="fragment">Three approaches:
+<ul>
+<li class="fragment">Linear Probability Model (LPM)</li>
+<li class="fragment">Logit</li>
+<li class="fragment">Probit</li>
+</ul></li>
+</ul>
+</section></section>
+<section>
+<section id="linear-probability-model-lpm" class="title-slide slide level1 center">
+<h1>Linear Probability Model (LPM)</h1>
+
+</section>
+<section id="linear-probability-model-lpm-1" class="slide level2">
+<h2>Linear Probability Model (LPM)</h2>
+<ul>
+<li class="fragment">Ignore the issue and regress the binary <span class="math inline">Y</span> on <span class="math inline">X</span> as usual! <span class="math display">
+Y_i = \beta_0 + \beta_1 X_i + \varepsilon
+</span></li>
+<li class="fragment">Implies <span class="math inline">P(Y_i=1 \mid X_i) = \beta_0 + \beta_1 X_i</span></li>
+<li class="fragment">Advantages:
+<ul>
+<li class="fragment">Easy to estimate and interpret</li>
+<li class="fragment">Works with fixed effects</li>
+<li class="fragment">Coefficients are marginal effects</li>
+</ul></li>
+<li class="fragment">Disadvantages:
+<ul>
+<li class="fragment">Predictions outside <span class="math inline">[0,1]</span></li>
+<li class="fragment">Constant slope</li>
+<li class="fragment">Heteroskedasticity (makes estimator less efficient)</li>
+</ul></li>
+</ul>
+</section>
+<section id="interpreting-the-lpm" class="slide level2">
+<h2>Interpreting the LPM</h2>
+<ul>
+<li class="fragment">If <span class="math inline">X</span> is <strong>binary</strong>: <span class="math inline">\beta_1</span> = difference in probability</li>
+<li class="fragment">If <span class="math inline">X</span> is continuous: <span class="math inline">\beta_1</span> = change in probability for a one-unit change in <span class="math inline">X</span></li>
+<li class="fragment">e.g.&nbsp;<span class="math inline">\hat{\beta}_1 = .03</span> means that a one-unit increase in <span class="math inline">X</span> is associated with a three <strong>percentage point</strong> increase in the probability that <span class="math inline">Y = 1</span>
+<ul>
+<li class="fragment"><strong>Note:</strong> a 3 percentage point increase is not the same as a 3% increase! e.g.&nbsp;an increase from 0.1 to 0.13 is a 3 percentage point increase but a 30% increase</li>
+<li class="fragment"><strong>Warning:</strong> LLMs still (as of December 2025) get this wrong!</li>
+</ul></li>
+</ul>
+</section></section>
+<section>
+<section id="predictions-outside-01" class="title-slide slide level1 center">
+<h1>Predictions outside <span class="math inline">[0,1]</span></h1>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_08_ldvs_files/figure-revealjs/unnamed-chunk-1-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="incorrect-slopes" class="slide level2">
+<h2>Incorrect Slopes</h2>
+<ul>
+<li class="fragment">For binary outcomes <span class="math inline">E[Y \mid X] = P(D=1 \mid X)</span> must lie in <span class="math inline">[0,1]</span></li>
+<li class="fragment">This implies the slope must go to zero as the probability approaches 0 or 1</li>
+<li class="fragment">The linear probability model imposes a constant slope everywhere i.e.&nbsp;same marginal effect near <span class="math inline">P=0.99</span> as near <span class="math inline">P=0.50</span></li>
+<li class="fragment">Compare LPM fit to local means</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_08_ldvs_files/figure-revealjs/unnamed-chunk-2-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="implementing-lpm-in-r" class="slide level2">
+<h2>Implementing LPM in R</h2>
+<ul>
+<li class="fragment">Just use <code>feols()</code>!</li>
+<li class="fragment"><strong>Note:</strong> Always specify heteroskedastic errors!</li>
+<li class="fragment">One-unit increase in <span class="math inline">X</span> is associated with a 13 <strong>percentage point</strong> increase in the probability that <span class="math inline">Y = 1</span></li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a>lpm <span class="ot">&lt;-</span> <span class="fu">feols</span>(Y<span class="sc">~</span>X, <span class="at">data =</span> tib, <span class="at">vcov =</span> <span class="st">"hetero"</span>)</span>
+<span id="cb1-2"><a></a><span class="fu">etable</span>(lpm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                lpm
+Dependent Var.:                   Y
+                                   
+Constant        -0.1550*** (0.0443)
+X                0.1308*** (0.0074)
+_______________ ___________________
+S.E. type       Heteroskedast.-rob.
+Observations                    250
+R2                          0.49457
+Adj. R2                     0.49253
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="lpm-summary" class="slide level2">
+<h2>LPM summary</h2>
+<ul>
+<li class="fragment"><strong>What it does poorly:</strong>
+<ul>
+<li class="fragment">Produces invalid predicted probabilities (<span class="math inline">&lt;0</span> or <span class="math inline">&gt;1</span>)</li>
+<li class="fragment">Imposes a constant slope everywhere</li>
+<li class="fragment">Especially problematic when <span class="math inline">\overline{Y}</span> is close to 0 or 1</li>
+</ul></li>
+<li class="fragment"><strong>Why we still often use it for causal inference:</strong>
+<ul>
+<li class="fragment">Coefficients are directly interpretable as probability changes</li>
+<li class="fragment">Often sufficient for average causal effects</li>
+<li class="fragment">Works cleanly with fixed effects, difference-in-differences and IVs</li>
+<li class="fragment">Computationally simple and robust</li>
+</ul></li>
+</ul>
+</section></section>
+<section>
+<section id="generalized-linear-models" class="title-slide slide level1 center">
+<h1>Generalized Linear Models</h1>
+
+</section>
+<section id="binary-outcomes-latent-variable-model" class="slide level2">
+<h2>Binary outcomes: latent variable model</h2>
+<ul>
+<li class="fragment">Assume there is an unobserved (latent) continuous variable: <span class="math display">
+Y_i^* = \beta_0 + \beta_1 X_i + \varepsilon_i
+</span></li>
+<li class="fragment">We do not observe (Y_i^*).<br>
+</li>
+<li class="fragment">We observe only whether it crosses a threshold: <span class="math display">
+Y_i =
+\begin{cases}
+1 &amp; \text{if } Y_i^* &gt; 0 \\
+0 &amp; \text{otherwise}
+\end{cases}
+</span></li>
+<li class="fragment"><span class="math inline">Y_i^*</span> can be thought of as <em>latent propensity</em> e.g.&nbsp;if the underlying outcome <span class="math inline">Y</span> is death, <span class="math inline">Y_i^*</span> represents an (imperfectly observed) risk index summarizing the patient’s underlying severity,</li>
+</ul>
+</section>
+<section id="from-latent-variable-to-probability" class="slide level2">
+<h2>From latent variable to probability</h2>
+<ul>
+<li class="fragment">The probability that <span class="math inline">Y_i=1</span> is <span class="math display">
+P(Y_i = 1 \mid X_i) = P(Y_i^* &gt; 0 \mid X_i)
+</span></li>
+<li class="fragment">Substituting in <span class="math inline">Y_i^* = \beta_0 + \beta_1 X_i + \varepsilon_i</span> <span class="math display">
+P(Y_i = 1 \mid X_i) = P(\varepsilon_i &gt; -(\beta_0 + \beta_1 X_i))
+</span></li>
+<li class="fragment">The error term ( _i ) has some cumulative distribution function <span class="math inline">F(\cdot)</span> <span class="math display">
+P(Y_i = 1 \mid X_i)
+= \color{purple}{F(}\color{green}{\beta_0 + \beta_1 X_i}\color{purple}{)}
+</span></li>
+<li class="fragment"><span class="math inline">\color{green}{\beta_0 + \beta_1 X_i}</span> is the linear <strong>index function</strong></li>
+<li class="fragment">This is passed through a non-linear <strong>link function</strong> <span class="math inline">\color{purple}{F(\cdot)}</span> that maps it to a probability!</li>
+<li class="fragment">Two most common cases for binary variables:
+<ul>
+<li class="fragment">Logit: <span class="math inline">F(\cdot)</span> = logistic CDF</li>
+<li class="fragment">Probit: <span class="math inline">F(\cdot)</span> = standard normal CDF</li>
+</ul></li>
+</ul>
+</section>
+<section id="what-do-logit-and-probit-look-like" class="slide level2">
+<h2>What do logit and probit look like?</h2>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_08_ldvs_files/figure-revealjs/unnamed-chunk-4-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="logit-and-probit" class="slide level2">
+<h2>Logit and Probit</h2>
+<ul>
+<li class="fragment">Logit: <span class="math display">
+P(Y=1 \mid X) = \frac{e^{\beta_0 + \beta_1 X}}{1 + e^{\beta_0 + \beta_1 X}}
+</span></li>
+<li class="fragment">Probit: <span class="math display">
+P(Y=1 \mid X) = \Phi(\beta_0 + \beta_1 X)
+</span></li>
+<li class="fragment">where <span class="math inline">\Phi(\cdot)</span> is the standard normal cumulative distribution function</li>
+<li class="fragment">In practice, coefficients from logit and probit differ in scale but “marginal effects” are usually pretty similar</li>
+<li class="fragment">Logit is now more common because it is computationally simpler. Standard workhorse of data science!</li>
+<li class="fragment">We focus on <strong>logit</strong>, but the same ideas apply to probit</li>
+</ul>
+</section>
+<section id="logit-predictions" class="slide level2">
+<h2>Logit predictions</h2>
+<ul>
+<li class="fragment">All predictions are in the <span class="math inline">[0,1]</span> interval</li>
+<li class="fragment">As <span class="math inline">\beta_0 + \beta_1 X</span> goes to <span class="math inline">-\infty</span>: <span class="math display"> \frac{e^{\beta_0 + \beta_1 X}}{1 + e^{\beta_0 + \beta_1 X}} \rightarrow  \frac{0}{1+0} = 0 </span></li>
+<li class="fragment">And as <span class="math inline">\beta_0 + \beta_1 X</span> goes to <span class="math inline">\infty</span>, <span class="math display"> \frac{e^{\beta_0 + \beta_1 X}}{1 + e^{\beta_0 + \beta_1 X}} \rightarrow \frac{\infty}{1+\infty } = 1</span></li>
+</ul>
+</section>
+<section id="implementing-logit-and-probit-in-r" class="slide level2">
+<h2>Implementing logit and probit in R</h2>
+<ul>
+<li class="fragment">We can implement logit and probit (and many other models!) in R using <code>feglm</code> (“generalized linear model”) or <code>glm()</code></li>
+<li class="fragment">Specify the <em>kind</em> of link function we have (<code>family = 'binomial'</code> for binary data)</li>
+<li class="fragment">and the actual link function (<code>link = 'logit'</code>)</li>
+<li class="fragment">Coefficients look very different, but what does it all mean?!</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>lpm <span class="ot">&lt;-</span> <span class="fu">feols</span>(Y<span class="sc">~</span>X, <span class="at">data =</span> tib, <span class="at">vcov=</span><span class="st">'hetero'</span>)</span>
+<span id="cb3-2"><a></a>logit <span class="ot">&lt;-</span> <span class="fu">feglm</span>(Y<span class="sc">~</span>X, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">'logit'</span>), <span class="at">data =</span> tib)</span>
+<span id="cb3-3"><a></a>probit <span class="ot">&lt;-</span> <span class="fu">feglm</span>(Y<span class="sc">~</span>X, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">'probit'</span>), <span class="at">data =</span> tib)</span>
+<span id="cb3-4"><a></a><span class="fu">etable</span>(lpm, logit, probit, <span class="at">headers =</span> <span class="fu">c</span>(<span class="st">"LPM"</span>, <span class="st">"Logit"</span>, <span class="st">"Probit"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                lpm              logit             probit
+                                LPM              Logit             Probit
+Dependent Var.:                   Y                  Y                  Y
+                                                                         
+Constant        -0.1550*** (0.0443) -4.347*** (0.5444) -2.318*** (0.2630)
+X                0.1308*** (0.0074) 0.8786*** (0.1044) 0.4663*** (0.0491)
+_______________ ___________________ __________________ __________________
+Family                          OLS              Logit             Probit
+S.E. type       Heteroskedast.-rob.                IID                IID
+Observations                    250                250                250
+Squared Cor.                0.49457            0.56212            0.54989
+Pseudo R2                   0.47026            0.44580            0.43213
+BIC                          203.21             203.03             207.77
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="interpreting-logit-and-probit-in-r" class="slide level2">
+<h2>Interpreting logit and probit in R</h2>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>                                lpm              logit             probit
+                                LPM              Logit             Probit
+Dependent Var.:                   Y                  Y                  Y
+                                                                         
+Constant        -0.1550*** (0.0443) -4.347*** (0.5444) -2.318*** (0.2630)
+X                0.1308*** (0.0074) 0.8786*** (0.1044) 0.4663*** (0.0491)
+_______________ ___________________ __________________ __________________
+Family                          OLS              Logit             Probit
+S.E. type       Heteroskedast.-rob.                IID                IID
+Observations                    250                250                250
+Squared Cor.                0.49457            0.56212            0.54989
+Pseudo R2                   0.47026            0.44580            0.43213
+BIC                          203.21             203.03             207.77
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment">For the logit and probit model, the coefficient on <span class="math inline">X</span> represents the effect of a one-unit change in <em>the index</em>, not on <span class="math inline">Y</span> directly</li>
+<li class="fragment">And since the scale of the index depends on the link function, the interpretation depends on the link function!</li>
+<li class="fragment">From the coefficients themselves we can get direction (positive/negative) and significance, but scale isn’t very intuitive</li>
+<li class="fragment">Generally, when trying to interpret probit or logit coefficients it is helpful to transform them into statements about the effect of <span class="math inline">X</span> on the probability that <span class="math inline">Y = 1</span></li>
+<li class="fragment">We’ll get to how we do that soon!</li>
+</ul>
+</section>
+<section id="logit-interpretation" class="slide level2">
+<h2>Logit interpretation</h2>
+<ul>
+<li class="fragment">In a logit model we write: <span class="math display">
+\log\!\left(\frac{P(Y=1\mid X)}{1-P(Y=1\mid X)}\right)
+= \log(\text{odds}(Y|X)) = \beta_0 + \beta_1 X
+</span></li>
+<li class="fragment">Key objects:
+<ul>
+<li class="fragment"><strong>Probability</strong>: <span class="math inline">P(Y=1\mid X)</span></li>
+<li class="fragment"><strong>Odds</strong>: <span class="math inline">\dfrac{P(Y=1\mid X)}{1-P(Y=1\mid X)}</span></li>
+<li class="fragment"><strong>Log-odds</strong>: <span class="math inline">\log(\text{odds})</span></li>
+</ul></li>
+<li class="fragment">Interpretation: A one-unit increase in <span class="math inline">X</span> changes <strong>log-odds</strong> by <span class="math inline">\beta_1</span></li>
+</ul>
+</section>
+<section id="odds-ratios" class="slide level2">
+<h2>Odds ratios</h2>
+<ul>
+<li class="fragment">Medical journals often report <strong>odds ratios</strong></li>
+<li class="fragment">When <span class="math inline">X</span> is binary or categorical: <span class="math display">
+OR = \frac{\text{odds}(Y|X=1)}{\text{odds}(Y|X=0)} = \exp(\beta_1)
+</span></li>
+<li class="fragment">Interpretation:
+<ul>
+<li class="fragment"><span class="math inline">\exp(\beta_1)=1</span><br>
+→ no association with the outcome</li>
+<li class="fragment"><span class="math inline">\exp(\beta_1)&gt;1</span><br>
+→ higher odds of <span class="math inline">Y=1</span></li>
+<li class="fragment"><span class="math inline">\exp(\beta_1)&lt;1</span><br>
+→ lower odds of <span class="math inline">Y=1</span></li>
+</ul></li>
+<li class="fragment">Important:
+<ul>
+<li class="fragment">Odds ratios compare <strong>odds</strong>, not probabilities</li>
+<li class="fragment">The same odds ratio implies different probability changes at different baselines</li>
+</ul></li>
+</ul>
+</section>
+<section id="odds-ratios-vs-probabilities" class="slide level2">
+<h2>Odds Ratios vs Probabilities</h2>
+<ul>
+<li class="fragment">Suppose <span class="math inline">X</span> is binary and the estimated odds ratio is <strong>OR = 1.2</strong>.</li>
+<li class="fragment">Low baseline risk
+<ul>
+<li class="fragment"><span class="math inline">p_0 = P(Y=1\mid X=0) = 0.10</span></li>
+<li class="fragment">Odds<span class="math inline">_0 = 0.10 / 0.90 = 0.11</span></li>
+<li class="fragment">Odds<span class="math inline">_1 = 1.2 \times 0.11 = 0.13</span></li>
+<li class="fragment"><span class="math inline">p_1 = 0.13 / (1 + 0.13) \approx 0.12</span></li>
+<li class="fragment"><strong>Probability change:</strong> +1.7 percentage points</li>
+</ul></li>
+<li class="fragment">High baseline risk
+<ul>
+<li class="fragment"><span class="math inline">p_0 = P(Y=1\mid X=0) = 0.50</span></li>
+<li class="fragment">Odds<span class="math inline">_0 = 0.50 / 0.50 = 1</span></li>
+<li class="fragment">Odds<span class="math inline">_1 = 1.2 \times 1 = 1.2</span></li>
+<li class="fragment"><span class="math inline">p_1 = 1.2 / (1 + 1.2) \approx 0.55</span></li>
+<li class="fragment"><strong>Probability change:</strong> +4.5 percentage points</li>
+</ul></li>
+</ul>
+</section>
+<section id="marginal-effects" class="slide level2">
+<h2>Marginal effects</h2>
+<ul>
+<li class="fragment">A <strong>marginal effect</strong> measures how a <strong>small change in a covariate</strong> changes the <strong>predicted probability</strong> of the outcome.</li>
+<li class="fragment">Formally, for a continuous variable <span class="math inline">X</span>: <span class="math display">
+\text{Marginal effect of } X
+= \frac{\partial P(Y=1 \mid X)}{\partial X}
+</span></li>
+<li class="fragment">It is the change in <strong>probability</strong>, not odds or log-odds</li>
+<li class="fragment">In LPM, the marginal effect is constant</li>
+<li class="fragment">In logit and probit marginal effects:
+<ul>
+<li class="fragment">depend on the value of <span class="math inline">X</span> and covariates!</li>
+<li class="fragment">are usually largest in the middle of the distribution</li>
+</ul></li>
+<li class="fragment">Common to report <strong>average marginal effects</strong>: Calculate each individual observation’s marginal effect, then take the mean <span class="math display">
+\text{Average marginal effect}
+= \frac{1}{n}\sum_{i=1}^n \frac{\partial P(Y=1 \mid X)}{\partial X}
+</span></li>
+</ul>
+</section>
+<section id="marginal-effects-in-r" class="slide level2">
+<h2>Marginal Effects in R</h2>
+<ul>
+<li class="fragment">We can calculate the individual marginal effects using <code>slopes()</code> and the average marginal effects using <code>avg_slopes</code> in the <strong>marginaleffects</strong> package.</li>
+<li class="fragment">“In the logit and probit models, the estimated average marginal effect of <span class="math inline">X</span> in around 10 percentage points”</li>
+<li class="fragment">Average marginal effects from logit/probit will tend to be smaller than LPM when many observations have predicted probabilities close to 0 or 1</li>
+<li class="fragment">AMEs from logit/probit will be similar to LPM or higher when there is a lot of mass in the middle of the distribution (with probabilities close to 0.5)</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>lpm <span class="ot">&lt;-</span> <span class="fu">feols</span>(Y<span class="sc">~</span>X, <span class="at">data =</span> tib, <span class="at">vcov=</span><span class="st">'hetero'</span>)</span>
+<span id="cb6-2"><a></a>logit <span class="ot">&lt;-</span> <span class="fu">feglm</span>(Y<span class="sc">~</span>X, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">'logit'</span>), <span class="at">data =</span> tib)</span>
+<span id="cb6-3"><a></a>probit <span class="ot">&lt;-</span> <span class="fu">feglm</span>(Y<span class="sc">~</span>X, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">'probit'</span>), <span class="at">data =</span> tib)</span>
+<span id="cb6-4"><a></a></span>
+<span id="cb6-5"><a></a>ame_lpm <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(lpm) <span class="co"># Same as the regression coefficient</span></span>
+<span id="cb6-6"><a></a>ame_logit <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(logit)</span>
+<span id="cb6-7"><a></a>ame_probit <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(probit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<!-- preamble start -->
+
+    <script>
+
+      function styleCell_e52bukgrdwk0yafek3cn(i, j, css_id) {
+          var table = document.getElementById("tinytable_e52bukgrdwk0yafek3cn");
+          var cell = table.rows[i]?.cells[j];  // Safe navigation to avoid errors
+          if (cell) {
+              console.log(`Styling cell at (${i}, ${j}) with class ${css_id}`);
+              cell.classList.add(css_id);
+          } else {
+              console.warn(`Cell at (${i}, ${j}) not found.`);
+          }
+      }
+      function insertSpanRow(i, colspan, content) {
+        var table = document.getElementById('tinytable_e52bukgrdwk0yafek3cn');
+        var newRow = table.insertRow(i);
+        var newCell = newRow.insertCell(0);
+        newCell.setAttribute("colspan", colspan);
+        // newCell.innerText = content;
+        // this may be unsafe, but innerText does not interpret <br>
+        newCell.innerHTML = content;
+      }
+      function spanCell_e52bukgrdwk0yafek3cn(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_e52bukgrdwk0yafek3cn");
+        const targetRow = table.rows[i];
+        const targetCell = targetRow.cells[j];
+        for (let r = 0; r < rowspan; r++) {
+          // Only start deleting cells to the right for the first row (r == 0)
+          if (r === 0) {
+            // Delete cells to the right of the target cell in the first row
+            for (let c = colspan - 1; c > 0; c--) {
+              if (table.rows[i + r].cells[j + c]) {
+                table.rows[i + r].deleteCell(j + c);
+              }
+            }
+          }
+          // For rows below the first, delete starting from the target column
+          if (r > 0) {
+            for (let c = colspan - 1; c >= 0; c--) {
+              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
+                table.rows[i + r].deleteCell(j);
+              }
+            }
+          }
+        }
+        // Set rowspan and colspan of the target cell
+        targetCell.rowSpan = rowspan;
+        targetCell.colSpan = colspan;
+      }
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: 1, j: 1 }, { i: 1, j: 2 }, { i: 1, j: 3 },  ], css_id: 'tinytable_css_ya0y9vtiktfchmp8bajs',}, 
+          { positions: [ { i: 1, j: 0 },  ], css_id: 'tinytable_css_qv9y9ygh584q8dqwipwg',}, 
+          { positions: [ { i: 0, j: 1 }, { i: 0, j: 3 }, { i: 0, j: 2 },  ], css_id: 'tinytable_css_lby18x70afd4hlcutpv0',}, 
+          { positions: [ { i: 2, j: 0 },  ], css_id: 'tinytable_css_f1epiom58n53cwtl3xyf',}, 
+          { positions: [ { i: 2, j: 2 }, { i: 2, j: 1 }, { i: 2, j: 3 },  ], css_id: 'tinytable_css_48vxuu6guaklqmcb9zcu',}, 
+          { positions: [ { i: 0, j: 0 },  ], css_id: 'tinytable_css_3s8rrnynnthxc6vckdsd',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  styleCell_e52bukgrdwk0yafek3cn(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <style>
+      /* tinytable css entries after */
+      .table td.tinytable_css_ya0y9vtiktfchmp8bajs, .table th.tinytable_css_ya0y9vtiktfchmp8bajs { text-align: center; }
+      .table td.tinytable_css_qv9y9ygh584q8dqwipwg, .table th.tinytable_css_qv9y9ygh584q8dqwipwg { text-align: left; }
+      .table td.tinytable_css_lby18x70afd4hlcutpv0, .table th.tinytable_css_lby18x70afd4hlcutpv0 { text-align: center; border-top: solid #d3d8dc 0.1em; border-bottom: solid #d3d8dc 0.05em; }
+      .table td.tinytable_css_f1epiom58n53cwtl3xyf, .table th.tinytable_css_f1epiom58n53cwtl3xyf { text-align: left; border-bottom: solid #d3d8dc 0.1em; }
+      .table td.tinytable_css_48vxuu6guaklqmcb9zcu, .table th.tinytable_css_48vxuu6guaklqmcb9zcu { text-align: center; border-bottom: solid #d3d8dc 0.1em; }
+      .table td.tinytable_css_3s8rrnynnthxc6vckdsd, .table th.tinytable_css_3s8rrnynnthxc6vckdsd { text-align: left; border-top: solid #d3d8dc 0.1em; border-bottom: solid #d3d8dc 0.05em; }
+    </style>
+    <div class="container">
+      <table class="table table-borderless" id="tinytable_e52bukgrdwk0yafek3cn" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <thead>
+        
+              <tr>
+                <th scope="col"> </th>
+                <th scope="col">LPM</th>
+                <th scope="col">Logit</th>
+                <th scope="col">Probit</th>
+              </tr>
+        </thead>
+        
+        <tbody>
+                <tr>
+                  <td>Average marginal effect of X</td>
+                  <td>0.131</td>
+                  <td>0.106</td>
+                  <td>0.106</td>
+                </tr>
+                <tr>
+                  <td>                            </td>
+                  <td>0.007</td>
+                  <td>0.002</td>
+                  <td>0.002</td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
+</div>
+</section>
+<section id="cautions" class="slide level2">
+<h2>Cautions</h2>
+<ul>
+<li class="fragment">Fixed effects in logit/probit can be tricky:
+<ul>
+<li class="fragment">You need specialized estimators (e.g.&nbsp;<code>feglm()</code> in <code>fixest</code>)</li>
+<li class="fragment">Estimates can be fragile due to dropped units and convergence failures</li>
+<li class="fragment">Interpretation is less transparent than in the LPM</li>
+</ul></li>
+<li class="fragment">Logit and probit are estimated by <strong>maximum likelihood</strong>
+<ul>
+<li class="fragment">In small samples, MLE can be biased and unstable</li>
+</ul></li>
+<li class="fragment">Interaction terms in logit/probit do not represent interaction effects on probabilities
+<ul>
+<li class="fragment">Marginal effects of interactions are nonlinear and can change sign</li>
+<li class="fragment">Best practice is to show how marginal effects vary across values of covariates</li>
+</ul></li>
+<li class="fragment"><strong>Takeaway:</strong> Logit and probit are powerful, but they can be harder to interpret and estimate, especially with fixed effects</li>
+</ul>
+</section></section>
+<section>
+<section id="count-data" class="title-slide slide level1 center">
+<h1>Count Data</h1>
+
+</section>
+<section id="count-data-1" class="slide level2">
+<h2>Count Data</h2>
+<ul>
+<li class="fragment">Examples of count data:
+<ul>
+<li class="fragment">Number of doctor visits</li>
+<li class="fragment">Number of pregnancies</li>
+<li class="fragment">Number of prescriptions filled</li>
+</ul></li>
+<li class="fragment">Key features:
+<ul>
+<li class="fragment">Non-negative integers</li>
+<li class="fragment">Often skewed</li>
+</ul></li>
+</ul>
+</section>
+<section id="poisson-regression" class="slide level2">
+<h2>Poisson Regression</h2>
+<ul>
+<li class="fragment">Conditional expectation: <span class="math display">E(Y_i \mid X_i) = \exp(\beta_0 + \beta_1 X_i) = \lambda_i</span></li>
+<li class="fragment"><span class="math inline">\beta_1</span> is the effect of <span class="math inline">X</span> on the <strong>log of the expected outcome</strong> <span class="math display">
+\frac{\partial \log E(Y_i \mid X_i)}{\partial X_{i}} = \beta_1
+</span></li>
+<li class="fragment">Therefore, the exact percentage change is: <span class="math display">
+(\exp(\beta_1) - 1)\times 100\%
+</span></li>
+<li class="fragment">For small values of <span class="math inline">\beta_1</span>: <span class="math display">
+\exp(\beta_1) - 1 \approx \beta_1
+</span></li>
+<li class="fragment">We often say “a one-unit increase in <span class="math inline">X</span> is associated with an approximately <span class="math inline">\beta_1</span> <span class="math inline">\times</span> 100% percentage change in <span class="math inline">Y</span></li>
+<li class="fragment">We can interpret <span class="math inline">\beta_1</span> as a <strong>semi-elasticity</strong></li>
+</ul>
+</section>
+<section id="poisson-distribution" class="slide level2">
+<h2>Poisson Distribution</h2>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_08_ldvs_files/figure-revealjs/unnamed-chunk-9-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="survival-analysis" class="title-slide slide level1 center">
+<h1>Survival analysis</h1>
+
+</section>
+<section id="time-to-event-outcomes" class="slide level2">
+<h2>Time-to-Event Outcomes</h2>
+<ul>
+<li class="fragment">Examples:
+<ul>
+<li class="fragment">Time from surgery to death</li>
+<li class="fragment">Time from trial entry to disease progression</li>
+</ul></li>
+<li class="fragment">For each individual we observe:
+<ul>
+<li class="fragment"><span class="math inline">t_i</span> = observed time</li>
+<li class="fragment"><span class="math inline">\delta_i</span> = event indicator (1 = event, 0 = censored)</li>
+</ul></li>
+<li class="fragment">Data is often “right-censored”: not everyone experiences event during study</li>
+</ul>
+</section>
+<section id="survival-function" class="slide level2">
+<h2>Survival Function</h2>
+<ul>
+<li class="fragment">The central object is the <strong>survival function</strong>: <span class="math display">
+S(t) = P(T &gt; t)
+</span></li>
+<li class="fragment">Interpretation: Probability that the event has <strong>not</strong> occurred by time <span class="math inline">t</span></li>
+<li class="fragment">Properties:
+<ul>
+<li class="fragment"><span class="math inline">S(0) = 1</span></li>
+<li class="fragment"><span class="math inline">S(t)</span> is non-increasing</li>
+<li class="fragment"><span class="math inline">S(t)</span> can be read directly from a survival curve</li>
+</ul></li>
+</ul>
+</section>
+<section id="kaplanmeier-survival-curves" class="slide level2">
+<h2>Kaplan–Meier Survival Curves</h2>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>           
+              0   1
+  Control    34 227
+  Treatment  76 163</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+ 0.01033  4.78926 12.00905 13.19563 23.44762 26.00000 </code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_08_ldvs_files/figure-revealjs/unnamed-chunk-10-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="kaplanmeier-curves-reading-survival-probabilities" class="slide level2">
+<h2>Kaplan–Meier Curves: Reading Survival Probabilities</h2>
+<ul>
+<li class="fragment">The Kaplan–Meier estimator gives the <strong>survival function</strong> <span class="math inline">S(t) = P(T &gt; t)</span></li>
+<li class="fragment">How to read the curve:
+<ul>
+<li class="fragment">Pick a time point (t) on the x-axis</li>
+<li class="fragment">Move <strong>up</strong> to the survival curve</li>
+<li class="fragment">Read the corresponding value on the y-axis</li>
+</ul></li>
+<li class="fragment">Example: <span class="math inline">S(12) = 0.60</span> means 60% of individuals are expected to survive 12 months or more</li>
+<li class="fragment">We can also <strong>invert</strong> the survival curve.
+<ul>
+<li class="fragment">The <strong>median survival time</strong> is the smallest (t) such that <span class="math inline">S(t) \le 0.5</span></li>
+</ul></li>
+<li class="fragment">Difference in median survival between treatment and control is approximately <strong>6 months</strong></li>
+</ul>
+</section>
+<section id="comparing-survival-across-groups" class="slide level2">
+<h2>Comparing Survival Across Groups</h2>
+<ul>
+<li class="fragment"><strong>Log-rank test</strong> is a hypothesis test commonly used in survival analysis</li>
+<li class="fragment">Null hypothesis: <span class="math display">
+H_0: S_{\text{treatment}}(t) = S_{\text{control}}(t)
+</span></li>
+<li class="fragment">Interpretation:
+<ul>
+<li class="fragment">Small p-value → reject null hypothesis of no difference in survival</li>
+<li class="fragment">Tells you <strong>whether</strong> survival differs, not <strong>by how much</strong></li>
+</ul></li>
+<li class="fragment">To quantify effects or adjust for covariates, we can use Cox regression.</li>
+</ul>
+</section>
+<section id="cox-proportional-hazards-model" class="slide level2">
+<h2>Cox Proportional Hazards Model</h2>
+<ul>
+<li class="fragment">The Cox model specifies the <strong>hazard rate</strong> at time (t): <span class="math display">
+\lambda(t \mid X) = \lambda_0(t)\exp(\beta_0+\beta_1X)
+</span></li>
+<li class="fragment">where:
+<ul>
+<li class="fragment"><span class="math inline">\lambda(t \mid X)</span> is the instantaneous risk of the event at time <span class="math inline">t</span></li>
+<li class="fragment"><span class="math inline">\lambda_0(t)</span> is the baseline hazard</li>
+</ul></li>
+<li class="fragment">Assumption: Effects of variables on survival are constant over time (“proportional hazard”)</li>
+<li class="fragment">Interpretation: coefficient on <span class="math inline">X</span> interpreted as log of “hazard ratio”</li>
+<li class="fragment">A one-unit increase in <span class="math inline">X</span> multiplies individual <span class="math inline">i</span>’s hazard by <span class="math inline">\exp(\beta_1)</span>
+<ul>
+<li class="fragment">If <span class="math inline">HR = \exp(\beta_1)=1</span> → no effect on the hazard</li>
+<li class="fragment">If <span class="math inline">HR = \exp(\beta_1)&gt;1</span> → higher hazard (event tends to occur sooner)</li>
+<li class="fragment">If <span class="math inline">HR = \exp(\beta_1)&lt;1</span> → lower hazard (event tends to occur later)</li>
+</ul></li>
+</ul>
+</section>
+<section id="takeaways" class="slide level2">
+<h2>Takeaways</h2>
+<ul>
+<li class="fragment"><strong>Limited dependent variables</strong> are outcomes where the possible values are restricted</li>
+<li class="fragment"><strong>OLS can still be useful</strong> even when the outcome is limited:
+<ul>
+<li class="fragment">Easy to interpret (coefficients = marginal effects)</li>
+<li class="fragment">Provides a <strong>linear approximation</strong> to the relationship between <span class="math inline">X</span> and <span class="math inline">Y</span></li>
+</ul></li>
+<li class="fragment"><strong>Linear probability model (LPM)</strong> = OLS on a binary outcome:
+<ul>
+<li class="fragment"><span class="math inline">\hat{\beta}_1</span> = change in <span class="math inline">P(Y=1)</span> for a one-unit change in <span class="math inline">X</span> (in <strong>percentage points</strong>, not %)</li>
+<li class="fragment">Predictions can fall outside <span class="math inline">[0, 1]</span></li>
+</ul></li>
+<li class="fragment"><strong>Logit / Probit</strong> (binary) → interpret via <strong>average marginal effects</strong> (or odds ratios for logit)</li>
+<li class="fragment"><strong>Poisson</strong> (counts) → coefficients are <strong>semi-elasticities</strong></li>
+<li class="fragment"><strong>Survival analysis</strong> for time-to-event outcomes:
+<ul>
+<li class="fragment"><strong>Kaplan–Meier curves</strong> read off survival probabilities or median survival</li>
+</ul></li>
+</ul>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1600,
+
+        height: 900,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

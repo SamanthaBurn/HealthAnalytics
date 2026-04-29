@@ -1,0 +1,132 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Introduction to Machine Learning"
+author: ""
+date: "Spring 1 2026"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+This exercise will guide you through running fixed effects and difference-in-differences regression in R and interpreting the results.
+
+```{r, include=FALSE, results='hide'}
+packages <- c(
+  "tidyverse",
+  "gapminder",
+  "fixest",
+  "modelsummary",
+  "causaldata",
+  "dagitty",
+  "ggdag"
+)
+
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+# Fixed effects models: GDP per capita and life expectancy
+
+We will use the `gapminder` dataset to explore fixed effects regression. This dataset contains information on life expectancy, GDP per capita, and population for countries over time.
+
+1.  Load the `gapminder` dataset and take a look at the first few rows. Run a simple linear regression of life expectancy on log GDP per capita with `lm()` and interpret the results.
+2.  Run a a simple linear regression of life expectancy on log GDP per capita with `feols()`. You can generate a simple regression table using the `etable()` function from the `fixest` package. You can also use `summary()` to get a nicely formatted regression table.
+3.  Now, run a fixed effects regression of life expectancy on log GDP per capita, including country fixed effects using `lm()`. You can do this by adding `factor(country)` to your regression formula.
+4.  Run a fixed effects regression of life expectancy on log GDP per capita, including country fixed effects using the `feols()` function from the `fixest` package.
+5.  Run a fixed effects regression of life expectancy on log GDP per capita, including country fixed effects using the `feols()` function and cluster the errors by country. Compare the standard errors to the previous model.
+6.  Run a fixed effects regression of life expectancy on log GDP per capita, including country fixed effects and year fixed effects, and clustering the errors by country. Interpret the results. Why is the coefficient on log GDP per capita much smaller than in previous models?
+
+```{r}
+gapminder <- gapminder
+head(gapminder)
+```
+
+```{r}
+# Pooled OLS with lm()
+lm_pooled <- lm(lifeExp ~ log(gdpPercap), data = gapminder)
+summary(lm_pooled)
+```
+
+```{r}
+# Pooled OLS with feols()
+feols_pooled <- feols(lifeExp ~ log(gdpPercap), data = gapminder)
+etable(feols_pooled)
+summary(feols_pooled)
+```
+
+```{r}
+# Fixed effects regression with factor()
+lm_countryfe <- lm(lifeExp ~ log(gdpPercap) + factor(country), data = gapminder)
+#summary(lm_countryfe)
+#Print regression table without country fixed effects
+modelsummary(
+  lm_countryfe,
+  coef_omit = "country::|factor\\(country\\)",
+  gof_omit  = "IC|Log|RMSE|Std|Deviance",
+  notes = "Country fixed effects included."
+)
+```
+
+```{r}
+# Fixed effects regression with feols()
+feols_countryfe  <- feols(lifeExp ~ log(gdpPercap) | country, data = gapminder)
+etable(feols_countryfe)
+```
+
+```{r}
+# Fixed effects regression with feols(), errors clustered by country
+feols_countryfe_cl <- feols(lifeExp ~ log(gdpPercap) | country, data = gapminder, vcov = ~country)
+etable(feols_countryfe_cl)
+```
+
+```{r}
+# Fixed effects regression with feols(), country and year fixed effects, errors clustered by country
+feols_twfe <- feols(lifeExp ~ log(gdpPercap) | country + year, data = gapminder, vcov = ~country)
+etable(feols_twfe)
+```
+
+# Diff-in-diffs models: "Active choice" organ donation rules
+
+We will use the `organ` dataset from the `causaldata` package to explore difference-in-differences regression. This dataset contains information on organ donation rates in different countries before and after they implemented "active choice" organ donation policies.
+
+1.  Load in the organ donation dataset from the `causaldata` package. Create a binary treatment variable that is equal to 1 for California in the quarters Q3 2011, Q4 2011, and Q1 2012, and 0 otherwise.
+2.  Run a difference-in-differences regression of organ donation rate on the treatment variable, including state and quarter fixed effects using the `feols()` function from the `fixest` package. Cluster standard errors at the state level. Interpret the results.
+3.  What happens if you do not cluster standard errors at the state level? **NOTE:** Clustering often makes standard errors larger, but in this case it makes them much smaller! Clustering makes the standard errors smaller because it stops treating repeated observations within California as independent evidence. The estimated treatment effect is very stable within the treated unit But with only one treated cluster, we should be very cautious about interpreting the standard errors.
+
+```{r}
+od <- causaldata::organ_donations
+head(od)
+```
+
+```{r}
+# Treatment variable
+od <- od %>%
+     mutate(Treated = State == 'California' & 
+            Quarter %in% c('Q32011','Q42011','Q12012'))
+```
+
+```{r}
+# Run a difference-in-differences model with state and quarter dummies
+clfe <- feols(Rate ~ Treated | State + Quarter,
+           data = od,
+           vcov = ~State)
+modelsummary(clfe, stars = c('*' = .1, '**' = .05, '***' = .01),
+              coef_map = c("TreatedTRUE" = "Treatment"),
+              gof_omit  = "IC|Log|RMSE|Std|Deviance")
+```

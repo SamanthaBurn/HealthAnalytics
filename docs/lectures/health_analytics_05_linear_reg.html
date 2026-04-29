@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.8.27">
+
+  <meta name="author" content="Dr.&nbsp;Sam Burn">
+  <title>Introduction to Health Analytics</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-0fde88a82f0356838740f155f1088782.css">
+  <link rel="stylesheet" href="burn_slides.css">
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Introduction to Health Analytics</h1>
+  <p class="subtitle">Linear Regression</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Dr.&nbsp;Sam Burn 
+</div>
+</div>
+</div>
+
+</section><section id="TOC">
+<nav role="doc-toc"> 
+<h2 id="toc-title">Today</h2>
+<ul>
+<li class="fragment"><a href="#/linear-regression-theory-and-practice" id="/toc-linear-regression-theory-and-practice">Linear regression: theory and practice</a></li>
+<li class="fragment"><a href="#/multivariate-regression" id="/toc-multivariate-regression">Multivariate regression</a></li>
+<li class="fragment"><a href="#/omitted-variable-bias-ovb" id="/toc-omitted-variable-bias-ovb">Omitted Variable Bias (OVB)</a></li>
+<li class="fragment"><a href="#/good-and-bad-controls" id="/toc-good-and-bad-controls">Good and bad controls</a></li>
+<li class="fragment"><a href="#/measurement-error-in-x" id="/toc-measurement-error-in-x">Measurement error in <span class="math inline">X</span></a></li>
+<li class="fragment"><a href="#/binary-and-categorical-variables" id="/toc-binary-and-categorical-variables">Binary and categorical variables</a></li>
+<li class="fragment"><a href="#/polynomials" id="/toc-polynomials">Polynomials</a></li>
+<li class="fragment"><a href="#/log-transformations" id="/toc-log-transformations">Log transformations</a></li>
+<li class="fragment"><a href="#/interactions" id="/toc-interactions">Interactions</a></li>
+</ul>
+</nav>
+</section>
+<section id="course-road-map" class="slide level2">
+<h2>Course road map</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Lecture</th>
+<th>Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Introduction to health data &amp; R</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Data visualization</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Data wrangling &amp; exploratory data analysis</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Causal inference</td>
+</tr>
+<tr class="odd">
+<td><span style="color: #C8102E"><strong>5</strong></span></td>
+<td><span style="color: #C8102E"><strong>Linear regression</strong></span></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Linear regression: uncertainty &amp; hypothesis testing</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Panel data: difference-in-differences &amp; fixed effects</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Limited dependent variables: LPM, logit, probit</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Introduction to machine learning for health analytics</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Course review</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-health-analytics-pipeline" class="slide level2">
+<h2>The health analytics pipeline</h2>
+<div class="centered-fig">
+<p><img data-src="images/lec01_slide11_a.png" style="width:80.0%"></p>
+</div>
+</section>
+<section>
+<section id="linear-regression-theory-and-practice" class="title-slide slide level1 center">
+<h1>Linear regression: theory and practice</h1>
+
+</section>
+<section id="what-is-regression" class="slide level2">
+<h2>What is regression?</h2>
+<ul>
+<li class="fragment">Regression is a <strong>model-based summary</strong> of how variables move together in data</li>
+<li class="fragment">The same tool can be used for:
+<ul>
+<li class="fragment"><strong>Description</strong>: summarise patterns</li>
+<li class="fragment"><strong>Prediction</strong>: forecast <span class="math inline">Y</span> given <span class="math inline">X</span></li>
+<li class="fragment"><strong>Causal inference</strong>: effect of changing <span class="math inline">X</span> on <span class="math inline">Y</span> <strong>only with extra assumptions</strong></li>
+</ul></li>
+</ul>
+</section>
+<section id="working-example" class="slide level2">
+<h2>Working example</h2>
+<ul>
+<li class="fragment"><span class="math inline">Y</span>: systolic blood pressure (BP)</li>
+<li class="fragment"><span class="math inline">X</span>: time spent exercising (minutes per week)</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-1-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="why-we-need-a-model" class="slide level2">
+<h2>Why we need a model</h2>
+<ul>
+<li class="fragment">For similar <span class="math inline">X</span>, we see many different values of <span class="math inline">Y</span></li>
+<li class="fragment">We want a rule that:
+<ul>
+<li class="fragment">smooths noise</li>
+<li class="fragment">generalises beyond observed values</li>
+<li class="fragment">is interpretable</li>
+</ul></li>
+</ul>
+</section>
+<section id="the-linear-regression-model-population" class="slide level2">
+<h2>The linear regression model (population)</h2>
+<p><span class="math display">
+Y = \beta_0 + \beta_1 X + \varepsilon
+</span></p>
+<ul>
+<li class="fragment"><span class="math inline">\beta_0, \beta_1</span> are unknown population parameters
+<ul>
+<li class="fragment"><span class="math inline">\beta_0</span> is the intercept</li>
+<li class="fragment"><span class="math inline">\beta_1</span> is the slope</li>
+</ul></li>
+<li class="fragment"><span class="math inline">\varepsilon</span> captures unobserved determinants of <span class="math inline">Y</span></li>
+</ul>
+</section>
+<section id="from-model-to-data" class="slide level2">
+<h2>From model to data</h2>
+<ul>
+<li class="fragment">We observe data <span class="math inline">(Y_i, X_i)</span> for <span class="math inline">i = 1, \dots, n</span></li>
+<li class="fragment">The fitted model is: <span class="math display">\widehat{Y}_i = \widehat{\beta}_0 + \widehat{\beta}_1 X_i</span></li>
+<li class="fragment"><span class="math inline">\widehat{\beta}_0</span> is the estimated intercept</li>
+<li class="fragment"><span class="math inline">\widehat{\beta}_1</span> is the estimated slope</li>
+<li class="fragment"><span class="math inline">\widehat{Y}_i</span> is the predicted outcome</li>
+</ul>
+</section>
+<section id="what-ols-does" class="slide level2">
+<h2>What OLS does</h2>
+<ul>
+<li class="fragment">Ordinary Least Squares chooses coefficients to minimise:</li>
+</ul>
+<p><span class="math display">
+\sum_i (Y_i - \widehat{Y}_i)^2
+</span></p>
+<ul>
+<li class="fragment">These are <strong>squared vertical distances</strong> from points to the fitted line</li>
+</ul>
+</section>
+<section id="ols-in-r-univariate" class="slide level2">
+<h2>OLS in R (univariate)</h2>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> exercise, <span class="at">data =</span> dat)</span>
+<span id="cb1-2"><a></a><span class="fu">summary</span>(m1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = sbp ~ exercise, data = dat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-23.2493  -5.9080  -0.6552   5.9634  31.0499 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 133.178784   0.783242  170.03  &lt; 2e-16 ***
+exercise     -0.038184   0.005716   -6.68 5.47e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 9.134 on 598 degrees of freedom
+Multiple R-squared:  0.06944,   Adjusted R-squared:  0.06788 
+F-statistic: 44.62 on 1 and 598 DF,  p-value: 5.473e-11</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="ols-in-r-univariate-1" class="slide level2">
+<h2>OLS in R (univariate)</h2>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-3-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="visualising-residuals" class="slide level2">
+<h2>Visualising residuals</h2>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>dat2 <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-3"><a></a>    <span class="at">yhat =</span> <span class="fu">predict</span>(m1),</span>
+<span id="cb3-4"><a></a>    <span class="at">resid =</span> sbp <span class="sc">-</span> yhat</span>
+<span id="cb3-5"><a></a>  )</span>
+<span id="cb3-6"><a></a></span>
+<span id="cb3-7"><a></a><span class="fu">ggplot</span>(dat2 <span class="sc">%&gt;%</span> <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">120</span>), <span class="fu">aes</span>(exercise, sbp)) <span class="sc">+</span></span>
+<span id="cb3-8"><a></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb3-9"><a></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> yhat), <span class="at">linewidth =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb3-10"><a></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">xend =</span> exercise, <span class="at">yend =</span> yhat), <span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb3-11"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Residuals are vertical distances"</span>) <span class="sc">+</span></span>
+<span id="cb3-12"><a></a>  <span class="fu">theme_metro</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-4-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="simplification-is-the-point" class="slide level2">
+<h2>Simplification is the point</h2>
+<ul>
+<li class="fragment">A line throws away information by design</li>
+<li class="fragment">Memorising every point fits the data better <em>in sample</em></li>
+<li class="fragment">But performs worse <em>out of sample</em> (overfitting)</li>
+<li class="fragment">Regression aims to recover a <strong>systematic relationship</strong></li>
+</ul>
+</section>
+<section id="how-prediction-works" class="slide level2">
+<h2>How prediction works</h2>
+<ul>
+<li class="fragment">Once we estimate <span class="math inline">\widehat{\beta}_0, \widehat{\beta}_1</span>:
+<ul>
+<li class="fragment">choose a value of <span class="math inline">X</span></li>
+<li class="fragment">compute <span class="math inline">\widehat{Y} = \widehat{\beta}_0 + \widehat{\beta}_1 X</span></li>
+</ul></li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>newx <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">exercise =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">150</span>, <span class="dv">300</span>))</span>
+<span id="cb4-2"><a></a><span class="fu">predict</span>(m1, <span class="at">newdata =</span> newx)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       1        2        3 
+133.1788 127.4511 121.7235 </code></pre>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-6-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="what-the-slope-gives-us-mechanically" class="slide level2">
+<h2>What the slope gives us (mechanically)</h2>
+<ul>
+<li class="fragment">A prediction rule <span class="math inline">\widehat{Y}(X)</span></li>
+<li class="fragment">A summary of association in the data</li>
+<li class="fragment">Interpretation depends on purpose:
+<ul>
+<li class="fragment">descriptive</li>
+<li class="fragment">predictive</li>
+<li class="fragment">causal (requires extra assumptions)</li>
+</ul></li>
+</ul>
+</section>
+<section id="key-assumption-for-causal-interpretation" class="slide level2">
+<h2>Key assumption for causal interpretation</h2>
+<ul>
+<li class="fragment">To interpret <span class="math inline">\beta_1</span> causally, we need <strong>conditional mean independence</strong>: <span class="math inline">\mathbb{E}[\varepsilon \mid X] = 0</span></li>
+<li class="fragment">No omitted confounders</li>
+<li class="fragment">No “bad controls”</li>
+</ul>
+</section></section>
+<section>
+<section id="multivariate-regression" class="title-slide slide level1 center">
+<h1>Multivariate regression</h1>
+
+</section>
+<section id="why-simple-regression-can-mislead" class="slide level2">
+<h2>Why simple regression can mislead</h2>
+<ul>
+<li class="fragment">Exercise is not randomly assigned</li>
+<li class="fragment">For example, age affects:
+<ul>
+<li class="fragment">how much people exercise</li>
+<li class="fragment">blood pressure</li>
+</ul></li>
+<li class="fragment">Simple regression mixes these channels</li>
+</ul>
+</section>
+<section id="the-multivariate-model-population" class="slide level2">
+<h2>The multivariate model (population)</h2>
+<p><span class="math display">
+Y = \beta_0 + \beta_1 X + \beta_2 Z + \varepsilon
+</span></p>
+<ul>
+<li class="fragment"><span class="math inline">Z</span> is a covariate (often called “control variable” or even “control”)</li>
+<li class="fragment"><span class="math inline">\beta_1</span> is the association between <span class="math inline">X</span> and <span class="math inline">Y</span> <strong>holding</strong> <span class="math inline">Z</span> fixed</li>
+</ul>
+</section>
+<section id="what-controlling-for-means" class="slide level2">
+<h2>What “controlling for” means</h2>
+<ul>
+<li class="fragment">Compare units with the same value of <span class="math inline">Z</span>
+<ul>
+<li class="fragment">Use variation in <span class="math inline">X</span> that is <strong>orthogonal to</strong> <span class="math inline">Z</span><br>
+</li>
+<li class="fragment">Relate that residual variation in <span class="math inline">X</span> to variation in <span class="math inline">Y</span></li>
+</ul></li>
+<li class="fragment">Adding covariate <span class="math inline">Z</span> changes the meaning of <span class="math inline">\beta_1</span>
+<ul>
+<li class="fragment"><span class="math inline">\beta_1</span> is identified from variation in <span class="math inline">X</span> <strong>holding</strong> <span class="math inline">Z</span> fixed</li>
+</ul></li>
+<li class="fragment">Controls address confounding only under <strong>conditional mean independence</strong>: <span class="math display">
+\mathbb{E}[\varepsilon_i \mid X_i, Z_i] = 0
+</span></li>
+<li class="fragment">After conditioning on <span class="math inline">X</span> and <span class="math inline">Z</span>, the remaining error is unrelated to <span class="math inline">X</span><br>
+</li>
+<li class="fragment">If this fails (omitted variables, reverse causality, measurement error), <span class="math inline">\beta_1</span> is <strong>not causal</strong></li>
+</ul>
+</section>
+<section id="adding-covariates-to-the-model-in-r" class="slide level2">
+<h2>Adding covariates to the model in R</h2>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>m2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> exercise <span class="sc">+</span> age, <span class="at">data =</span> dat)</span>
+<span id="cb6-2"><a></a><span class="fu">summary</span>(m2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = sbp ~ exercise + age, data = dat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-22.2189  -5.7923  -0.1412   5.4813  25.8231 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 118.708574   1.524621  77.861  &lt; 2e-16 ***
+exercise     -0.023378   0.005414  -4.318 1.84e-05 ***
+age           0.241833   0.022483  10.756  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 8.367 on 597 degrees of freedom
+Multiple R-squared:  0.2205,    Adjusted R-squared:  0.2179 
+F-statistic: 84.44 on 2 and 597 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="unadjusted-relationship" class="slide level2">
+<h2>Unadjusted relationship</h2>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-8-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="what-controlling-for-age-looks-like" class="slide level2">
+<h2>What controlling for age looks like</h2>
+<ul>
+<li class="fragment">Regress exercise on age and calculate the residuals (R1)</li>
+<li class="fragment">Regress BP on age and calculate the residuals (R2)</li>
+<li class="fragment">Regress R2 on R1!</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-9-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="omitted-variable-bias-ovb" class="title-slide slide level1 center">
+<h1>Omitted Variable Bias (OVB)</h1>
+
+</section>
+<section id="when-does-omitted-variable-bias-occur" class="slide level2">
+<h2>When does omitted variable bias occur?</h2>
+<ul>
+<li class="fragment">Omitted variable bias occurs when:
+<ol type="1">
+<li class="fragment">A relevant variable <span class="math inline">Z</span> affects the outcome <span class="math inline">Y</span></li>
+<li class="fragment">That variable <span class="math inline">Z</span> is correlated with the regressor of interest <span class="math inline">X</span></li>
+<li class="fragment">We leave <span class="math inline">Z</span> out of the regression</li>
+</ol></li>
+<li class="fragment">The estimated relationship between <span class="math inline">X</span> and <span class="math inline">Y</span> will generally be <strong>biased and inconsistent</strong>
+<ul>
+<li class="fragment"><strong>Biased</strong>: the estimated effect is systematically wrong</li>
+<li class="fragment"><strong>Inconsistent</strong>: the error does not vanish as the sample size grows</li>
+</ul></li>
+</ul>
+</section>
+<section id="omitted-variable-bias-setup" class="slide level2">
+<h2>Omitted Variable Bias: Setup</h2>
+<ul>
+<li class="fragment">Suppose the <strong>true population model</strong> is: <span class="math display">Y = \beta_0 + \beta_1 X + \beta_2 Z + \varepsilon</span>
+<ul>
+<li class="fragment"><span class="math inline">X</span>: exercise (minutes/week)</li>
+<li class="fragment"><span class="math inline">Y</span>: systolic blood pressure</li>
+<li class="fragment"><span class="math inline">Z</span>: age</li>
+<li class="fragment"><span class="math inline">\varepsilon</span>: all other unobserved factors</li>
+</ul></li>
+<li class="fragment">But we estimate the <strong>short regression</strong>: <span class="math display">Y = \tilde{\beta_0} + \tilde{\beta_1} X + u</span>
+<ul>
+<li class="fragment">the error term is now <span class="math inline">u = \beta_2 Z + \varepsilon</span></li>
+</ul></li>
+</ul>
+</section>
+<section id="why-ovb-happens" class="slide level2">
+<h2>Why OVB Happens</h2>
+<ul>
+<li class="fragment">In the short regression, <span class="math inline">X</span> is now correlated with the error term <span class="math inline">u</span></li>
+<li class="fragment">This violates the key OLS assumption: <span class="math inline">\mathbb{E}[u \mid X] = 0</span></li>
+<li class="fragment">OLS no longer isolates the relationship between <span class="math inline">X</span> and <span class="math inline">Y</span></li>
+<li class="fragment">Instead, it mixes:
+<ul>
+<li class="fragment">the effect of <span class="math inline">X</span> on <span class="math inline">Y</span></li>
+<li class="fragment">the effect of omitted variables correlated with <span class="math inline">X</span></li>
+</ul></li>
+</ul>
+</section>
+<section id="the-ovb-formula" class="slide level2">
+<h2>The OVB Formula</h2>
+<ul>
+<li class="fragment">Under standard assumptions, the <strong>expected value</strong> of the OLS slope estimator from the short regression is: <span class="math display">\mathbb{E}[\tilde{\beta_1}]=\beta_1+\beta_2
+\frac{\operatorname{Cov}(X, Z)}{\operatorname{Var}(X)}
+</span></li>
+<li class="fragment">Interpretation:
+<ul>
+<li class="fragment"><span class="math inline">\beta_1</span>: the relationship we actually care about</li>
+<li class="fragment"><span class="math inline">\beta_2</span>: how strongly the omitted variable affects <span class="math inline">Y</span></li>
+<li class="fragment"><span class="math inline">\operatorname{Cov}(X, Z)</span>: how strongly <span class="math inline">X</span> and <span class="math inline">Z</span> are related</li>
+</ul></li>
+</ul>
+</section>
+<section id="direction-of-bias" class="slide level2">
+<h2>Direction of Bias</h2>
+<ul>
+<li class="fragment">The <em>sign</em> of the bias depends on two things:
+<ol type="1">
+<li class="fragment">The sign of <span class="math inline">\beta_2</span> (does <span class="math inline">Z</span> raise or lower <span class="math inline">Y</span>?)</li>
+<li class="fragment">The sign of <span class="math inline">\operatorname{Cov}(X, Z)</span> (is <span class="math inline">Z</span> positively or negatively related to <span class="math inline">X</span>?)</li>
+</ol></li>
+<li class="fragment">Examples:
+<ul>
+<li class="fragment"><span class="math inline">\beta_2 &gt; 0</span> and <span class="math inline">\operatorname{Cov}(X, Z) &gt; 0</span> → upward bias</li>
+<li class="fragment"><span class="math inline">\beta_2 &gt; 0</span> and <span class="math inline">\operatorname{Cov}(X, Z) &lt; 0</span> → downward bias</li>
+</ul></li>
+<li class="fragment">This logic lets us <strong>predict the direction of bias</strong></li>
+</ul>
+</section>
+<section id="ovb-in-our-blood-pressure-example" class="slide level2">
+<h2>OVB in Our Blood Pressure Example</h2>
+<ul>
+<li class="fragment">The true model is <span class="math display">Y = \beta_0 + \beta_1 \text{exercise} + \beta_2 \text{age}  + \varepsilon</span></li>
+<li class="fragment">We initially estimated <span class="math display">Y = \tilde{\beta_0} + \tilde{\beta_1} \text{exercise} + u</span></li>
+<li class="fragment">Plausible relationships:
+<ul>
+<li class="fragment">Older age increases blood pressure → <span class="math inline">\beta_2 &gt; 0</span></li>
+<li class="fragment">Older people tend to exercise less → <span class="math inline">\operatorname{Cov}(\text{exercise}, \text{age}) &lt; 0</span></li>
+</ul></li>
+<li class="fragment">So the bias term is <strong>negative</strong></li>
+<li class="fragment">A regression of blood pressure on exercise <em>without age</em> will make exercise look <strong>more protective than it really is</strong></li>
+</ul>
+</section>
+<section id="drawing-the-dag" class="slide level2">
+<h2>Drawing the DAG</h2>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb8-2"><a></a>  sbp <span class="sc">~</span> exercise <span class="sc">+</span> age,</span>
+<span id="cb8-3"><a></a>  exercise <span class="sc">~</span> age,</span>
+<span id="cb8-4"><a></a>  <span class="at">coords =</span> <span class="fu">list</span>(</span>
+<span id="cb8-5"><a></a>    <span class="at">x =</span> <span class="fu">c</span>(<span class="at">exercise =</span> <span class="dv">1</span>, <span class="at">age =</span> <span class="dv">2</span>, <span class="at">sbp =</span> <span class="dv">3</span>),</span>
+<span id="cb8-6"><a></a>    <span class="at">y =</span> <span class="fu">c</span>(<span class="at">exercise =</span> <span class="dv">2</span>, <span class="at">age =</span> <span class="dv">1</span>, <span class="at">sbp =</span> <span class="dv">2</span>)</span>
+<span id="cb8-7"><a></a>  )</span>
+<span id="cb8-8"><a></a>) <span class="sc">%&gt;%</span> <span class="fu">tidy_dagitty</span>()</span>
+<span id="cb8-9"><a></a></span>
+<span id="cb8-10"><a></a><span class="fu">ggdag_classic</span>(dag, <span class="at">node_size =</span> <span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb8-11"><a></a>  <span class="fu">theme_void_metro</span>() <span class="sc">+</span></span>
+<span id="cb8-12"><a></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> <span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">3.5</span>), <span class="at">y =</span> <span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">2.5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-10-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="comparing-coefficients-across-models" class="slide level2">
+<h2>Comparing coefficients across models</h2>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="co"># short regression (omit age)</span></span>
+<span id="cb9-2"><a></a>m_short <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> exercise, <span class="at">data =</span> dat)</span>
+<span id="cb9-3"><a></a></span>
+<span id="cb9-4"><a></a><span class="co"># long regression (control for age)</span></span>
+<span id="cb9-5"><a></a>m_long <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> exercise <span class="sc">+</span> age, <span class="at">data =</span> dat)</span>
+<span id="cb9-6"><a></a></span>
+<span id="cb9-7"><a></a><span class="co"># longest regression (control for age, gender + SES)</span></span>
+<span id="cb9-8"><a></a>m_longest <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> exercise <span class="sc">+</span> age <span class="sc">+</span> male <span class="sc">+</span> ses, <span class="at">data =</span> dat)</span>
+<span id="cb9-9"><a></a></span>
+<span id="cb9-10"><a></a><span class="fu">coef</span>(m_short)[<span class="st">"exercise"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   exercise 
+-0.03818436 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">coef</span>(m_long)[<span class="st">"exercise"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   exercise 
+-0.02337822 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="fu">coef</span>(m_longest)[<span class="st">"exercise"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  exercise 
+-0.0120582 </code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="examples-of-controls-in-the-bp-exercise-regression" class="slide level2">
+<h2>Examples of controls in the BP-exercise regression</h2>
+<ul>
+<li class="fragment">Age</li>
+<li class="fragment">Gender</li>
+<li class="fragment">Pre-existing health status</li>
+<li class="fragment">Socioeconomic status (if pre-treatment)</li>
+</ul>
+</section></section>
+<section>
+<section id="good-and-bad-controls" class="title-slide slide level1 center">
+<h1>Good and bad controls</h1>
+
+</section>
+<section id="bad-controls-why-control-for-everything-fails" class="slide level2">
+<h2>Bad controls: why “control for everything” fails</h2>
+<ul>
+<li class="fragment">In principle, we choose controls by:
+<ul>
+<li class="fragment">drawing a causal diagram,</li>
+<li class="fragment">identifying backdoor paths,</li>
+<li class="fragment">and controlling for variables that close those paths.</li>
+</ul></li>
+<li class="fragment">Why not just control for everything we observe?</li>
+<li class="fragment">Because adding the wrong controls can make estimates <strong>worse</strong>, not better:
+<ul>
+<li class="fragment">introducing post-treatment bias,</li>
+<li class="fragment">creating collider bias.</li>
+<li class="fragment">washing out meaningful variation</li>
+</ul></li>
+</ul>
+</section>
+<section id="post-treatment-bias" class="slide level2">
+<h2>Post-treatment bias</h2>
+<ul>
+<li class="fragment">A post-treatment variable is caused by the treatment.</li>
+<li class="fragment">Controlling for it removes part of the treatment effect</li>
+<li class="fragment">Suppose we are interested in whether the <span class="math inline">PriceOfCigarettes</span> affect <span class="math inline">Health</span></li>
+<li class="fragment">If we controlled for <span class="math inline">Smoking</span>, then there’s no way for the price to affect health!</li>
+<li class="fragment">We’d say that <span class="math inline">PriceOfCigarettes</span> has no effect when really it does</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-12-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="post-treatment-bias-exercise-and-blood-pressure" class="slide level2">
+<h2>Post-treatment bias: exercise and blood pressure</h2>
+<ul>
+<li class="fragment">Suppose exercise affects blood pressure in part because it lowers weight</li>
+<li class="fragment">These variables lie on the causal path: <span class="math display">\text{Exercise} \rightarrow \text{Weight} \rightarrow \text{Blood pressure} </span></li>
+<li class="fragment">But we have a problem here if weight also affects the likelihood of doing exercise!</li>
+<li class="fragment">Once behavior feeds back on itself, we need time, exogenous shocks, or both. That’s why panel data and instrumental variables are useful!</li>
+</ul>
+</section>
+<section id="colliders" class="slide level2">
+<h2>Colliders</h2>
+<ul>
+<li class="fragment">A collider is a variable where two causal arrows point <em>into</em> it.</li>
+<li class="fragment">Example structure: <span class="math inline">X \rightarrow C \leftarrow Y</span></li>
+<li class="fragment">Paths with colliders are closed by default.</li>
+<li class="fragment">Conditioning on a collider <strong>opens</strong> the path.</li>
+<li class="fragment">Example: You want to estimate the effect of BMI on diabetes
+<ul>
+<li class="fragment">You analyse data from <strong>hospital patients only</strong>.</li>
+<li class="fragment">Hospital admission is influenced by BMI and diabetes</li>
+</ul></li>
+<li class="fragment">By conditioning on it, you induce a spurious relationship.</li>
+</ul>
+</section>
+<section id="washing-out-too-much-variation" class="slide level2">
+<h2>Washing out too much variation</h2>
+<ul>
+<li class="fragment">Controlling for a variable <span class="math inline">Z</span> removes all variation in <span class="math inline">X</span> and <span class="math inline">Y</span> associated with <span class="math inline">Z</span>.</li>
+<li class="fragment">The coefficient <span class="math inline">\widehat{\beta}_1</span>is then interpreted as: “Within the same value of <span class="math inline">Z</span>, a one-unit change in <span class="math inline">X</span> changes <span class="math inline">Y</span> by <span class="math inline">\widehat{\beta}_1</span>.”</li>
+<li class="fragment">We must ask whether that within-<span class="math inline">Z</span> comparison makes sense.</li>
+<li class="fragment">Example: Controlling for step count in our regression of BP on exercise
+<ul>
+<li class="fragment">“Holding step count fixed, increasing total exercise minutes” is basically “increasing non-running/walking exercise” which is a different treatment.</li>
+<li class="fragment">The remaining variation in exercise is small and noisy.</li>
+</ul></li>
+</ul>
+</section></section>
+<section>
+<section id="measurement-error-in-x" class="title-slide slide level1 center">
+<h1>Measurement error in <span class="math inline">X</span></h1>
+
+</section>
+<section id="measurement-error-in-x-1" class="slide level2">
+<h2>Measurement error in <span class="math inline">X</span></h2>
+<ul>
+<li class="fragment">Suppose the true regressor <span class="math inline">X</span> is not observed directly.</li>
+<li class="fragment">Instead we observe: <span class="math display">
+X^{*} = X + u
+</span>
+<ul>
+<li class="fragment"><span class="math inline">u</span> has mean zero,</li>
+<li class="fragment"><span class="math inline">u</span> is uncorrelated with <span class="math inline">X</span> and <span class="math inline">\varepsilon</span>.</li>
+</ul></li>
+<li class="fragment">We estimate the regression: <span class="math display">
+Y = \beta_0 + \beta_1 X^{*} + \varepsilon
+</span></li>
+</ul>
+</section>
+<section id="direction-of-bias-attenuation" class="slide level2">
+<h2>Direction of bias: attenuation</h2>
+<p>Under these assumptions, the expected OLS slope is: <span class="math display">
+\mathbb{E}[\widehat{\beta}_1]
+= \beta_1 \,\frac{\operatorname{Var}(X)}{\operatorname{Var}(X) + \operatorname{Var}(u)}
+</span></p>
+<ul>
+<li class="fragment">The fraction is <strong>strictly less than 1</strong>.</li>
+<li class="fragment">Therefore:
+<ul>
+<li class="fragment"><span class="math inline">\widehat{\beta}_1</span> is <strong>biased toward zero</strong>.</li>
+<li class="fragment">The true effect is <strong>attenuated</strong>.</li>
+</ul></li>
+<li class="fragment">Measurement error in <span class="math inline">X</span> makes effects look smaller than they really are.</li>
+</ul>
+</section></section>
+<section>
+<section id="binary-and-categorical-variables" class="title-slide slide level1 center">
+<h1>Binary and categorical variables</h1>
+
+</section>
+<section id="binary-and-categorical-variables-1" class="slide level2">
+<h2>Binary and categorical variables</h2>
+<ul>
+<li class="fragment">So far, we have focused on:
+<ul>
+<li class="fragment">continuous regressors</li>
+<li class="fragment">linear relationships</li>
+</ul></li>
+<li class="fragment">In applied health analytics, variables are often:
+<ul>
+<li class="fragment">binary</li>
+<li class="fragment">categorical</li>
+</ul></li>
+</ul>
+</section>
+<section id="interpreting-a-binary-regressor" class="slide level2">
+<h2>Interpreting a binary regressor</h2>
+<ul>
+<li class="fragment">Suppose <span class="math inline">X</span> is binary:
+<ul>
+<li class="fragment"><span class="math inline">X = 1</span>: patient exercises at least 150 minutes per week</li>
+<li class="fragment"><span class="math inline">X = 0</span>: patient exercises less than 150 minutes per week</li>
+</ul></li>
+<li class="fragment">Model: <span class="math inline">Y = \beta_0 + \beta_1 X + \varepsilon</span>
+<ul>
+<li class="fragment"><span class="math inline">\beta_0</span>: mean <span class="math inline">Y</span> when <span class="math inline">X = 0</span></li>
+<li class="fragment"><span class="math inline">\beta_1</span>: difference in mean <span class="math inline">Y</span> between <span class="math inline">X = 1</span> and <span class="math inline">X = 0</span></li>
+</ul></li>
+</ul>
+</section>
+<section id="binary-regressor-in-r" class="slide level2">
+<h2>Binary regressor in R</h2>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a>dat <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a></a>  <span class="fu">mutate</span>(<span class="at">active =</span> exercise <span class="sc">&gt;=</span> <span class="dv">150</span>)</span>
+<span id="cb15-3"><a></a></span>
+<span id="cb15-4"><a></a>m_bin <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> active <span class="sc">+</span> age, <span class="at">data =</span> dat)</span>
+<span id="cb15-5"><a></a><span class="fu">summary</span>(m_bin)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = sbp ~ active + age, data = dat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-23.3372  -5.9055  -0.2551   5.5998  26.5244 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 116.26980    1.27760  91.006  &lt; 2e-16 ***
+activeTRUE   -2.74654    0.74002  -3.711 0.000225 ***
+age           0.25199    0.02218  11.362  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 8.4 on 597 degrees of freedom
+Multiple R-squared:  0.2143,    Adjusted R-squared:  0.2117 
+F-statistic: 81.41 on 2 and 597 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment">Coefficient on active is a mean difference.</li>
+<li class="fragment">Controls work exactly as before.</li>
+</ul>
+</section>
+<section id="interpreting-a-categorical-regressor" class="slide level2">
+<h2>Interpreting a categorical regressor</h2>
+<ul>
+<li class="fragment">Suppose <span class="math inline">X</span> is grouped into:
+<ul>
+<li class="fragment">none: patient does not exercise</li>
+<li class="fragment">some: patient exercises less than 150 minutes per week</li>
+<li class="fragment">high: patient exercises 150+ minutes per week</li>
+</ul></li>
+<li class="fragment">One category is omitted and becomes the <strong>reference group</strong></li>
+<li class="fragment">Each coefficient compares a category to that reference</li>
+<li class="fragment">You cannot include all categories simultaneously: doing so would create <strong>perfect multicollinearity</strong> (the dummies sum to one)</li>
+</ul>
+</section>
+<section id="categorical-regressors-in-r" class="slide level2">
+<h2>Categorical regressors in R</h2>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a>dat <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-3"><a></a>    <span class="at">exercise_cat =</span> <span class="fu">case_when</span>(</span>
+<span id="cb17-4"><a></a>      exercise <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"none"</span>,</span>
+<span id="cb17-5"><a></a>      exercise <span class="sc">&lt;</span> <span class="dv">150</span> <span class="sc">~</span> <span class="st">"some"</span>,</span>
+<span id="cb17-6"><a></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"high"</span></span>
+<span id="cb17-7"><a></a>    ),</span>
+<span id="cb17-8"><a></a>    <span class="at">exercise_cat =</span> <span class="fu">factor</span>(exercise_cat)</span>
+<span id="cb17-9"><a></a>  )</span>
+<span id="cb17-10"><a></a></span>
+<span id="cb17-11"><a></a>m_cat <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> exercise_cat <span class="sc">+</span> age, <span class="at">data =</span> dat)</span>
+<span id="cb17-12"><a></a><span class="fu">summary</span>(m_cat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = sbp ~ exercise_cat + age, data = dat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-23.2064  -5.9029  -0.2069   5.6273  26.7063 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)      113.61185    1.23175  92.236  &lt; 2e-16 ***
+exercise_catnone   4.58245    1.71140   2.678 0.007619 ** 
+exercise_catsome   2.62028    0.74734   3.506 0.000489 ***
+age                0.25016    0.02222  11.256  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 8.397 on 596 degrees of freedom
+Multiple R-squared:  0.2162,    Adjusted R-squared:  0.2122 
+F-statistic: 54.78 on 3 and 596 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment">What is the omitted category?</li>
+</ul>
+</section>
+<section id="specifying-the-reference-category" class="slide level2">
+<h2>Specifying the reference category</h2>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a>dat <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb19-3"><a></a>    <span class="at">exercise_cat =</span> <span class="fu">case_when</span>(</span>
+<span id="cb19-4"><a></a>      exercise <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"none"</span>,</span>
+<span id="cb19-5"><a></a>      exercise <span class="sc">&lt;</span> <span class="dv">150</span> <span class="sc">~</span> <span class="st">"some"</span>,</span>
+<span id="cb19-6"><a></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"high"</span></span>
+<span id="cb19-7"><a></a>    ),</span>
+<span id="cb19-8"><a></a>    <span class="at">exercise_cat =</span> <span class="fu">factor</span>(exercise_cat, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"none"</span>, <span class="st">"some"</span>, <span class="st">"high"</span>))</span>
+<span id="cb19-9"><a></a>  )</span>
+<span id="cb19-10"><a></a></span>
+<span id="cb19-11"><a></a>m_cat <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> exercise_cat <span class="sc">+</span> age, <span class="at">data =</span> dat)</span>
+<span id="cb19-12"><a></a><span class="fu">summary</span>(m_cat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = sbp ~ exercise_cat + age, data = dat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-23.2064  -5.9029  -0.2069   5.6273  26.7063 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)      118.19431    2.06110  57.345  &lt; 2e-16 ***
+exercise_catsome  -1.96217    1.64938  -1.190  0.23466    
+exercise_cathigh  -4.58245    1.71140  -2.678  0.00762 ** 
+age                0.25016    0.02222  11.256  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 8.397 on 596 degrees of freedom
+Multiple R-squared:  0.2162,    Adjusted R-squared:  0.2122 
+F-statistic: 54.78 on 3 and 596 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment">First level of factor variable will always be the reference</li>
+</ul>
+</section></section>
+<section>
+<section id="polynomials" class="title-slide slide level1 center">
+<h1>Polynomials</h1>
+
+</section>
+<section id="functional-form" class="slide level2">
+<h2>Functional form</h2>
+<ul>
+<li class="fragment">Sometimes a straight line is not a good description of the relationship.</li>
+<li class="fragment">As long as the nonlinearity is on the <strong>right-hand side</strong>, OLS still works.</li>
+<li class="fragment">We fix this by letting <span class="math inline">X</span> enter nonlinearly via <strong>transformations</strong>.</li>
+<li class="fragment">The two most common: <strong>polynomials</strong> and <strong>logarithms</strong>.</li>
+</ul>
+</section>
+<section id="functional-form-1" class="slide level2">
+<h2>Functional Form</h2>
+<ul>
+<li class="fragment">Why do this? Because sometimes a straight line is clearly not going to do the trick!</li>
+</ul>
+<div class="fragment">
+
+</div>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> X, <span class="at">y =</span> Y)) <span class="sc">+</span> </span>
+<span id="cb21-2"><a></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb21-3"><a></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> </span>
+<span id="cb21-4"><a></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> X, <span class="at">y =</span> <span class="fu">predict</span>(<span class="fu">lm</span>(Y<span class="sc">~</span>X<span class="sc">+</span><span class="fu">I</span>(X<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> df))), <span class="at">color =</span> <span class="st">'red'</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb21-5"><a></a>  <span class="fu">theme_metro</span>() <span class="sc">+</span> </span>
+<span id="cb21-6"><a></a>  <span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">'text'</span>, <span class="at">x =</span> <span class="fl">2.5</span>, <span class="at">y =</span> <span class="sc">-</span><span class="dv">20</span>, <span class="at">label =</span> <span class="st">'Straight Line'</span>, <span class="at">color =</span> <span class="st">'blue'</span>, <span class="at">size =</span> <span class="dv">15</span><span class="sc">/</span>.pt) <span class="sc">+</span> </span>
+<span id="cb21-7"><a></a>  <span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">'text'</span>, <span class="at">x =</span> <span class="dv">3</span>, <span class="at">y =</span> <span class="sc">-</span><span class="dv">9</span>, <span class="at">label =</span> <span class="st">'Quadratic'</span>, <span class="at">color =</span> <span class="st">'red'</span>, <span class="at">size =</span> <span class="dv">15</span><span class="sc">/</span>.pt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-17-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="interpreting-polynomials" class="slide level2">
+<h2>Interpreting polynomials</h2>
+<ul>
+<li class="fragment">With polynomials, the effect of <span class="math inline">X</span> depends on the value of <span class="math inline">X</span>.</li>
+<li class="fragment">Interpret effects using the <strong>derivative</strong>. <span class="math display"> Y = \beta_1 X + \beta_2 X^2</span> <span class="math display">\frac{\partial Y}{\partial X} = \beta_1 + 2\beta_2 X</span></li>
+<li class="fragment">The slope changes with <span class="math inline">X</span>.</li>
+<li class="fragment">Individual coefficients are not meaningful on their own.</li>
+<li class="fragment">Test polynomial terms <strong>jointly</strong>, not one by one.</li>
+</ul>
+</section>
+<section id="polynomials-in-r" class="slide level2">
+<h2>Polynomials in R</h2>
+<ul>
+<li class="fragment">We can add an <code>I()</code> function to our regression to do a calculation on a variable before including it. So <code>I(X^2)</code> adds a squared term</li>
+<li class="fragment">There’s also a <code>poly()</code> function but you <strong>must</strong> set <code>raw=TRUE</code> if you do</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a><span class="co"># Linear</span></span>
+<span id="cb22-2"><a></a><span class="fu">lm</span>(Y <span class="sc">~</span> X, <span class="at">data =</span> df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Y ~ X, data = df)
+
+Coefficients:
+(Intercept)            X  
+      7.285       -8.934  </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a><span class="co"># Quadratic</span></span>
+<span id="cb24-2"><a></a><span class="fu">lm</span>(Y <span class="sc">~</span> X <span class="sc">+</span> <span class="fu">I</span>(X<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Y ~ X + I(X^2), data = df)
+
+Coefficients:
+(Intercept)            X       I(X^2)  
+    -0.1295       0.9779      -2.0028  </code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="higher-order-polynomials" class="slide level2">
+<h2>Higher order polynomials</h2>
+<ul>
+<li class="fragment">Adding terms makes the relationship more flexible.
+<ul>
+<li class="fragment"><span class="math inline">\beta_1 X</span>: linear (first order)</li>
+<li class="fragment"><span class="math inline">\beta_1 X + \beta_2 X^2</span>: quadratic (second order)</li>
+<li class="fragment"><span class="math inline">\beta_1 X + \beta_2 X^2 + \beta_3 X^3</span>: cubic</li>
+</ul></li>
+<li class="fragment">In practice, <strong>quadratics are usually enough</strong>.</li>
+<li class="fragment">Higher-order terms often add noise and hurt interpretation.</li>
+</ul>
+</section></section>
+<section>
+<section id="log-transformations" class="title-slide slide level1 center">
+<h1>Log transformations</h1>
+
+</section>
+<section id="log-transformations-1" class="slide level2">
+<h2>Log transformations</h2>
+<ul>
+<li class="fragment">Sometimes a linear relationship in levels is a poor approximation.</li>
+<li class="fragment">Common reasons to transform variables:
+<ul>
+<li class="fragment">diminishing returns</li>
+<li class="fragment">skewed distributions</li>
+<li class="fragment">interest in percentage changes</li>
+</ul></li>
+</ul>
+</section>
+<section id="log-transformations-2" class="slide level2">
+<h2>Log transformations</h2>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-19-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="log-transformations-3" class="slide level2">
+<h2>Log transformations</h2>
+<ul>
+<li class="fragment">Notice the change in axes</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-20-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="interpreting-logarithms" class="slide level2">
+<h2>Interpreting logarithms</h2>
+<ul>
+<li class="fragment">Logs turn changes in a variable into <strong>percentage changes</strong>.</li>
+<li class="fragment">Key idea: <span class="math inline">\Delta\log(X)\approx \%\Delta X</span></li>
+<li class="fragment">This approximation works well for <strong>small changes</strong> (e.g.&nbsp;1–10%)</li>
+<li class="fragment">Linear-log regression
+<ul>
+<li class="fragment"><span class="math inline">Y = \beta_0 + \beta_1 \log(X)</span><br>
+</li>
+<li class="fragment">1% increase in <span class="math inline">X</span> is associated with a <span class="math inline">\beta_1/100</span> unit change in <span class="math inline">Y</span></li>
+</ul></li>
+<li class="fragment">Log-linear regression
+<ul>
+<li class="fragment"><span class="math inline">\log(Y) = \beta_0 + \beta_1 X</span></li>
+<li class="fragment">One-unit increase in <span class="math inline">X</span> is associated with a <span class="math inline">\beta_1 \times 100\%</span> change in <span class="math inline">Y</span></li>
+</ul></li>
+<li class="fragment">Log-log regression
+<ul>
+<li class="fragment"><span class="math inline">\log(Y) = \beta_0 + \beta_1 \log(X)</span></li>
+<li class="fragment">1% increase in <span class="math inline">X</span> is associated with a <span class="math inline">\beta_1\%</span> change in <span class="math inline">Y</span></li>
+</ul></li>
+<li class="fragment">For large changes, interpret exactly:
+<ul>
+<li class="fragment"><span class="math inline">\log(Y) = \beta_0 + \beta_1 X</span>: 1 unit increase in <span class="math inline">X</span> is associated with <span class="math inline">(e^{\beta_1}-1)\times 100\%</span> increase in <span class="math inline">Y</span></li>
+<li class="fragment"><span class="math inline">Y = \beta_0 + \beta_1 \log(X)</span>: Going from <span class="math inline">X_0</span> to <span class="math inline">X_1</span> is associated with an increase in <span class="math inline">Y</span> of <span class="math inline">\beta_1[\log(X_1)/\log(X_0)]</span></li>
+<li class="fragment"><span class="math inline">\log(Y) = \beta_0 + \beta_1 \log(X)</span>: A 1% increase in <span class="math inline">X</span> is associated with a <span class="math inline">(1.01^\beta_1-1)\times 100\%</span> change in <span class="math inline">Y</span></li>
+</ul></li>
+</ul>
+</section>
+<section id="log-model-in-r" class="slide level2">
+<h2>Log model in R</h2>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a>m_log <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(sbp) <span class="sc">~</span> exercise <span class="sc">+</span> age, <span class="at">data =</span> dat)</span>
+<span id="cb26-2"><a></a><span class="fu">summary</span>(m_log)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = log(sbp) ~ exercise + age, data = dat)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.188030 -0.044526  0.000717  0.044342  0.180647 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  4.778e+00  1.181e-02 404.407  &lt; 2e-16 ***
+exercise    -1.802e-04  4.196e-05  -4.295 2.04e-05 ***
+age          1.859e-03  1.742e-04  10.668  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.06484 on 597 degrees of freedom
+Multiple R-squared:  0.2179,    Adjusted R-squared:  0.2153 
+F-statistic: 83.15 on 2 and 597 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment">The coefficient on exercise is -0.00018.</li>
+<li class="fragment">This means:
+<ul>
+<li class="fragment">1 minute more per week of exercise <span class="math inline">\rightarrow \quad \approx</span> 0.018% lower BP</li>
+<li class="fragment">100 minutes more per week of exercise <span class="math inline">\rightarrow \quad \approx</span> 1.8% lower BP</li>
+</ul></li>
+</ul>
+</section>
+<section id="downsides-of-logarithms" class="slide level2">
+<h2>Downsides of logarithms</h2>
+<ul>
+<li class="fragment">Logarithms require that all data be positive. No negatives or zeroes!</li>
+<li class="fragment">Zeroes are common! A common practice is to just do <span class="math inline">log(X+1)</span> or <span class="math inline">asinh(X)=\ln(X+\sqrt{X^2+1})</span> but these are pretty arbitrary</li>
+<li class="fragment">On the left-hand side at least, better to deal with 0s with Poisson regression</li>
+</ul>
+</section>
+<section id="functional-form-takeaways" class="slide level2">
+<h2>Functional form takeaways</h2>
+<ul>
+<li class="fragment">In general, you want the shape of your function to match the shape of the relationship in the data (or, even better, the true relationship)</li>
+<li class="fragment">Polynomials and logs can usually get you there!</li>
+<li class="fragment">Which to use? Use logs for highly skewed data or variables with exponential relationships</li>
+<li class="fragment">Use polynomials if it doesn’t look straight! <strong>Check that scatterplot and see how not-straight it is!</strong></li>
+</ul>
+</section></section>
+<section>
+<section id="interactions" class="title-slide slide level1 center">
+<h1>Interactions</h1>
+
+</section>
+<section id="interactions-1" class="slide level2">
+<h2>Interactions</h2>
+<ul>
+<li class="fragment">Sometimes the effect of <span class="math inline">X</span> depends on another variable.</li>
+<li class="fragment">Example: Exercise may reduce blood pressure more (or less) for younger patients than for older patients</li>
+<li class="fragment">Interaction model <span class="math display">
+Y = \beta_0  + \beta_1 X + \beta_2 Z + \beta_3 (X \times Z) + \varepsilon
+</span>
+<ul>
+<li class="fragment"><span class="math inline">\beta_1</span>: effect of <span class="math inline">X</span> when <span class="math inline">Z = 0</span></li>
+<li class="fragment"><span class="math inline">\beta_3</span>: how the effect of <span class="math inline">X</span> changes with <span class="math inline">Z</span></li>
+</ul></li>
+</ul>
+</section>
+<section id="interaction-in-r" class="slide level2">
+<h2>Interaction in R</h2>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a>m_int <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> exercise <span class="sc">*</span> age, <span class="at">data =</span> dat)</span>
+<span id="cb28-2"><a></a><span class="fu">summary</span>(m_int)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = sbp ~ exercise * age, data = dat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-22.5512  -5.6554  -0.2441   5.5699  25.1168 
+
+Coefficients:
+               Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   1.162e+02  2.606e+00  44.582  &lt; 2e-16 ***
+exercise     -2.479e-03  1.834e-02  -0.135    0.893    
+age           2.881e-01  4.484e-02   6.425  2.7e-10 ***
+exercise:age -4.001e-04  3.355e-04  -1.193    0.234    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 8.364 on 596 degrees of freedom
+Multiple R-squared:  0.2224,    Adjusted R-squared:  0.2184 
+F-statistic: 56.81 on 3 and 596 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment">Main effects and interaction terms must be interpreted <strong>together</strong></li>
+<li class="fragment">The coefficient on exercise alone is no longer the “average effect”</li>
+</ul>
+</section>
+<section id="visualising-interactions" class="slide level2">
+<h2>Visualising interactions</h2>
+<ul>
+<li class="fragment">Different slopes show how the effect of exercise depends on age</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="health_analytics_05_linear_reg_files/figure-revealjs/unnamed-chunk-23-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="notes-on-interactions" class="slide level2">
+<h2>Notes on interactions</h2>
+<p><span class="math display">
+Y = \beta_0  + \beta_1 X + \beta_2 Z + \beta_3 (X \times Z) + \varepsilon
+</span></p>
+<ul>
+<li class="fragment">The coefficients on their own now have little meaning and must be evaluated alongside each other. <span class="math inline">\beta_1</span> by itself is just “the effect of <span class="math inline">X</span> when <span class="math inline">Z = 0</span>”, not “the effect of <span class="math inline">X</span>”</li>
+<li class="fragment">Yes usually want to include both variables in un-interacted form and interacted form.</li>
+<li class="fragment">Interaction effects are <em>poorly powered</em>. You need a <em>lot</em> of data to be able to tell whether an effect is different in two groups.</li>
+</ul>
+</section>
+<section id="key-takeaways" class="slide level2">
+<h2>Key Takeaways</h2>
+<ul>
+<li class="fragment">A linear regression model of <span class="math inline">Y</span> on <span class="math inline">X</span> fits a straight line: <span class="math inline">Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i</span>
+<ul>
+<li class="fragment"><span class="math inline">\beta_1</span> is the slope of this line: the average change in <span class="math inline">Y</span> associated with a one-unit increase in <span class="math inline">X</span></li>
+</ul></li>
+<li class="fragment">How <span class="math inline">X</span> is coded matters for interpretation (levels, logs, binary/categorical variables)<br>
+</li>
+<li class="fragment">In a multivariate regression, <span class="math inline">Y_i = \beta_0 + \beta_1 X_i + \beta_2 Z_i + \varepsilon_i</span>
+<ul>
+<li class="fragment"><span class="math inline">\beta_1</span> measures the relationship between <span class="math inline">X</span> and <span class="math inline">Y</span> adjusting for <span class="math inline">Z</span></li>
+</ul></li>
+<li class="fragment">Controls address confounding only under conditional mean independence: <span class="math inline">\mathbb{E}[\varepsilon_i \mid X_i, Z_i] = 0</span></li>
+<li class="fragment">Omitted variable bias arises if relevant confounders are excluded and correlated with <span class="math inline">X</span><br>
+</li>
+<li class="fragment">Measurement error in regressors can bias coefficients towards zero</li>
+<li class="fragment">Controlling for the wrong variables can introduce bias:
+<ul>
+<li class="fragment">Conditioning on colliders opens spurious correlations<br>
+</li>
+<li class="fragment">Controlling for post-treatment variables blocks part of the causal effect</li>
+</ul></li>
+</ul>
+</section>
+<section id="coming-next" class="slide level2">
+<h2>Coming Next</h2>
+<ul>
+<li class="fragment">How to quantify uncertainty around estimated coefficients<br>
+</li>
+<li class="fragment">How to interpret standard errors, t-statistics, p-values, and confidence intervals</li>
+<li class="fragment">Testing single and multiple hypotheses using t-tests and F-tests<br>
+</li>
+<li class="fragment">Reading regression tables critically</li>
+</ul>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1600,
+
+        height: 900,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

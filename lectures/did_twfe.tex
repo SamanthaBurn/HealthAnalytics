@@ -1,0 +1,24 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Difference-in-differences Estimate of the Effect of Active-Choice Phrasing on Organ Donor Rates},
+note{}={+ p \num{< 0.1}, * p \num{< 0.05}, ** p \num{< 0.01}, *** p \num{< 0.001}},
+note{ }={Standard errors clustered at the state level.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]},
+column{2}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{4}={1,2}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Organ Donation Rate \\ \midrule %% TinyTableHeader
+Treatment   & \num{-0.022}  \\
+& (\num{0.020}) \\
+Num.Obs.    & \num{162}     \\
+RMSE        & \num{0.02}    \\
+FE: State   & X              \\
+FE: Quarter & X              \\
+\bottomrule
+\end{talltblr}
+\end{table}

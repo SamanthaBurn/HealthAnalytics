@@ -1,0 +1,72 @@
+/* --- Typography (from beamerthemeImperial.sty) --- */
+/* Uses Imperial Sans Text if installed; otherwise falls back to a close sans stack */
+.reveal {
+  font-family: "Imperial Sans Text", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 28px;
+  color: #000000;
+}
+
+/* Monospace (the Imperial theme uses the same family for \texttt, but code is
+   far more readable in a real mono font, so we keep a proper monospace here) */
+.reveal code, .reveal pre {
+  font-family: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* --- Slide margins (16:9 → 4.18 mm ≈ 0.26% of 1600 px) --- */
+.reveal .slides > section,
+.reveal .slides > section > section {
+  padding-left: 0.26%;
+  padding-right: 0.26%;
+}
+
+/* --- Paragraph spacing (10 pt between paragraphs) --- */
+.reveal p {
+  margin-bottom: 10pt;
+}
+
+/* --- Title slide --- */
+.reveal .slides section:first-of-type h1 {
+  color: #003A8F;
+  font-weight: 700;
+}
+
+.reveal .slides section:first-of-type h2 {
+  color: #6A7FDB;
+  font-weight: 400;
+}
+
+/* --- Slide titles --- */
+.reveal h2 {
+  color: #003A8F;
+  font-weight: 700;
+  margin-bottom: 0.6em;
+}
+
+/* --- Bullet points --- */
+.reveal ul {
+  list-style-type: disc;
+  margin-left: 1.2em;
+}
+
+.reveal li {
+  margin-bottom: 0.4em;
+}
+
+/* --- Emphasis (bold bullets) --- */
+.reveal strong {
+  font-weight: 700;
+}
+
+/* --- Footer --- */
+.reveal .slide-number {
+  color: #003A8F;
+  font-size: 14px;
+}
+
+.reveal .footer {
+  position: absolute;
+  bottom: 15px;
+  left: 30px;
+  font-size: 14px;
+  color: #003A8F;
+}

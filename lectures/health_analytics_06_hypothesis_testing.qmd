@@ -1,0 +1,915 @@
+---
+title: "Introduction to Health Analytics"
+subtitle: "Linear Regression: Uncertainty and Hypothesis Testing"
+author: "Dr. Sam Burn"
+format:
+  revealjs:
+    theme: simple
+    html-math-method: katex
+    css: burn_slides.css
+    slide-number: true
+    incremental: true
+    transition: fade
+    width: 1600
+    height: 900
+    toc: true
+    toc-title: "Today"
+    toc-depth: 1
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(fixest)
+library(patchwork)
+library(gghighlight)
+library(jtools)
+library(ggthemes)
+library(dagitty)
+library(gganimate)
+library(ggdag)
+library(ggpubr)
+library(car)
+library(fixest)
+library(scales)
+library(magick)
+theme_metro <- function() {
+theme_classic() +
+theme(
+panel.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+plot.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+text = element_text(size = 16),
+axis.title.x = element_text(hjust = 1),
+axis.title.y = element_text(hjust = 1, angle = 0)
+)
+}
+theme_void_metro <- function(x) {
+  theme_void() + 
+  theme(panel.background = element_rect(color = '#FAFAFA',fill='#FAFAFA'),
+        plot.background = element_rect(color = '#FAFAFA',fill='#FAFAFA'),
+        text = element_text(size = 16))
+}
+theme_metro_regtitle <- function() {
+theme_classic() +
+theme(
+panel.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+plot.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+text = element_text(size = 16)
+)
+}
+# Plot theme (light, lecture-friendly)
+theme_lecture <- function() {
+  theme_classic(base_size = 22) +
+    theme(
+      plot.background  = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+      panel.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"),
+      axis.title.x = element_text(hjust = 1),
+      axis.title.y = element_text(hjust = 1, angle = 0)
+    )
+}
+
+set.seed(123)
+n <- 600
+
+# Working example data (simulated but realistic enough for teaching)
+# Outcome: systolic blood pressure (SBP)
+# Main regressor: minutes of exercise/week (exercise_min)
+# Controls: age, gender, SES index
+# DGP feature: exercise reduces BP more for older people (age×exercise interaction)
+
+set.seed(123)
+n <- 600
+
+dat <- tibble(
+  age = round(runif(n, 25, 80)),
+  gender = factor(sample(c("Women", "Men"), n, replace = TRUE)),
+  ses = rnorm(n)   # higher = higher SES
+) %>%
+  mutate(
+    male = as.integer(gender == "Men"),
+    age_c = age - 50,  # centered age for interpretable interactions
+
+    # Baseline SBP level (no separate sbp0 object)
+    # Parametric age and age×gender interaction chosen to roughly match:
+    # 18–39: Men > Women
+    # 40–59: Similar
+    # 60+: Women > Men
+    sbp_base =
+      108 +                      # baseline (young women)
+      0.45 * age +               # age slope (women)
+      10 * male +                # male intercept premium at young ages
+      (-0.25) * age * male +     # shrinking & reversing gender gap
+      (-2.0) * ses,
+
+    # Exercise process (same as before)
+    exercise = pmax(
+      0,
+      round(120 + 1.3 * (50 - age) + 25 * ses + rnorm(n, sd = 60))
+    ),
+
+    # SBP with heterogeneous (stronger-for-older) exercise effect
+    # Effect of exercise on SBP:
+    #   at age 50:   -0.01 per minute
+    #   at age 70:   -0.01 - 0.0006*20 = -0.022 per minute
+    #   at age 30:   -0.01 - 0.0006*(-20) = +0.002 per minute (≈ zero)
+    sbp =
+      sbp_base +
+      (-0.01)   * exercise +
+      (-0.0006) * exercise * age_c +
+      rnorm(n, sd = 8),
+
+    exercise_any = as.integer(exercise >= 150),
+    exercise_cat = cut(
+      exercise,
+      breaks = c(-Inf, 30, 150, 300, Inf),
+      labels = c("Sedentary (0–30)", "Low (30–150)", "Moderate (150–300)", "High (300+)")
+    ),
+
+    age_band = cut(
+      age,
+      breaks = c(-Inf, 39, 59, Inf),
+      labels = c("18–39", "40–59", "60+")
+    )
+  ) %>%
+  select(-sbp_base)  # drop helper column; keep male/age_c if you like
+
+```
+
+
+## Course road map
+
+| Lecture | Topic |
+| --- | --- |
+| 1 | Introduction to health data & R |
+| 2 | Data visualization |
+| 3 | Data wrangling & exploratory data analysis |
+| 4 | Causal inference |
+| 5 | Linear regression |
+| [**6**]{style="color: #C8102E"} | [**Linear regression: uncertainty & hypothesis testing**]{style="color: #C8102E"} |
+| 7 | Panel data: difference-in-differences & fixed effects |
+| 8 | Limited dependent variables: LPM, logit, probit |
+| 9 | Introduction to machine learning for health analytics |
+| 10 | Course review |
+
+## The health analytics pipeline
+
+::: {.centered-fig .nonincremental}
+![](images/lec01_slide11_a.png){width="80%"}
+:::
+
+# Linear regression: sampling variation
+## Where we are in the course
+
+- You have already seen:
+  - Ordinary Least Squares (OLS)
+  - How to run a regression in R
+  - How to interpret coefficients 
+- Today we go deeper on:
+  - What regression coefficients *mean*
+  - Why estimates vary across samples
+  - How hypothesis testing works in regression
+  - How to interpret uncertainty in applied work
+  
+## Recap
+
+- Ordinary least squares fits a *straight line* to explain the relationship between 2 or more variables
+- It picks the straight line that minimizes the *sum of squared residuals*
+- That line has an intercept $\beta_0$ (Our prediction $\widehat{Y}$ when $X = 0$) and a slope $\beta_1$
+- The *residual* is the difference between our prediction $\widehat{Y} = \widehat{\beta}_0 + \widehat{\beta}_1X$ and the actual number $Y$
+
+$$ Y = \beta_0 + \beta_1 X + \varepsilon $$
+$$ \widehat{Y} = \widehat{\beta}_0 + \widehat{\beta}_1X $$
+
+## Error
+
+- We posit that there is a true *data-generating process* $Y = \beta_0 + \beta_1 X + \varepsilon$
+- The parameters $\beta_0$ and $\beta_1$ are fixed but unknown
+- Our goal is to learn about these unknown parameters
+- The estimates  $\widehat{\beta}_0$ and $\widehat{\beta}_1$ are our *best guesses* at what those true parameters are
+- The difference between our *estimate* $\hat{\beta}_1$ and the actual true $\beta_1$ is the *error*
+- There are two main sources of error in our estimates: 
+  - *Bias:* Systematic deviation from the true parameter. We talked about this last time!
+  - *Sampling variation:* Random differences across samples. Present even under a correctly specified model. This is the subject of today's lecture
+
+## Sampling Variation
+
+- Even if the model is correct, different random samples of data will give different $\widehat{\beta}_0$ and $\widehat{\beta}_1$
+- The variation in $\widehat{\beta}_0$ and $\widehat{\beta}_1$ that occur purely because of that random sampling is called **sampling variation**.
+
+## Sampling Variation
+
+- Let's simulate data so we can understand what drives sampling variation
+- The true data-generating process is
+$$Y_i = 3 + 2X_i + \varepsilon_i,\qquad \varepsilon_i \sim N(0,\sigma^2)$$
+- We begin with one sample of $n=100$ observations and estimate OLS:
+  - $\widehat{\beta}_0$ will generally be close to $3$
+  - $\widehat{\beta}_1$ will generally be close to $2$
+  - but not exactly equal, because we have sampling noise
+  
+
+## Sampling Variation
+
+::: {.fragment}
+```{r}
+set.seed(1234)
+tb <- tibble(X = rnorm(100)) %>%
+  mutate(group_num = floor((row_number()-1)/2)) %>%
+  mutate(Y = 3 + 2*X + rnorm(100)) 
+
+ggplot(tb, aes(x = X, y = Y)) + 
+  geom_point(size = 3) + 
+  theme_metro() + 
+  geom_smooth(method = 'lm', se = FALSE) 
+```
+:::
+## Sampling Variation
+
+- Take a random subsample of the data with $n=20$ observations and estimate $\widehat{\beta}_1$
+- Do this many times and plot the distribution of the $\widehat{\beta}_1$ estimates
+
+:::: {.columns}
+::: {.column .fragment width="50%"}
+```{r}
+set.seed(1234)
+
+draw_beta_n20 <- function(reps = 500) {
+  1:reps %>%
+    purrr::map(function(i) {
+      X <- rnorm(20)
+      Y <- 3 + 2 * X + rnorm(20)
+      coef(lm(Y ~ X))[2]
+    }) %>%
+    unlist()
+}
+beta_n20 <- draw_beta_n20()
+```
+:::
+
+::: {.column .fragment width="50%"}
+```{r,echo=FALSE}
+ggplot(tibble(beta_hat = beta_n20), aes(x = beta_hat)) +
+  geom_density(size = 1.2) +
+  geom_vline(xintercept = 2, linetype = "dashed", color = "red") +
+  annotate("label", x = 2, y = 0.9, label = "True value", size = 6) +
+  theme_metro() +
+  labs(
+    x = expression(hat(beta)[1]),
+    y = "Density"
+  )
+```
+:::
+::::
+
+## Sampling distributions
+
+- Because we work with samples, OLS coefficients (e.g. $\widehat{\beta}_1$) are random variables
+- Repeated samples from the same population produce a sampling distribution for $\widehat{\beta}_1$
+- Under standard assumptions:
+  - this sampling distribution is approximately normal
+  - the approximation improves as sample size increases (Central Limit Theorem)
+- If the estimator is unbiased:
+  - the center of the distribution is the true parameter value $\beta_1$
+- The spread of the sampling distribution (the standard error) depends on:
+  - sample size ($n$)
+  - noise in outcomes ($\varepsilon$)
+  - variation in $X$
+  
+## Distribution of OLS coefficient
+
+- Under standard regularity conditions, the OLS slope estimator has the sampling distribution
+$$
+\widehat{\beta}_1 \;\sim\; N\!\left(\beta_1,\; \frac{\sigma^2_\varepsilon}{N \times \operatorname{Var}(X)}\right)
+$$
+
+- The **mean** of the sampling distribution is the true parameter $\beta_1$ (unbiased)
+
+- The **standard deviation of the sampling distribution** of $\hat{\beta}_1$ is called the **standard error** 
+
+- Standard error:
+  - **decreases** with sample size $N$  
+  - **decreases** with variation in the regressor $\operatorname{Var}(X)$  
+  - **increases** with variation in the error term $\sigma^2_\varepsilon$  
+
+- In general we don't know $\sigma^2_\varepsilon$ so we estimate is using the residuals from the regression:
+$$
+\widehat{\sigma}^2_\varepsilon = \frac{1}{N-k}\sum_{i=1}^N \widehat{\varepsilon}_i^2
+$$
+where $k$ is the number of estimated parameters (including the intercept)
+
+## Large vs small samples
+
+- Now we take small random subsamples of size $n=10$ and $n=20$
+- Larger $n$ produces a tighter distribution around the true value
+
+::: {.fragment}
+```{r, echo=FALSE}
+set.seed(1234)
+
+draw_beta <- function(n, reps = 500) {
+  1:reps %>%
+    map(function(i) {
+      X <- rnorm(n)
+      Y <- 3 + 2 * X + rnorm(n)
+      coef(lm(Y ~ X))[2]
+    }) %>%
+    unlist()
+}
+
+beta_n10 <- draw_beta(n = 10)
+beta_n20 <- draw_beta(n = 20)
+
+dens_df <- tibble(
+  beta_hat = c(beta_n10, beta_n20),
+  n = rep(c("n = 10", "n = 20"),
+          times = c(length(beta_n10), length(beta_n20)))
+)
+
+ggplot(dens_df, aes(x = beta_hat, linetype = n)) +
+  geom_density(size = 1.2) +
+  geom_vline(xintercept = 2, linetype = "dashed", color = "red") +
+  annotate("label", x = 2, y = 0.9, label = "True value", size = 6) +
+  theme_metro() +
+  labs(
+    x = expression(hat(beta)[1]),
+    y = "Density",
+    linetype = "Sample size"
+  )
+```
+:::
+## Noise in $\varepsilon$: high vs low variance
+
+- We hold the sample size fixed at $n=20$ and vary only the amount of idiosyncratic noise.
+- Higher variance in $\varepsilon$ means outcomes are “noisier” conditional on $X$.
+- Larger noise in $\varepsilon$ produces a wider sampling distribution of $\widehat{\beta}_1$.
+
+::: {.fragment}
+```{r, echo=FALSE}
+set.seed(1234)
+
+draw_beta_eps <- function(n = 20, reps = 500, sigma_eps = 1) {
+  1:reps %>%
+    purrr::map(function(i) {
+      X <- rnorm(n)
+      Y <- 3 + 2 * X + rnorm(n, sd = sigma_eps)
+      coef(lm(Y ~ X))[2]
+    }) %>%
+    unlist()
+}
+
+beta_low_eps  <- draw_beta_eps(n = 20, reps = 500, sigma_eps = 1)
+beta_high_eps <- draw_beta_eps(n = 20, reps = 500, sigma_eps = 4)
+
+dens_df_eps <- tibble(
+  beta_hat = c(beta_low_eps, beta_high_eps),
+  eps_sd = rep(c("Low noise: sd(epsilon) = 1", "High noise: sd(epsilon) = 4"),
+               times = c(length(beta_low_eps), length(beta_high_eps)))
+)
+
+ggplot(dens_df_eps, aes(x = beta_hat, linetype = eps_sd)) +
+  geom_density(size = 1.2) +
+  geom_vline(xintercept = 2, linetype = "dashed", color = "red") +
+  annotate("label", x = 2, y = 0.9, label = "True value", size = 6) +
+  theme_metro() +
+  labs(
+    x = expression(hat(beta)[1]),
+    y = "Density",
+    linetype = "Noise level"
+  )
+```
+:::
+
+## Variation in $X$: high vs low variance
+
+- We again hold the sample size fixed at $n=20$ and hold $\text{Var}(\varepsilon)$ fixed.
+- Now we vary the amount of variation in $X$ across individuals.
+- More variation in $X$ makes $\beta_1$ easier to estimate, producing a tighter sampling distribution of $\widehat{\beta}_1$.
+
+::: {.fragment}
+```{r, echo=FALSE}
+set.seed(1234)
+
+draw_beta_x <- function(n = 20, reps = 500, sigma_x = 1, sigma_eps = 2) {
+1:reps %>%
+purrr::map(function(i) {
+X <- rnorm(n, sd = sigma_x)
+Y <- 3 + 2 * X + rnorm(n, sd = sigma_eps)
+coef(lm(Y ~ X))[2]
+}) %>%
+unlist()
+}
+
+beta_low_x  <- draw_beta_x(n = 20, reps = 500, sigma_x = 0.5, sigma_eps = 2)
+beta_high_x <- draw_beta_x(n = 20, reps = 500, sigma_x = 2.0, sigma_eps = 2)
+
+dens_df_x <- tibble(
+beta_hat = c(beta_low_x, beta_high_x),
+x_sd = rep(c("Low variation: sd(X) = 0.5", "High variation: sd(X) = 2.0"),
+times = c(length(beta_low_x), length(beta_high_x)))
+)
+
+ggplot(dens_df_x, aes(x = beta_hat, linetype = x_sd)) +
+geom_density(size = 1.2) +
+geom_vline(xintercept = 2, linetype = "dashed", color = "red") +
+annotate("label", x = 2, y = 0.9, label = "True value", size = 6) +
+theme_metro() +
+labs(
+x = expression(hat(beta)[1]),
+y = "Density",
+linetype = "Variation in X"
+)
+```
+:::
+
+# Getting standard errors right: heteroskedasticity and clustering
+## Heteroskedasticity
+
+- If the variance of the error term is different for different values of $X$, then we have "heteroskedasticity"
+- Notice in the below graph how the spread of the points around the line (the variance of the error term) is bigger for larger values of $x$
+
+::: {.fragment}
+```{r, echo=FALSE}
+set.seed(1022)
+tb <- tibble(X = runif(200)) %>%
+  mutate(Y = .75*X + rnorm(200,sd=2*X)) 
+tb %>%
+  ggplot(aes(x = X, y = Y)) + 
+  geom_point() +
+  geom_smooth(method = 'lm', se = FALSE) + 
+  theme_metro()
+```
+:::
+
+
+## Heteroskedasticity-robust standard errors
+
+- Correct for this using *heteroskedasticity-robust standard errors*:
+  - This does not change the point estimates of $\widehat{\beta}$!
+  - Reweights how much each observations contributes to our uncertainty about $\widehat{\beta}$
+  - Observations with large residuals contribute more to estimated uncertainty!
+
+- We can implement this in R using `feols()` from the **fixest** package:
+  - built-in support for **robust and clustered standard errors**
+  - easy inclusion of fixed effects (next topic)
+
+::: {.fragment}
+```{r, echo = TRUE}
+library(fixest)
+reg <- feols(Y~X, data = tb, vcov = 'hetero')
+etable(reg)
+```
+:::
+
+## Correlated and Clustered Errors
+
+- So far, we have assumed that error terms are independent across observations
+- If errors are **correlated with each other**, the usual OLS standard errors are wrong
+
+- This can happen if:
+  - **Clustering**: observations share a common environment (e.g. people in the same town, students in the same school) $\rightarrow$ errors correlated within groups
+  - **Time series / panels**: shocks persist over time $\rightarrow$ errors may be correlated across time (autocorrelation)
+
+- Correlation in errors does **not bias** the OLS coefficients but it does affect how much independent information the data contain  
+
+- For clustered data, we can implement **cluster-robust standard errors** in `feols()`
+
+::: {.fragment}
+```{r, eval = FALSE}
+reg_cluster <- feols(Y ~ X, data = tb, vcov = ~cluster_variable)
+```
+:::
+
+# Hypothesis Testing
+
+## What Is Hypothesis Testing?
+
+- Hypothesis testing provides a formal framework for determining whether observed patterns in data are plausibly due to sampling variation, or whether they constitute evidence against a benchmark assumption
+
+- The basic components of a hypothesis test are:
+  - A null hypothesis (H0)
+  - An alternative hypothesis (H1)
+  - A test statistic
+  - A reference (null) distribution
+  - A decision rule
+
+## Null and Alternative Hypotheses
+
+- The null hypothesis (H0) is a precise statement about a parameter, typically representing no effect or no difference.
+- The alternative hypothesis (H1) represents a competing claim
+- Example:
+  - H0: $\beta_1 = 0$
+  - H1: $\beta_1 \neq 0$
+- The hypothesis testing logic is:
+  1. Assume the null hypothesis is true
+  2. Derive the distribution of an estimator under that assumption
+  3. Ask how likely the observed estimate would be under this distribution
+  4. Reject the null if the observation is sufficiently unlikely
+- "Unlikely" is defined using a significance threshold.
+
+## Significance Levels
+
+- The significance level $\alpha$ is the probability of rejecting a true null hypothesis.
+- Common choices: $\alpha = 0.01$, $\alpha = 0.05$, $\alpha = 0.1$ (often written as 1\%, 5\% and 10\%)
+- The p-value is defined as:
+$$
+\text{p-value}
+=
+\Pr\left(
+\text{observing data at least as extreme as what we saw}
+\middle|
+H_0
+\right)
+$$
+- A small p-value means the observed data would be unlikely if $H_0$ were true
+- We reject $H_0$ when the p-value is below a chosen significance level 
+- **Note: The p-value is not the probability that the null hypothesis is true**
+
+## Type I and Type II errors, and power
+
+- A **Type I error** occurs when we reject a true null hypothesis
+  - Its probability is the **significance level** $\alpha$
+- A **Type II error** occurs when we fail to reject a false null hypothesis
+- There is an inherent trade-off between these errors: reducing the probability of Type I error generally increases the probability of Type II error.
+- **Statistical power** is the probability of correctly rejecting the null hypothesis when it is false
+- Power depends on:
+  - The true effect size
+  - Sample size
+  - Variability in the data
+  - The chosen significance level
+
+# Hypothesis Testing in Regression
+## Hypothesis Testing in Regression
+
+- Consider the linear regression model:
+$$
+Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + \varepsilon_i
+$$
+- Hypothesis testing typically concerns claims about one or more of the $\beta$ coefficients in then model e.g.:
+  - Testing whether a single coefficient equals a specific value (e.g. $H_0:\ \beta_1 = 0$)
+  - Testing whether several coefficients are jointly zero (e.g. $H_0:\ \beta_1 = \beta_2 = 0$)
+  - Testing linear restrictions across parameters (e.g. $H_0:\ \beta_1 + \beta_2 = 1$)
+- These hypotheses are typically evaluated using t-tests (for single restrictions) or F-tests (for multiple restrictions).
+
+## The t-statistic
+
+- For a single coefficient, we compute the t-statistic:
+$$
+t = \frac{\widehat{\beta}_1 - \beta_1^{H_0}}{\mathrm{SE}(\widehat{\beta}_1)}
+$$
+  - $\beta_1^{H_0}$ is the null value (usually 0)
+  - $\mathrm{SE}(\hat{\beta}_1)$ is the standard error
+- The t-statistic measures how far the estimate lies from the null value, measured in standard error units
+- Large absolute values provide evidence against the null hypothesis
+
+## From t-statistics to p-values
+
+- The p-value is the probability, under $H_0$, of observing a test statistic at least as extreme as the one observed.
+- For a two-sided test:
+$$
+p = 2 \times P(|T| \ge |t_{\text{obs}}|)
+$$
+- For a one-sided test with $H_1:\ \beta_1 > \beta_1^{H_0}$ (right-tailed test):
+$$
+p = P(T \ge t_{\text{obs}})
+$$
+- To get this, we need to know the distribution for the test statistic under the null hypothesis!
+- Under the null hypothesis, for large samples the t-statistic has a standard normal distribution!
+
+## The null distribution
+
+- Curve is the distribution of the t-statistic under the nulll hypothesis H0: $\beta_1=0$
+- Dashed are the **critical values** for significance level $\alpha=0.05$: 
+  - split the distribution so that only fraction $\alpha=0.05$ is in the red areas
+  - $\alpha=0.05/2$ in each tail for a two sided test
+  - red areas are outcomes that would be very unlikely if the null were true
+  
+::: {.fragment}
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(tidyverse)
+
+x <- seq(-4, 4, length.out = 2000)
+df <- tibble(
+  x = x,
+  density = dnorm(x)
+)
+
+crit <- qnorm(c(0.025, 0.975))
+
+# Heights of the curve at the critical values
+crit_df <- tibble(
+  x = crit,
+  y = dnorm(crit),
+  label = c("-1.96", "1.96")
+)
+
+df_left  <- df %>% filter(x <= crit[1])
+df_right <- df %>% filter(x >= crit[2])
+
+ggplot(df, aes(x, density)) +
+  geom_line(linewidth = 1) +
+  geom_area(data = df_left,  fill = "red", alpha = 0.35) +
+  geom_area(data = df_right, fill = "red", alpha = 0.35) +
+  geom_segment(
+    data = crit_df,
+    aes(x = x, xend = x, y = 0, yend = y),
+    linetype = "dashed"
+  ) +
+  geom_text(
+  data = crit_df,
+  aes(x = x, y = -0.01, label = label),
+  hjust = -0.1
+  ) +
+  labs(
+    title = "Distribution of t-statistic under H0: b1=0",
+    subtitle = "Dashed lines show critical values for a two-sided test with significance level 0.05",
+    x = "Test statistic",
+    y = "Density"
+  ) +
+  theme_minimal()
+
+```
+:::
+
+## Comparing the t-statistic to the critical value
+
+- For a two-sided test, reject the null hypothesis if absolute value of the t-statistic is greater than the critical value!
+
+::: {.fragment}
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(tidyverse)
+
+# Null distribution
+x <- seq(-4, 4, length.out = 2000)
+df <- tibble(
+  x = x,
+  density = dnorm(x)
+)
+
+# Critical values (5% two-sided)
+crit <- qnorm(c(0.025, 0.975))
+
+# Example observed t-statistic (beyond critical value)
+t_obs <- 2.4
+
+# Heights at key points
+crit_df <- tibble(
+  x = crit,
+  y = dnorm(crit),
+  label = c("-1.96", "1.96")
+)
+
+t_df <- tibble(
+  x = t_obs,
+  y = dnorm(t_obs)
+)
+
+df_left  <- df %>% filter(x <= crit[1])
+df_right <- df %>% filter(x >= crit[2])
+
+ggplot(df, aes(x, density)) +
+  geom_line(linewidth = 1) +
+  
+  # Rejection regions
+  geom_area(data = df_left,  fill = "red", alpha = 0.35) +
+  geom_area(data = df_right, fill = "red", alpha = 0.35) +
+  
+  # Critical value lines
+  geom_segment(
+    data = crit_df,
+    aes(x = x, xend = x, y = 0, yend = y),
+    linetype = "dashed"
+  ) +
+  
+  # Observed t-statistic
+  geom_segment(
+  data = t_df,
+  aes(x = x, xend = x, y = 0, yend = 2.5* y),
+  linewidth = 1.5,
+  colour = "black"
+  ) +
+  
+  # Labels
+  geom_text(
+    data = crit_df,
+    aes(x = x, y = -0.01, label = label),
+    nudge_x = 0.08
+  ) +
+  geom_text(
+  data = t_df,
+  aes(x = x, y = 3.5 * y, label =  paste0("t = ", t_obs)),
+  vjust = 0
+  ) +
+  
+  coord_cartesian(clip = "off") +
+  labs(
+    title = "Observed t-statistic and null distribution",
+    x = "Test statistic",
+    y = "Density"
+  ) +
+  theme_minimal() +
+  theme(plot.margin = margin(10, 10, 25, 10))
+
+```
+:::
+
+## Visualizing the p-value
+- Blue shaded area shows the p-value: the probability, under the null hypothesis, of observing a test statistic at least as extreme as the one obtained
+
+::: {.fragment}
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(tidyverse)
+# Null distribution
+x <- seq(-4, 4, length.out = 2000)
+df <- tibble(
+  x = x,
+  density = dnorm(x)
+)
+
+# Critical values
+crit <- qnorm(c(0.025, 0.975))
+
+# Observed t-statistic
+t_obs <- 2.4
+p_val <- 2 * (1 - pnorm(t_obs))
+
+# Data for shading
+df_left_crit  <- df %>% filter(x <= crit[1])
+df_right_crit <- df %>% filter(x >= crit[2])
+
+df_left_p  <- df %>% filter(x <= -t_obs)
+df_right_p <- df %>% filter(x >= t_obs)
+
+# Heights
+crit_df <- tibble(
+  x = crit,
+  y = dnorm(crit),
+  label = c("-1.96", "1.96")
+)
+
+t_df <- tibble(
+  x = t_obs,
+  y = dnorm(t_obs)
+)
+
+ggplot(df, aes(x, density)) +
+  geom_line(linewidth = 1) +
+  
+  # p-value regions (darker)
+  geom_area(data = df_left_p,  fill = "blue", alpha = 0.45) +
+  geom_area(data = df_right_p, fill = "blue", alpha = 0.45) +
+  
+  # Critical value lines
+  geom_segment(
+    data = crit_df,
+    aes(x = x, xend = x, y = 0, yend = y),
+    linetype = "dashed"
+  ) +
+  
+  # Observed t-statistic
+  geom_segment(
+    data = t_df,
+    aes(x = x, xend = x, y = 0, yend = 2.5 * y),
+    linewidth = 1.5
+  ) +
+  
+  # Labels
+  geom_text(
+    data = crit_df,
+    aes(x = x, y = -0.01, label = label),
+    nudge_x = 0.08
+  ) +
+  geom_text(
+    data = t_df,
+    aes(
+      x = x,
+      y = 3.5 * y,
+      label = paste0("t = ", t_obs, ", p = ", round(p_val, 3))
+    ),
+    vjust = 0
+  ) +
+  
+  coord_cartesian(clip = "off") +
+  labs(
+    title = expression("Mapping a test statistic to a p-value (" * alpha == 0.05 * ")"),
+    subtitle = "Blue area = p-value",
+    x = "Test statistic",
+    y = "Density"
+  ) +
+  theme_minimal() +
+  theme(plot.margin = margin(10, 10, 30, 10))
+```
+:::
+
+## Why do we use the t-distribution instead of the normal?
+
+- Under standard assumptions $\widehat{\beta}_1$ is approximately normally distributed
+  - Variance depends on the variance of the error term!
+  - In practice we don't know this and have to estimate it from the data
+- If we knew variance of the error term, coefficient estimates would follow the Normal distribution
+- Because we are estimating the variance of the error term with the residuals, there is extra uncertainty so we use the t-distribution instead of the normal
+  - t-distribution has "fatter tails"
+  - higher chance of drawing an extreme value
+- As sample size grows, the t-distribution converges to the normal!
+- **Rule of thumb:** we often use 1.96 as the critical value for a two-sided 5% test, but this is only exact in large samples
+  - In smaller samples, the appropriate critical value comes from a t-distribution and is larger than 1.96
+
+## Confidence Intervals and Hypothesis Tests
+
+- A 95% confidence interval for $\widehat{\beta}_1$ is:
+$$
+\widehat{\beta}_1 \pm 1.96 \times \mathrm{SE}(\hat{\beta}_1)
+$$
+- A two-sided test at the 5% level rejects $H_0: \beta_1 = 0$ if and only if this interval excludes 0.
+
+
+## Joint Hypotheses and the F-test
+
+- Often we want to test multiple restrictions simultaneously.
+- Example:
+$$
+H_0: \beta_2 = 0 \text{ and } \beta_3 = 0
+$$
+- These are tested using an F-statistic:
+$$
+F = \frac{(RSS_r - RSS_u)/q}{RSS_u/(n - k)}
+$$
+  - $RSS$ denotes residual sum of squares (i.e. $\sum \widehat{\varepsilon}^2$)
+  - $RSS_r$ is the restricted model RSS (null hypothesis restrictions imposed)
+  - $RSS_u$ is the unrestricted model RSS (model with all regressors)
+  - $q$ is the number of restrictions
+  - $n$ is sample size
+  - $k$ is number of parameters
+- The F-test evaluates whether imposing the restrictions significantly worsens model fit
+- Large values indicate the restrictions are inconsistent with the data
+
+# Implementing Hypothesis Tests in R
+## Implementing Hypothesis Tests in R
+- The standard R regression output automatically reports two most common hypothesis tests:
+  - **t-tests for individual coefficients:** For each coefficient, R tests $H_0: \; \beta_j = 0$ and reports t-statistic and p-value
+  - **Overall F-test for the model:** F-statistic at the bottom tests $H_0: \; \beta_1 = \beta_2 = ... = 0$ and reports F-statistic and p-value
+::: {.fragment}
+```{r}
+m2 <- lm(sbp ~ exercise + age, data = dat)
+summary(m2)
+```
+:::
+
+## Implementing Hypothesis Tests in R
+
+- You can extract various components of the test as follows:
+
+::: {.fragment}
+```{r}
+coef(m2)["exercise"]
+summary(m2)$coefficients["exercise", "Std. Error"]
+summary(m2)$coefficients["exercise", "Pr(>|t|)"]
+```
+:::
+
+## Linear Hypotheses in R
+
+- How about other possible hypothesis tests?
+  - null hypotheses other than zero
+  - restrictions on combinations of coefficients e.g. $\beta_1+\beta_2=0$
+- Implement using `linearHypothesis()`, part of the `car` package
+- Example: single linear restriction $\beta_{ex} \neq -1$
+- But can just input any equation!!
+
+::: {.fragment}
+```{r}
+linearHypothesis(m2, "exercise = -1")
+```
+:::
+
+## Lecture takeaways
+
+- **Sampling variation:** the same DGP gives different $\widehat{\beta}$ across samples — standard errors quantify this
+- **What drives $\mathrm{SE}(\widehat{\beta})$:**
+  - Bigger sample $n$ → smaller SE
+  - More variation in $X$ → smaller SE
+  - Less noise in $\varepsilon$ → smaller SE
+- **Heteroskedasticity** Use **heteroskedasticity-robust** SEs in practice (and **cluster** SEs when errors are correlated within groups)
+- **Hypothesis testing in regression:**
+  - $t = (\widehat{\beta} - \beta_{H_0}) / \mathrm{SE}(\widehat{\beta})$
+  - p-value = probability of seeing a t-statistic this extreme if $H_0$ is true
+  - Reject $H_0$ at level $\alpha$ if $|t| >$ critical value (equivalently, $p < \alpha$)
+- **Confidence intervals and t-tests are two views of the same thing** 
+- **F-tests** evaluate joint restrictions across multiple coefficients
+- **In R:** `lm()` reports t-tests automatically; use `linearHypothesis()` from `car` for any other test
+
+## Coming next
+
+- Panel data: difference-in-differences and fixed effects
+- How to exploit repeated observations of the same units to control for unobserved confounders
