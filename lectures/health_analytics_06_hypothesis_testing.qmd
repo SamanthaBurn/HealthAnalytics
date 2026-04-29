@@ -5,6 +5,7 @@ author: "Dr. Sam Burn"
 format:
   revealjs:
     theme: simple
+    footer: "[← Course home](../)"
     html-math-method: katex
     css: burn_slides.css
     slide-number: true
