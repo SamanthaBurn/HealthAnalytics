@@ -47,11 +47,7 @@ Step-by-step tutorials guide you through specific data analysis workflows. These
 
 ### Practice Materials
 
-Additional practice problems and exam preparation materials are available in the `practice_exam/` directory, including:
-
-- Practice exam questions with solutions
-- Extra coding exercises
-- Additional practice problems
+Practice exam questions with solutions are available in the `practice_exam/` directory in Github.
 
 ## Technology
 
