@@ -7,15 +7,17 @@ format:
 
 ## Course Overview
 
-This course provides an introduction to health analytics using R. Health analytics combines statistical methods and computational tools to analyze health data and answer critical questions about population health, treatment effectiveness, and health disparities.
+This course provides an introduction to health analytics using R and RStudio. Health analytics combines statistical methods and computational tools to analyze health data and answer critical questions about population health, treatment effectiveness, and health disparities.
 
-Throughout this course, you will learn to work with real health datasets, explore data visualization techniques, clean and wrangle messy health data, and apply statistical methods to extract insights from the data. We cover data wrangling, visualization, linear regression analysis, hypothesis testing, panel data techniques and regression models for limited dependent variables.
+Throughout this course, you will learn to work with real health datasets, explore data visualization techniques, wrangle messy health data, and apply statistical methods to extract insights. We cover concepts in causal inference, regression analysis, hypothesis testing, and machine learning—all with a focus on practical applications in health research and policy.
 
-By the end of this course, you will be equipped to conduct your own health analytics projects, interpret statistical results critically, and communicate findings to technical and non-technical audiences. This course emphasizes reproducible research practices and uses R and RStudio as our primary computational tools.
+By the end of this course, you will be equipped to conduct your own health analytics projects, interpret statistical results critically, and communicate findings to both technical and non-technical audiences. This course emphasizes reproducible research practices and uses R and RStudio as our primary computational tools.
 
 ## Course Materials
 
 ### Lectures
+
+The course consists of 10 core lectures that build progressively from foundational concepts to advanced methods:
 
 | # | Topic | Slides | Exercise | Solutions |
 |---|-------|--------|----------|-----------|
@@ -28,9 +30,8 @@ By the end of this course, you will be equipped to conduct your own health analy
 | 7 | Fixed Effects & Difference-in-Differences | [Slides](lectures/health_analytics_07_fe_dd.qmd) | [Rmd](exercises/health_analytics_07_fe_dd.Rmd) | [Rmd](exercises/health_analytics_07_fe_dd_solutions.Rmd) |
 | 8 | Limited Dependent Variables | [Slides](lectures/health_analytics_08_ldvs.qmd) | [Rmd](exercises/health_analytics_08_limited_depvars.Rmd) | [Rmd](exercises/health_analytics_08_limited_depvars_solutions.Rmd) |
 | 9 | Machine Learning | [Slides](lectures/health_analytics_09_ml.qmd) | [Rmd](exercises/health_analytics_09_ml.Rmd) | [Rmd](exercises/health_analytics_09_ml_solutions.Rmd) |
-| 10 | Course Review | - | — | — |
 
-Slide links open in your browser; `Rmd` links download the source — open in RStudio to work through.
+Slide links open in your browser; `Rmd` links download the source. Open in RStudio to work through.
 
 ### Exercises
 
@@ -42,7 +43,7 @@ Practice exercises accompany each lecture. These hands-on assignments help reinf
 
 [View all tutorials →](tutorials/index.qmd)
 
-Tutorials guide you through specific data analysis workflows. These include exploratory data analysis, linear regression modeling, and logistic/probit models.
+Step-by-step tutorials guide you through specific data analysis workflows. These include exploratory data analysis, linear regression modeling, and logistic/probit models.
 
 ### Practice Materials
 
@@ -68,6 +69,4 @@ To work with the course materials:
 
 1. Install R from [https://www.r-project.org/](https://www.r-project.org/)
 2. Install RStudio from [https://posit.co/download/rstudio-desktop/](https://posit.co/download/rstudio-desktop/)
-3. Clone the whole course repository or download the course files individually
-
-Each exercise and tutorial is a self-contained R Markdown file that you can open and run directly in RStudio.
+3. Clone the course repository or download individual course files. Each exercise and tutorial is a self-contained R Markdown file that you can open and run directly in RStudio.
